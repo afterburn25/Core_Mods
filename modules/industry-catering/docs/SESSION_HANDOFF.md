@@ -31,10 +31,12 @@ services.
 
 ## Verification evidence
 
-Website Core CI run 393 on 2026-10-23 passed all six jobs for the commit used to
-produce the current combined bundle. Coverage included PHP 8.4/8.5 unit and
-package suites, MySQL 8.4 and MariaDB 11.4 native acceptance, installer flows,
-core-only boot, and release artifact contract checks.
+Core_Mods release commit `13190474e6d786854742b06e23e0691c131dda5f`
+passed Module CI run 8 (`40044852033`). The synchronized Website Core commit
+`49c124d0292efeb6b7e6965cd93259cc1234e580` passed all six jobs in Core CI run
+397 (`40044526443`), including PHP 8.4/8.5, MySQL 8.4, MariaDB 11.4, installer,
+Core-only boot, and release artifact contract coverage. The release ZIP digest
+is `b182dbd11edbdff03cc52a2bc9ffd83fe5f7b1c125588e6149cf6f5d69eb11cc`.
 
 ## Next safe task
 

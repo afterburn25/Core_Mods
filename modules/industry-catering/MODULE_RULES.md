@@ -25,7 +25,7 @@ branch from `main` before continuing.
       access, and escaped output.
 - [x] The README, changelog, status, roadmap, testing, and handoff records have
       been created before the first release.
-- [ ] Complete the current release ZIP, `LATEST.json`, module CI, and
+- [x] Complete the current release ZIP, `LATEST.json`, module CI, and
       synchronized Website Core bundle CI for version 0.1.16.
 
 ## Catering decisions

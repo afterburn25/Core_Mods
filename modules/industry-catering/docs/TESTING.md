@@ -11,7 +11,16 @@
 - Repository validation confirms Module Rules contract version 1.0 is present.
 - Module branch validation covers manifest/release agreement, release digest,
   required records, and PHP syntax.
-- Website Core acceptance is required after synchronizing this source snapshot.
+- Core_Mods release commit `13190474e6d786854742b06e23e0691c131dda5f`
+  passed Module CI run `40044852033` (run 8): repository/release validation,
+  SHA-256 agreement, and complete module PHP syntax lint.
+- The synchronized Website Core commit
+  `49c124d0292efeb6b7e6965cd93259cc1234e580` passed CI run `40044526443`
+  (run 397): PHP 8.4/8.5 lint/unit/package suites, Core-only boot, release
+  artifact contracts, and native MySQL 8.4/MariaDB 11.4 installer and bundle
+  acceptance.
+- Shared Module Rules main commit `020cfa03fc868bdd92ac7a914f1ad8817f35dba9`
+  passed Module CI run `40044729463` (run 7).
 
 ## 2026-10-23 — Website Core 2.0 combined-bundle verification
 
