@@ -53,6 +53,7 @@ current workspace.
 
 ## Next safe task
 
-Publish module 0.1.21 on `module/catering`, run Module CI, verify the
-synchronized Website Core 2.0.7 bundle, and record the final SHAs and digests.
+Module 0.1.21 is published on `module/catering` and tracked in draft pull
+request #1. Let Module CI finish, verify the synchronized Website Core 2.0.7
+bundle, and record the final CI run IDs.
 
