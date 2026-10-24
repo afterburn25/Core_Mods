@@ -2,15 +2,30 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__);
+$rootErrors = [];
+foreach (['MOD_RULES.md', 'MODULE_STANDARD.md', 'MODULE_REGISTRY.md'] as $required) {
+    if (!is_file($root . '/' . $required)) {
+        $rootErrors[] = "repository: required governance file '$required' is missing";
+    }
+}
+$rules = @file_get_contents($root . '/MOD_RULES.md');
+if (!is_string($rules) || !str_contains($rules, '**Contract version: 1.0**')) {
+    $rootErrors[] = 'repository: MOD_RULES.md contract version is missing or unsupported';
+}
 $modules = glob($root . '/modules/*', GLOB_ONLYDIR) ?: [];
 if ($modules === []) {
+    if ($rootErrors !== []) {
+        fwrite(STDERR, implode("\n", $rootErrors) . "\n");
+        exit(1);
+    }
     fwrite(STDOUT, "No module folders on this branch; shared repository files are valid.\n");
     exit(0);
 }
 
-$errors = [];
+$errors = $rootErrors;
 $requiredDocs = [
     'README.md',
+    'MODULE_RULES.md',
     'CHANGELOG.md',
     'docs/PROJECT_STATUS.md',
     'docs/ROADMAP.md',
@@ -47,6 +62,11 @@ foreach ($modules as $module) {
         if (!is_file($module . '/' . $relative)) {
             $errors[] = "$name: required file '$relative' is missing";
         }
+    }
+
+    $moduleRules = @file_get_contents($module . '/MODULE_RULES.md');
+    if (!is_string($moduleRules) || !str_contains($moduleRules, 'Cajun Web Pro Module Rules 1.0')) {
+        $errors[] = "$name: MODULE_RULES.md does not declare rules contract 1.0";
     }
 
     $latestPath = $module . '/releases/LATEST.json';

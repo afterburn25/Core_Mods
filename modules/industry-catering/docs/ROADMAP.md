@@ -1,5 +1,13 @@
 # Catering Module Roadmap
 
+## 0.1.16 — Editable site navigation
+
+- [x] Render the Core-managed primary menu in the catering header
+- [x] Populate an empty primary menu with the current catering navigation once
+- [x] Render nested submenu items responsively
+- [x] Honor same-tab, new-tab, and new-window targets
+- [x] Retain the approved default header links as an empty-menu fallback
+
 ## 0.1.15 — Repository separation and verified baseline
 
 - [x] Complete public catering page set

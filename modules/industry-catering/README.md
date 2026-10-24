@@ -4,14 +4,16 @@ The Catering Website module is the first industry package for Cajun Web Pro
 Website Core. It supplies a complete catering-focused public site and an
 industry-specific administration category while leaving shared content,
 navigation, security, users, backups, integrations, and operations in Core.
+Its [Module Creation Rules](MODULE_RULES.md) record the required preflight and
+adoption of [Cajun Web Pro Module Rules v1.0](../../MOD_RULES.md).
 
 ## Current release
 
-- Module version: `0.1.15`
+- Module version: `0.1.16`
 - Module ID: `cajunwebpro/catering`
 - Type: `industry`
 - Module API: `1`
-- Verified bundle host: Website Core `2.0.0`
+- Required and verified Core: `>=2.0.1,<3.0.0`
 - Development branch: `module/catering`
 
 ## Included features
@@ -26,6 +28,8 @@ navigation, security, users, backups, integrations, and operations in Core.
 - Database migration and seeded catering content
 - Integration with Core navigation, administration, permissions, installation,
   licensing, and version reporting
+- Module-owned navigation defaults imported through Core's Module API, followed
+  by live use of Core's editable tree, nesting, and configured link targets
 
 ## Installation
 

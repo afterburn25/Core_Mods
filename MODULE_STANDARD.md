@@ -1,5 +1,9 @@
 # Module Repository Standard
 
+All modules are governed by [MOD_RULES.md](MOD_RULES.md), currently contract
+version **1.0**. This file describes repository mechanics; `MOD_RULES.md`
+defines the cross-module product and integration invariants.
+
 ## Branch and folder rules
 
 Each industry module gets one long-lived branch named `module/<slug>` and one
@@ -23,6 +27,7 @@ modules/<module-id>/
 ├── src/
 ├── views/
 ├── README.md
+├── MODULE_RULES.md
 ├── CHANGELOG.md
 ├── docs/
 │   ├── PROJECT_STATUS.md
@@ -65,14 +70,19 @@ upgrade is required. A tested module snapshot may be copied into Website
 Core's `examples/` directory for bundle construction. That copy is a release
 input, not the module's development authority.
 
+Each industry module declares its default header navigation with
+`ModuleContext::navigationMenu()` and renders `navigationTree()`. Core imports
+the defaults once and owns all later administrator edits.
+
 ## New-module checklist
 
 1. Create `module/<slug>` from `main`.
 2. Copy `templates/module/` to `modules/<module-id>/`.
-3. Add a valid `addon.json` and module source.
-4. Complete all required documentation.
-5. Build the latest module ZIP with `addon.json` at the archive root.
-6. Generate `releases/LATEST.json` with the ZIP SHA-256.
-7. Run the branch CI and record the result in `docs/TESTING.md`.
-8. Add or update the module row in the registry on `main`.
+3. Read and complete the copied `MODULE_RULES.md` creation preflight.
+4. Add a valid `addon.json` and module source.
+5. Complete all required documentation.
+6. Build the latest module ZIP with `addon.json` at the archive root.
+7. Generate `releases/LATEST.json` with the ZIP SHA-256.
+8. Run the branch CI and record the result in `docs/TESTING.md`.
+9. Add or update the module row in the registry on `main`.
 

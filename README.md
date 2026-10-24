@@ -16,7 +16,10 @@ that run on [Website Core](https://github.com/afterburn25/Website_Core).
 
 | Module | Branch | Folder | Current version | Status |
 | --- | --- | --- | --- | --- |
-| Catering Website | `module/catering` | `modules/industry-catering/` | `0.1.15` | Active; compatible with Website Core 2.0 |
+| Catering Website | `module/catering` | `modules/industry-catering/` | `0.1.16` | Active; compatible with Website Core 2.0.1 |
 
 See [MODULE_STANDARD.md](MODULE_STANDARD.md) before adding or changing a module.
+Every module must also follow the versioned [Module Rules](MOD_RULES.md), which
+hold the integration, security, navigation, release, and documentation
+invariants shared by all module branches.
 

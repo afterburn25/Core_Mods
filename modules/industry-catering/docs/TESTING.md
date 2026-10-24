@@ -1,5 +1,18 @@
 # Catering Module Testing
 
+## 2026-10-24 — Navigation integration
+
+- Module version advanced to `0.1.16`.
+- Empty primary menus are initialized with the six existing catering links;
+  existing customized menus are preserved and an intentionally cleared menu is
+  not repopulated after the one-time marker is stored.
+- The module declares defaults and reads the live tree exclusively through the
+  Core 2.0.1 Module API navigation contract.
+- Repository validation confirms Module Rules contract version 1.0 is present.
+- Module branch validation covers manifest/release agreement, release digest,
+  required records, and PHP syntax.
+- Website Core acceptance is required after synchronizing this source snapshot.
+
 ## 2026-10-23 — Website Core 2.0 combined-bundle verification
 
 - Core branch: `devin/website-core`

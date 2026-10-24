@@ -1,5 +1,19 @@
 # Catering Module Changelog
 
+## 0.1.16 — 2026-10-24
+
+- Replaced the hard-coded catering header links with Website Core's editable
+  primary navigation tree.
+- Declares its existing header links with Core's reusable `navigationMenu()`
+  API; Core imports them when no primary menu exists and takes over editing.
+- Records one-time initialization so an administrator may intentionally remove
+  every menu item without the defaults returning.
+- Added nested submenu rendering and honored same-tab, new-tab, and dedicated
+  new-window targets selected in Core's Navigation Menu editor.
+- Preserved the original catering links as a safe fallback until an
+  administrator saves a custom primary menu.
+- Requires Website Core `>=2.0.1,<3.0.0` for the navigation API.
+
 ## 0.1.15 — 2026-10-23
 
 - Added compatibility with Website Core's grouped, persistent administration

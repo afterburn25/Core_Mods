@@ -5,7 +5,7 @@
 - Repository: `afterburn25/Core_Mods`
 - Branch: `module/catering`
 - Folder: `modules/industry-catering/`
-- Current version: `0.1.15`
+- Current version: `0.1.16`
 - Manifest ID: `cajunwebpro/catering`
 
 Do not develop the catering module directly on `main`, and do not create a
@@ -14,11 +14,18 @@ this folder. Website Core's `examples/industry-catering/` directory is a tested
 release snapshot used to build combined installers; it is not the development
 source of truth after this separation.
 
+This branch follows repository `MOD_RULES.md` contract version 1.0. Future
+sessions must apply those shared rules before module-specific roadmap choices.
+
 ## Current baseline
 
 The module contains its provider, catering controller, initial database
 migration, public views, administration views, responsive CSS/JS, and four WebP
-images. Website Core 2.0 supplies shared navigation, users/roles, content,
+images. The module declares its approved header links through Core's
+`navigationMenu()` API. Core imports that declaration once, owns the editable
+copy, and returns the current nested tree through `navigationTree()`, so an
+administrator can customize or intentionally empty it without defaults
+returning. Website Core 2.0.1 supplies shared navigation, users/roles, content,
 media, integrations, security, operations, backups, marketplace, and agency
 services.
 
