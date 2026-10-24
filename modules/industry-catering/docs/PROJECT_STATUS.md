@@ -1,6 +1,6 @@
 # Catering Module Project Status
 
-- Current version: `0.1.22`
+- Current version: `0.1.23`
 - State: Active development; release candidate being verified
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
@@ -43,7 +43,7 @@
 
 ## Known issues
 
-- No code-level release blocker is recorded for `0.1.22`. Synchronized Website
+- No code-level release blocker is recorded for `0.1.23`. Synchronized Website
   Core CI run 429 passed all six jobs. The Core_Mods repository did not create
   a Module CI run for the published branch update, so its repository-level
   workflow remains an operational follow-up rather than a package-code blocker.

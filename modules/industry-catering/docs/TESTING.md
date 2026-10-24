@@ -1,5 +1,18 @@
 # Catering Module Testing
 
+## 2026-10-24 — Shared-host upload compatibility release candidate
+
+- Module version advanced to `0.1.23` with Core `>=2.0.5,<3.0.0`.
+- Live inspection confirmed the attempted 0.1.22 upload created no package
+  stage, upgrade, or migration journal entry; the installed package remained
+  0.1.21 and continued rendering its original database rows.
+- All ten photographs remain visually approved at 1000×667 while their total
+  payload was reduced from 1,380,568 to 965,314 bytes.
+- The release archive must remain comfortably below 2 MB and pass the same
+  manifest, digest, ZIP-integrity, migration, and synchronized Core gates.
+- Final archive size: 1,608,151 bytes. SHA-256:
+  `99b90f88db88cfc8913cfe56b8289e358191681927e274d38dce9a893985b379`.
+
 ## 2026-10-24 — Cajun menu and dish photography release candidate
 
 - Module version advanced to `0.1.22` with Core `>=2.0.5,<3.0.0`.

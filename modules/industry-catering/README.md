@@ -9,7 +9,7 @@ adoption of [Cajun Web Pro Module Rules v1.1](../../MOD_RULES.md).
 
 ## Current release
 
-- Module version: `0.1.22`
+- Module version: `0.1.23`
 - Module ID: `cajunwebpro/catering`
 - Type: `industry`
 - Module API: `1`

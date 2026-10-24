@@ -5,7 +5,7 @@
 - Repository: `afterburn25/Core_Mods`
 - Branch: `module/catering`
 - Folder: `modules/industry-catering/`
-- Current version: `0.1.22`
+- Current version: `0.1.23`
 - Manifest ID: `cajunwebpro/catering`
 
 Do not develop the catering module directly on `main`, and do not create a
@@ -19,7 +19,8 @@ sessions must apply those shared rules before module-specific roadmap choices.
 
 ## Current baseline
 
-Version 0.1.22 replaces the generic demo menu with ten Cajun dishes and ten
+Version 0.1.23 carries the 0.1.22 Cajun menu upgrade in a substantially smaller
+shared-host-safe archive. It replaces the generic demo menu with ten Cajun dishes and ten
 matching original WebP photographs. Migration `catering_0002_cajun_menu_images`
 adds the image field portably and upgrades only recognized starter records, so
 unrelated administrator-created dishes remain intact. The public homepage,
@@ -59,9 +60,13 @@ is synchronized to Website Core commit
 `40063594623` (run 429) passed all six jobs. The Core_Mods repository did not
 create a Module CI run for the branch update.
 
+The shared-host-sized 0.1.23 release is 1,608,151 bytes with SHA-256
+`99b90f88db88cfc8913cfe56b8289e358191681927e274d38dce9a893985b379`.
+
 ## Next safe task
 
-Investigate why Core_Mods Actions does not create a workflow run for published
-`module/catering` updates. Package code is already linted and exercised through
-the synchronized Core package, installer, MySQL, and MariaDB acceptance suite.
+Upload 0.1.23 through the live Module Manager and verify it produces stage,
+upgrade, and migration journal entries before checking the public menu. Then
+investigate why Core_Mods Actions does not create a workflow run for published
+`module/catering` updates.
 

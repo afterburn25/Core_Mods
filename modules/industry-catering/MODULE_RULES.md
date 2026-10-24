@@ -36,7 +36,7 @@ branch from `main` before continuing.
 - [x] The README, changelog, status, roadmap, testing, and handoff records have
       been created before the first release.
 - [ ] Complete the current release ZIP, `LATEST.json`, module CI, and
-      synchronized Website Core bundle CI for version 0.1.22.
+      synchronized Website Core bundle CI for version 0.1.23.
 
 ## Catering decisions
 
@@ -48,7 +48,7 @@ branch from `main` before continuing.
    settings; administration appears in the Catering category.
 4. Core services: routing, views, settings, navigation, permissions, database,
    CSRF, rate limiting, mail, admin search, dashboard, and health checks.
-5. Compatibility: Catering 0.1.22 requires Core `>=2.0.5,<3.0.0` and Module
+5. Compatibility: Catering 0.1.23 requires Core `>=2.0.5,<3.0.0` and Module
    API 1; acceptance runs in the module branch and synchronized Core bundle.
 
 Do not remove this file. It preserves the creation rules and module decisions

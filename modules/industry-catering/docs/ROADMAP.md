@@ -1,5 +1,12 @@
 # Catering Module Roadmap
 
+## 0.1.23 — Shared-host upload compatibility
+
+- [x] Verify the live site never recorded the attempted 0.1.22 stage operation
+- [x] Reduce the complete module archive below common 2 MB request limits
+- [x] Preserve visual quality and responsive crops for all ten menu photographs
+- [ ] Verify direct 0.1.21 → 0.1.23 upgrade on the live shared host
+
 ## 0.1.22 — Cajun menu and photography
 
 - [x] Replace generic dishes with a cohesive Louisiana Cajun starter menu

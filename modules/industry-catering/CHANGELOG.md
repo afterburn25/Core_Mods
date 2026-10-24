@@ -1,5 +1,15 @@
 # Catering Module Changelog
 
+## 0.1.23 — 2026-10-24
+
+- Re-optimized all ten Cajun dish photographs to 1000×667 WebP assets while
+  preserving the approved visual quality and crop.
+- Reduced the install archive well below common shared-hosting 2 MB request
+  limits after the live site showed no stage or upgrade journal entry for the
+  larger 0.1.22 upload.
+- Kept the same portable Cajun data migration so sites still on 0.1.21 upgrade
+  directly to the complete menu and photography set.
+
 ## 0.1.22 — 2026-10-24
 
 - Replaced all generic starter dishes with a cohesive Louisiana Cajun menu,
