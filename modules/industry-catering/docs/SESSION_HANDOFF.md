@@ -52,7 +52,7 @@ both CI runs remain pending because local PHP execution is unavailable in the
 current workspace.
 
 The 0.1.22 release ZIP digest is
-`f8dde13511b9844089e78c5deb243ff28d500b94b508ec88f555add6e31dddb3`.
+`f5bf20d24b01213d7c913b666e444302505e7254166c1df7c75eac73262d645a`.
 Record its module and synchronized Core CI run IDs after publication.
 
 ## Next safe task

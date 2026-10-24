@@ -13,7 +13,7 @@
 - Local JSON, asset-dimension, repository, and whitespace checks pass. Local
   PHP execution is unavailable, so GitHub CI remains the PHP release gate.
 - Deterministic release ZIP SHA-256:
-  `f8dde13511b9844089e78c5deb243ff28d500b94b508ec88f555add6e31dddb3`.
+  `f5bf20d24b01213d7c913b666e444302505e7254166c1df7c75eac73262d645a`.
 
 ## 2026-10-24 — Transparent footer brand release candidate
 
