@@ -1,5 +1,23 @@
 # Catering Module Changelog
 
+## 0.1.20 — 2026-10-24
+
+- Added Core-owned social profile rendering in the header, footer, or both.
+- Header icons appear immediately after Request a Quote; footer icons appear
+  above the copyright row.
+- Blank profiles render no link or placeholder, and configured links open with
+  accessible labels and opener isolation.
+- Updated shared module rules so future industries use the same Core-owned
+  profile and placement contract.
+
+## 0.1.19 — 2026-10-24
+
+- Removed the duplicate catering dashboard route, view, and navigation item.
+- Kept the live new-inquiry summary on Core's main Dashboard through the
+  existing capability-filtered `dashboardWidget()` contract.
+- Updated permanent module rules so future industries use one Core-owned
+  overview and keep their categories focused on actionable workspaces.
+
 ## 0.1.18 — 2026-10-24
 
 - Added a module-appropriate starting footer menu as a separate Core navigation

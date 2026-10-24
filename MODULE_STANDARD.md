@@ -75,11 +75,18 @@ separate locations with `ModuleContext::navigationMenu()` and renders each
 `navigationTree()`. Core imports the defaults once and owns all later
 administrator edits. Module footers resolve the editable business copyright
 with `copyrightNotice()`; Core's mandatory platform attribution stays separate.
+Optional social profiles are also Core-owned. Modules render the location-
+filtered `socialLinks()` results in their header/footer without duplicating
+settings or emitting blank links.
 
 Modules may also declare package-relative starting brand images with
 `ModuleContext::brandAssets()` and render the current Core-owned selection with
 `brandAssetUrl()`. Core copies a missing default once; existing, replaced, and
 intentionally cleared administrator selections remain authoritative.
+
+Core's `/admin` page owns the single overview dashboard. Modules contribute
+live summaries with `ModuleContext::dashboardWidget()` and keep only actionable
+management screens in their own category.
 
 ## New-module checklist
 

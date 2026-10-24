@@ -1,5 +1,26 @@
 # Catering Module Testing
 
+## 2026-10-24 — Social placement release candidate
+
+- Module version advanced to `0.1.20` with Core `>=2.0.5,<3.0.0`.
+- Core owns profile URLs and per-platform header/footer/both placement.
+- Catering renders header icons after Request a Quote and footer icons before
+  copyright, with HTTPS validation, accessible labels, and opener isolation.
+- Package coverage asserts blank omission and dual-placement rendering.
+- Deterministic release ZIP SHA-256:
+  `1bf40847b7ef6f260546d4030a694f7bc655a3d410a1ac023b4eefe44d96a3a8`.
+
+## 2026-10-24 — Unified dashboard release candidate
+
+- Module version advanced to `0.1.19` with Core `>=2.0.5,<3.0.0`.
+- The module no longer registers `/admin/catering` or a Dashboard navigation
+  item, and the retired dashboard view is absent from the package.
+- The Core overview still evaluates the capability-filtered `new-inquiries`
+  widget and links it to `/admin/catering/inquiries`.
+- Website Core package coverage asserts both sides of that ownership boundary.
+- Deterministic release ZIP SHA-256:
+  `0dfdc928f988202269896510554e5268961e7c69ed0624a11251e27882cb9ff0`.
+
 ## 2026-10-24 — Footer navigation and copyright release candidate
 
 - Module version advanced to `0.1.18` with Core `>=2.0.5,<3.0.0`.

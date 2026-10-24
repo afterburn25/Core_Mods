@@ -1,5 +1,20 @@
 # Catering Module Roadmap
 
+## 0.1.20 — Core-owned social placement
+
+- [x] Render configured social icons after the header quote action
+- [x] Render configured social icons above the footer copyright
+- [x] Honor header, footer, and both placement per platform
+- [x] Omit blank profiles entirely
+- [ ] Pass module-branch and synchronized Website Core bundle CI
+
+## 0.1.19 — Unified Core overview
+
+- [x] Keep the live inquiry summary on Core's main Dashboard
+- [x] Remove the duplicate catering dashboard route, view, and navigation item
+- [x] Preserve direct links from the Core widget to the inquiry workspace
+- [ ] Pass module-branch and synchronized Website Core bundle CI
+
 ## 0.1.18 — Editable footer identity
 
 - [x] Declare a one-time default footer navigation location

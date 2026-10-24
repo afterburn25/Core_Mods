@@ -23,8 +23,12 @@ branch from `main` before continuing.
       it never overwrites or bypasses Core-owned branding.
 - [ ] The public footer uses `copyrightNotice()` for the business copyright and
       does not replace or hide Core's mandatory Cajun Web Pro attribution.
+- [ ] Header/footer social icons use Core's location-filtered `socialLinks()`;
+      the module owns no duplicate profile settings and emits no blank links.
 - [ ] Industry admin screens use one module category, protected admin routes,
       and explicit server-side capabilities.
+- [ ] The module contributes overview data with `dashboardWidget()` and does
+      not register a duplicate module Dashboard page.
 - [ ] Tables, migrations, public routes, assets, and settings are namespaced;
       installs and upgrades preserve existing data and customization.
 - [ ] Public forms use CSRF, validation, abuse controls, prepared database
