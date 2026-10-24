@@ -1,6 +1,6 @@
 # Catering Module Project Status
 
-- Current version: `0.1.21`
+- Current version: `0.1.22`
 - State: Active development; release candidate being verified
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
@@ -28,6 +28,9 @@
 - Core-owned optional social icons rendered in the configured header/footer
   locations using one shared Core placement, with blank profiles omitted
 - Transparent footer logo presentation without an opaque frame
+- Ten-dish Cajun demo menu with matching original photography across public
+  pages and administration
+- Portable in-place upgrade migration from the original generic demo menu
 - Versioned module ZIP and SHA-256 latest-release record
 - Website Core 2.0.1 bundle, installer, MySQL, and MariaDB acceptance coverage
 
@@ -40,7 +43,7 @@
 
 ## Known issues
 
-- No code-level release blocker is recorded for `0.1.21`; Core and module CI
+- No code-level release blocker is recorded for `0.1.22`; Core and module CI
   evidence remains pending until the commits are published.
 - The module still needs its own isolated controller/database test suite instead
   of relying primarily on Website Core bundle and acceptance coverage.

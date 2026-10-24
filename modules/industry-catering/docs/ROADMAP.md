@@ -1,5 +1,14 @@
 # Catering Module Roadmap
 
+## 0.1.22 — Cajun menu and photography
+
+- [x] Replace generic dishes with a cohesive Louisiana Cajun starter menu
+- [x] Create and optimize a unique, relevant photograph for every dish
+- [x] Render the photographs across homepage, menu, detail, and admin surfaces
+- [x] Upgrade existing demo data without overwriting unrelated custom items
+- [x] Add a validated dish-image selector for newly created menu items
+- [ ] Pass module-branch and synchronized Website Core bundle CI
+
 ## 0.1.21 — Transparent footer brand
 
 - [x] Remove the opaque footer frame from the transparent Core-owned logo
@@ -58,7 +67,8 @@
 
 - [ ] Add first-class editing for public catering page copy and calls to action
 - [ ] Select or replace catering imagery through Core media management
-- [ ] Improve menu-item and package ordering controls
+- [ ] Replace the bundled dish selector with first-class Core Media selection
+- [ ] Improve menu-item and package editing and ordering controls
 - [ ] Add draft/preview behavior for catering content changes
 - [ ] Add isolated module tests for controllers, permissions, and migrations
 

@@ -1,5 +1,20 @@
 # Catering Module Changelog
 
+## 0.1.22 — 2026-10-24
+
+- Replaced all generic starter dishes with a cohesive Louisiana Cajun menu,
+  including Gumbo, Crawfish Bisque, Crawfish Étouffée, Shrimp Fettuccine,
+  Jambalaya, Blackened Redfish, starters, and dessert.
+- Added ten original dish-specific WebP photographs and renders each image on
+  the homepage, menu overview, category pages, and menu administration.
+- Added a portable upgrade migration that preserves unrelated custom records,
+  adds the menu-image field on SQLite/MySQL/MariaDB, and upgrades recognized
+  demo rows in place.
+- Improved the public menu into polished photographic cards and upgraded the
+  admin item list with dish thumbnails and category names.
+- Added a validated bundled-image selector for new menu items and corrected
+  the category-page proposal URL.
+
 ## 0.1.21 — 2026-10-24
 
 - Removed the opaque footer frame from the existing transparent CATERING CO.

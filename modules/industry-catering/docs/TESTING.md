@@ -1,5 +1,20 @@
 # Catering Module Testing
 
+## 2026-10-24 — Cajun menu and dish photography release candidate
+
+- Module version advanced to `0.1.22` with Core `>=2.0.5,<3.0.0`.
+- Ten original 1200×800 WebP dish photographs were visually reviewed for
+  subject accuracy, consistent lighting, usable crop, and absence of text.
+- The upgrade migration adds `catering_menu_items.image` on SQLite, MySQL, and
+  MariaDB, replaces only recognized demo slugs, and inserts Blackened Redfish
+  only when absent.
+- Public views render semantic dish images with dimensions, alt text, and lazy
+  loading; administration renders thumbnails and validates bundled selections.
+- Local JSON, asset-dimension, repository, and whitespace checks pass. Local
+  PHP execution is unavailable, so GitHub CI remains the PHP release gate.
+- Deterministic release ZIP SHA-256:
+  `f8dde13511b9844089e78c5deb243ff28d500b94b508ec88f555add6e31dddb3`.
+
 ## 2026-10-24 — Transparent footer brand release candidate
 
 - Module version advanced to `0.1.21` with Core `>=2.0.5,<3.0.0`.

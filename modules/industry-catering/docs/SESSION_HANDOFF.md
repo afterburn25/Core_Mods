@@ -5,7 +5,7 @@
 - Repository: `afterburn25/Core_Mods`
 - Branch: `module/catering`
 - Folder: `modules/industry-catering/`
-- Current version: `0.1.21`
+- Current version: `0.1.22`
 - Manifest ID: `cajunwebpro/catering`
 
 Do not develop the catering module directly on `main`, and do not create a
@@ -19,16 +19,16 @@ sessions must apply those shared rules before module-specific roadmap choices.
 
 ## Current baseline
 
-Version 0.1.21 removes the CSS-generated opaque footer frame from the existing
-transparent CATERING CO. logo and slightly enlarges its footer presentation.
-The source PNG and the Core-owned live branding contract remain unchanged.
-Core 2.0.7 applies one shared social placement to every configured profile;
-Catering stays presentation-only and renders Core's filtered header/footer
-records.
+Version 0.1.22 replaces the generic demo menu with ten Cajun dishes and ten
+matching original WebP photographs. Migration `catering_0002_cajun_menu_images`
+adds the image field portably and upgrades only recognized starter records, so
+unrelated administrator-created dishes remain intact. The public homepage,
+menu overview, category detail pages, and menu administration all render the
+new photography. Core 2.0.7 remains the compatible baseline.
 
-The module contains its provider, catering controller, initial database
-migration, public views, administration views, responsive CSS/JS, four WebP
-images, and the transparent generic CATERING CO. logo. The module declares its approved header links through Core's
+The module contains its provider, catering controller, two database
+migrations, public views, administration views, responsive CSS/JS, fourteen
+WebP images, and the transparent generic CATERING CO. logo. The module declares its approved header links through Core's
 `navigationMenu()` API. Core imports that declaration once, owns the editable
 copy, and returns the current nested tree through `navigationTree()`, so an
 administrator can customize or intentionally empty it without defaults
@@ -51,9 +51,13 @@ That is the historical 0.1.16 baseline. The 0.1.21 release ZIP digest is
 both CI runs remain pending because local PHP execution is unavailable in the
 current workspace.
 
+The 0.1.22 release ZIP digest is
+`f8dde13511b9844089e78c5deb243ff28d500b94b508ec88f555add6e31dddb3`.
+Record its module and synchronized Core CI run IDs after publication.
+
 ## Next safe task
 
-Module 0.1.21 is published on `module/catering` and tracked in draft pull
-request #1. Let Module CI finish, verify the synchronized Website Core 2.0.7
-bundle, and record the final CI run IDs.
+Publish module 0.1.22 on `module/catering`, synchronize Website Core's tested
+example snapshot, run the package acceptance suite, and record the resulting
+CI evidence and release digest.
 

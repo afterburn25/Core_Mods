@@ -9,7 +9,7 @@ adoption of [Cajun Web Pro Module Rules v1.1](../../MOD_RULES.md).
 
 ## Current release
 
-- Module version: `0.1.21`
+- Module version: `0.1.22`
 - Module ID: `cajunwebpro/catering`
 - Type: `industry`
 - Module API: `1`
@@ -24,9 +24,12 @@ adoption of [Cajun Web Pro Module Rules v1.1](../../MOD_RULES.md).
 - Quote and inquiry capture
 - A catering inquiry summary on Core's main Dashboard, plus module management
   screens for settings, menus, packages, and inquiries
-- Responsive catering theme assets, four bundled WebP images, and a transparent
+- Responsive catering theme assets, fourteen bundled WebP images (including
+  ten dish-specific photographs), and a transparent
   generic CATERING CO. starter logo without an opaque footer frame
 - Database migration and seeded catering content
+- A ten-dish Cajun starter menu with Gumbo, Crawfish Bisque, Crawfish Étouffée,
+  Shrimp Fettuccine, Jambalaya, Blackened Redfish, appetizers, and dessert
 - Integration with Core navigation, administration, permissions, installation,
   licensing, and version reporting
 - Module-owned navigation defaults imported through Core's Module API, followed
