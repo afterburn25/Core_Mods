@@ -1,0 +1,30 @@
+{
+  "version": "0.1.0",
+  "default": "landscaping-bold-outdoors",
+  "themes": [
+    {
+      "id": "landscaping-bold-outdoors",
+      "version": "0.1.0",
+      "file": "landscaping-bold-outdoors-0.1.0.zip",
+      "sha256": "2cac82498785514f847084e9c985a228b24e7ca4c5ff20fcc93a0637e056c42a"
+    },
+    {
+      "id": "landscaping-earth-stone",
+      "version": "0.1.0",
+      "file": "landscaping-earth-stone-0.1.0.zip",
+      "sha256": "49d14fa6db0a7480dec6e9d2894dcf3b0558f8378ae3bdf859935b2930d6f034"
+    },
+    {
+      "id": "landscaping-estate-green",
+      "version": "0.1.0",
+      "file": "landscaping-estate-green-0.1.0.zip",
+      "sha256": "c57d7aa78f26b79ce832a2fb090aa8b99fa0a0b6080c17b14c6ad001bb468784"
+    },
+    {
+      "id": "landscaping-neighborhood-lawn",
+      "version": "0.1.0",
+      "file": "landscaping-neighborhood-lawn-0.1.0.zip",
+      "sha256": "a6c41bc914156a929b57295f62d18f7a5019fa248af5c2cfd1b8c036d67c7c25"
+    }
+  ]
+}
