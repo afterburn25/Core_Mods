@@ -1,7 +1,7 @@
 # Module Repository Standard
 
 All modules are governed by [MOD_RULES.md](MOD_RULES.md), currently contract
-version **1.0**. This file describes repository mechanics; `MOD_RULES.md`
+version **1.1**. This file describes repository mechanics; `MOD_RULES.md`
 defines the cross-module product and integration invariants.
 
 ## Branch and folder rules
@@ -73,6 +73,11 @@ input, not the module's development authority.
 Each industry module declares its default header navigation with
 `ModuleContext::navigationMenu()` and renders `navigationTree()`. Core imports
 the defaults once and owns all later administrator edits.
+
+Modules may also declare package-relative starting brand images with
+`ModuleContext::brandAssets()` and render the current Core-owned selection with
+`brandAssetUrl()`. Core copies a missing default once; existing, replaced, and
+intentionally cleared administrator selections remain authoritative.
 
 ## New-module checklist
 
