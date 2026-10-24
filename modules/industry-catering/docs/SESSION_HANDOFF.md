@@ -62,6 +62,10 @@ create a Module CI run for the branch update.
 
 The shared-host-sized 0.1.23 release is 1,608,151 bytes with SHA-256
 `99b90f88db88cfc8913cfe56b8289e358191681927e274d38dce9a893985b379`.
+Its release commit is `fe37c950addd1aa9fb839e3bb6a627b86b0ea92b`,
+the synchronized Core commit is
+`307d32a8e7ee3aaa49ec37f16a3a4f348c175346`, and Website Core CI run
+`40064437493` (run 431) passed all six jobs.
 
 ## Next safe task
 

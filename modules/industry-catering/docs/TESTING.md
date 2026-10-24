@@ -12,6 +12,12 @@
   manifest, digest, ZIP-integrity, migration, and synchronized Core gates.
 - Final archive size: 1,608,151 bytes. SHA-256:
   `99b90f88db88cfc8913cfe56b8289e358191681927e274d38dce9a893985b379`.
+- Core_Mods release commit `fe37c950addd1aa9fb839e3bb6a627b86b0ea92b`
+  is synchronized to Website Core commit
+  `307d32a8e7ee3aaa49ec37f16a3a4f348c175346`.
+- Website Core CI run `40064437493` (run 431) passed all six jobs, including
+  PHP 8.4/8.5 lint and tests, the explicit 2 MB package ceiling regression,
+  release artifact contracts, MySQL 8.4, MariaDB 11.4, and installers.
 
 ## 2026-10-24 — Cajun menu and dish photography release candidate
 
