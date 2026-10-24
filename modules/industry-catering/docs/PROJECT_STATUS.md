@@ -43,8 +43,10 @@
 
 ## Known issues
 
-- No code-level release blocker is recorded for `0.1.22`; Core and module CI
-  evidence remains pending until the commits are published.
+- No code-level release blocker is recorded for `0.1.22`. Synchronized Website
+  Core CI run 429 passed all six jobs. The Core_Mods repository did not create
+  a Module CI run for the published branch update, so its repository-level
+  workflow remains an operational follow-up rather than a package-code blocker.
 - The module still needs its own isolated controller/database test suite instead
   of relying primarily on Website Core bundle and acceptance coverage.
 

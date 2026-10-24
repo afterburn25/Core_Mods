@@ -14,6 +14,14 @@
   PHP execution is unavailable, so GitHub CI remains the PHP release gate.
 - Deterministic release ZIP SHA-256:
   `f5bf20d24b01213d7c913b666e444302505e7254166c1df7c75eac73262d645a`.
+- Synchronized Website Core commit
+  `bccb4d6e2be5a59a5780cafb453efc46aeaa568a` passed CI run
+  `40063594623` (run 429): PHP 8.4/8.5 lint, unit and package suites, Core-only
+  boot, release artifact contracts, MySQL 8.4, MariaDB 11.4, installers, and
+  keyless Catering bundle acceptance.
+- Core_Mods accepted the 0.1.22 release at commit
+  `e931f7e06822e85a96263e326e3847cbeb9db9df`; GitHub did not create a Module
+  CI run for that repository update.
 
 ## 2026-10-24 — Transparent footer brand release candidate
 

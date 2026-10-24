@@ -53,11 +53,15 @@ current workspace.
 
 The 0.1.22 release ZIP digest is
 `f5bf20d24b01213d7c913b666e444302505e7254166c1df7c75eac73262d645a`.
-Record its module and synchronized Core CI run IDs after publication.
+Core_Mods release commit `e931f7e06822e85a96263e326e3847cbeb9db9df`
+is synchronized to Website Core commit
+`bccb4d6e2be5a59a5780cafb453efc46aeaa568a`. Website Core CI run
+`40063594623` (run 429) passed all six jobs. The Core_Mods repository did not
+create a Module CI run for the branch update.
 
 ## Next safe task
 
-Publish module 0.1.22 on `module/catering`, synchronize Website Core's tested
-example snapshot, run the package acceptance suite, and record the resulting
-CI evidence and release digest.
+Investigate why Core_Mods Actions does not create a workflow run for published
+`module/catering` updates. Package code is already linted and exercised through
+the synchronized Core package, installer, MySQL, and MariaDB acceptance suite.
 
