@@ -15,11 +15,14 @@ branch from `main` before continuing.
       range, Module API major, provider, autoload mapping, and capabilities.
 - [ ] Industry-specific behavior remains here; universal behavior remains in
       Core and is used only through `ModuleContext`.
-- [ ] The module declares its starting header menu with `navigationMenu()` and
-      renders Core's editable result with `navigationTree()`.
+- [ ] The module declares its starting header and footer menus as separate
+      `navigationMenu()` locations and renders each Core-owned
+      `navigationTree()`.
 - [ ] If the module ships initial brand images, it declares package-relative
       paths with `brandAssets()` and renders Core values with `brandAssetUrl()`;
       it never overwrites or bypasses Core-owned branding.
+- [ ] The public footer uses `copyrightNotice()` for the business copyright and
+      does not replace or hide Core's mandatory Cajun Web Pro attribution.
 - [ ] Industry admin screens use one module category, protected admin routes,
       and explicit server-side capabilities.
 - [ ] Tables, migrations, public routes, assets, and settings are namespaced;
