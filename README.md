@@ -16,7 +16,7 @@ that run on [Website Core](https://github.com/afterburn25/Website_Core).
 
 | Module | Branch | Folder | Current version | Status |
 | --- | --- | --- | --- | --- |
-| Catering Website | `module/catering` | `modules/industry-catering/` | `0.1.20` | Release candidate; requires Website Core 2.0.5+ |
+| Catering Website | `module/catering` | `modules/industry-catering/` | `0.1.21` | Release candidate; requires Website Core 2.0.5+ |
 
 See [MODULE_STANDARD.md](MODULE_STANDARD.md) before adding or changing a module.
 Every module must also follow the versioned [Module Rules](MOD_RULES.md), which

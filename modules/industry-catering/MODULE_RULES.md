@@ -24,7 +24,7 @@ branch from `main` before continuing.
 - [x] The module renders Core's editable business copyright through
       `copyrightNotice()` without replacing the immutable Cajun Web Pro credit.
 - [x] Header/footer icons render Core's location-filtered `socialLinks()` with
-      no module-owned profile settings or empty placeholders.
+      no module-owned profile or placement settings and no empty placeholders.
 - [x] Industry admin screens use one module category, protected admin routes,
       and explicit server-side capabilities.
 - [x] Catering contributes its inquiry summary to Core's overview through
@@ -36,7 +36,7 @@ branch from `main` before continuing.
 - [x] The README, changelog, status, roadmap, testing, and handoff records have
       been created before the first release.
 - [ ] Complete the current release ZIP, `LATEST.json`, module CI, and
-      synchronized Website Core bundle CI for version 0.1.20.
+      synchronized Website Core bundle CI for version 0.1.21.
 
 ## Catering decisions
 
@@ -48,7 +48,7 @@ branch from `main` before continuing.
    settings; administration appears in the Catering category.
 4. Core services: routing, views, settings, navigation, permissions, database,
    CSRF, rate limiting, mail, admin search, dashboard, and health checks.
-5. Compatibility: Catering 0.1.20 requires Core `>=2.0.5,<3.0.0` and Module
+5. Compatibility: Catering 0.1.21 requires Core `>=2.0.5,<3.0.0` and Module
    API 1; acceptance runs in the module branch and synchronized Core bundle.
 
 Do not remove this file. It preserves the creation rules and module decisions

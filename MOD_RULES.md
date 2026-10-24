@@ -48,9 +48,10 @@ it may not quietly bypass this contract. Changes to this file are made on
 - Business copyright text comes from `ModuleContext::copyrightNotice()` and is
   escaped when rendered. Modules never hard-code it or interfere with Core's
   immutable Cajun Web Pro attribution.
-- Optional social profiles and their header/footer placement belong to Core.
+- Optional social profiles and their shared header/footer placement belong to Core.
   Modules render only `socialLinks('header')` and `socialLinks('footer')`, use
-  shared accessible marks, and emit no empty icon links.
+  shared accessible marks, emit no empty icon links, and never add individual
+  placement controls.
 
 ## 5. Administration remains predictable
 

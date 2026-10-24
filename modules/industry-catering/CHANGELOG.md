@@ -1,5 +1,14 @@
 # Catering Module Changelog
 
+## 0.1.21 — 2026-10-24
+
+- Removed the opaque footer frame from the existing transparent CATERING CO.
+  logo so the artwork blends directly with the footer surface.
+- Increased the footer logo presentation slightly while retaining the Core-
+  owned live brand asset and the original transparent PNG.
+- Documented Core 2.0.7's shared social placement control; Catering continues
+  to render only Core-filtered header and footer records.
+
 ## 0.1.20 — 2026-10-24
 
 - Added Core-owned social profile rendering in the header, footer, or both.

@@ -1,5 +1,12 @@
 # Catering Module Roadmap
 
+## 0.1.21 — Transparent footer brand
+
+- [x] Remove the opaque footer frame from the transparent Core-owned logo
+- [x] Preserve the original logo artwork and branding ownership contract
+- [x] Follow Core's shared social-placement setting without module-owned UI
+- [ ] Pass module-branch and synchronized Website Core bundle CI
+
 ## 0.1.20 — Core-owned social placement
 
 - [x] Render configured social icons after the header quote action

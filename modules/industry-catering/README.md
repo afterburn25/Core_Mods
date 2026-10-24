@@ -9,7 +9,7 @@ adoption of [Cajun Web Pro Module Rules v1.1](../../MOD_RULES.md).
 
 ## Current release
 
-- Module version: `0.1.20`
+- Module version: `0.1.21`
 - Module ID: `cajunwebpro/catering`
 - Type: `industry`
 - Module API: `1`
@@ -25,7 +25,7 @@ adoption of [Cajun Web Pro Module Rules v1.1](../../MOD_RULES.md).
 - A catering inquiry summary on Core's main Dashboard, plus module management
   screens for settings, menus, packages, and inquiries
 - Responsive catering theme assets, four bundled WebP images, and a transparent
-  generic CATERING CO. starter logo
+  generic CATERING CO. starter logo without an opaque footer frame
 - Database migration and seeded catering content
 - Integration with Core navigation, administration, permissions, installation,
   licensing, and version reporting
@@ -38,7 +38,7 @@ adoption of [Cajun Web Pro Module Rules v1.1](../../MOD_RULES.md).
 - A live new-inquiry widget on Core's main Dashboard; the module category
   contains only actionable catering management screens
 - Core-owned social profiles rendered after Request a Quote in the header,
-  in the footer, or both according to each profile's Appearance setting
+  in the footer, or both according to Core's shared Appearance setting
 
 ## Installation
 

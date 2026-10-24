@@ -1,5 +1,15 @@
 # Catering Module Testing
 
+## 2026-10-24 — Transparent footer brand release candidate
+
+- Module version advanced to `0.1.21` with Core `>=2.0.5,<3.0.0`.
+- The source CATERING CO. PNG retains its alpha channel and exact artwork.
+- The footer stylesheet no longer applies an opaque frame behind the logo.
+- Social rendering remains location-filtered after Core's move from
+  per-profile placement to one shared placement control.
+- Local PHP execution is unavailable; module and synchronized Core CI remain
+  the authoritative release gates.
+
 ## 2026-10-24 — Social placement release candidate
 
 - Module version advanced to `0.1.20` with Core `>=2.0.5,<3.0.0`.
