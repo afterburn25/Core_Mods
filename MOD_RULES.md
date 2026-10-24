@@ -25,12 +25,12 @@ it may not quietly bypass this contract. Changes to this file are made on
 
 ## 3. The module defines navigation; Core manages it
 
-- Every industry module declares its suitable starting menu with
-  `ModuleContext::navigationMenu()`.
+- Every industry module declares its suitable starting header and footer menus
+  as separate locations with `ModuleContext::navigationMenu()`.
 - Core imports those defaults once after installation and owns the editable
   saved menu from that point forward.
-- A module must render `ModuleContext::navigationTree()` instead of maintaining
-  a second hard-coded header menu.
+- A module must render `ModuleContext::navigationTree()` for each declared
+  location instead of maintaining hard-coded header or footer links.
 - Module boot and upgrades must not overwrite a customized menu or repopulate
   a menu an administrator intentionally cleared.
 
@@ -45,6 +45,9 @@ it may not quietly bypass this contract. Changes to this file are made on
   `ModuleContext::brandAssetUrl()` and never keep rendering the bundled default
   directly after installation.
 - Shared brand upload, selection, storage, and administration stay in Core.
+- Business copyright text comes from `ModuleContext::copyrightNotice()` and is
+  escaped when rendered. Modules never hard-code it or interfere with Core's
+  immutable Cajun Web Pro attribution.
 
 ## 5. Administration remains predictable
 

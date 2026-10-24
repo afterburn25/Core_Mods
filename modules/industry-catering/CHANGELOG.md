@@ -1,5 +1,16 @@
 # Catering Module Changelog
 
+## 0.1.18 — 2026-10-24
+
+- Added a module-appropriate starting footer menu as a separate Core navigation
+  location with the same one-time import and administrator-ownership rules.
+- Replaced hard-coded footer links with the current Core-managed footer tree,
+  including nested items and configured link targets.
+- Renders Core's editable token-aware business copyright while leaving the
+  mandatory Cajun Web Pro attribution unchanged.
+- Updated the persistent module rules so future industries must declare and
+  render both header and footer locations through Module API v1.
+
 ## 0.1.17 — 2026-10-24
 
 - Added the approved transparent generic **CATERING CO.** starter logo.

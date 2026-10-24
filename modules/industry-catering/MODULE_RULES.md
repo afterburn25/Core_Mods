@@ -15,11 +15,14 @@ branch from `main` before continuing.
       range, Module API major, provider, autoload mapping, and capabilities.
 - [x] Industry-specific behavior remains here; universal behavior remains in
       Core and is used only through `ModuleContext`.
-- [x] The module declares its starting header menu with `navigationMenu()` and
-      renders Core's editable result with `navigationTree()`.
+- [x] The module declares its starting header and footer menus as separate
+      `navigationMenu()` locations and renders each Core-owned
+      `navigationTree()`.
 - [x] The module declares its generic starting logo with `brandAssets()` and
       renders Core's current logo/favicon through `brandAssetUrl()` without
       overwriting later administrator choices.
+- [x] The module renders Core's editable business copyright through
+      `copyrightNotice()` without replacing the immutable Cajun Web Pro credit.
 - [x] Industry admin screens use one module category, protected admin routes,
       and explicit server-side capabilities.
 - [x] Tables, migrations, public routes, assets, and settings are namespaced;
@@ -29,17 +32,19 @@ branch from `main` before continuing.
 - [x] The README, changelog, status, roadmap, testing, and handoff records have
       been created before the first release.
 - [ ] Complete the current release ZIP, `LATEST.json`, module CI, and
-      synchronized Website Core bundle CI for version 0.1.17.
+      synchronized Website Core bundle CI for version 0.1.18.
 
 ## Catering decisions
 
 1. Audience: people and organizations planning catered gatherings.
-2. Public navigation: Our Story, Menus, Services, Packages, Gallery, Contact.
+2. Public navigation: the header begins with Our Story, Menus, Services,
+   Packages, Gallery, Contact; the footer begins with planning and contact
+   links. Core owns both trees after their independent one-time imports.
 3. Module data: menu categories/items, packages, inquiries, and catering
    settings; administration appears in the Catering category.
 4. Core services: routing, views, settings, navigation, permissions, database,
    CSRF, rate limiting, mail, admin search, dashboard, and health checks.
-5. Compatibility: Catering 0.1.17 requires Core `>=2.0.5,<3.0.0` and Module
+5. Compatibility: Catering 0.1.18 requires Core `>=2.0.5,<3.0.0` and Module
    API 1; acceptance runs in the module branch and synchronized Core bundle.
 
 Do not remove this file. It preserves the creation rules and module decisions

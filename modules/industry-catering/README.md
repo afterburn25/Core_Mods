@@ -9,7 +9,7 @@ adoption of [Cajun Web Pro Module Rules v1.0](../../MOD_RULES.md).
 
 ## Current release
 
-- Module version: `0.1.17`
+- Module version: `0.1.18`
 - Module ID: `cajunwebpro/catering`
 - Type: `industry`
 - Module API: `1`
@@ -33,6 +33,8 @@ adoption of [Cajun Web Pro Module Rules v1.0](../../MOD_RULES.md).
   by live use of Core's editable tree, nesting, and configured link targets
 - One-time logo handoff through Core's brand asset API; Core owns later logo
   and favicon uploads, replacements, clearing, and shared admin rendering
+- Separate one-time header/footer navigation defaults, followed by live Core
+  tree rendering and an editable Core-owned copyright notice
 
 ## Installation
 

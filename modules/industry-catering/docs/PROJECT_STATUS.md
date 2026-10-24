@@ -1,6 +1,6 @@
 # Catering Module Project Status
 
-- Current version: `0.1.17`
+- Current version: `0.1.18`
 - State: Active development; release candidate being verified
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
@@ -21,6 +21,8 @@
 - Core-owned editable navigation tree rendered by the catering header
 - Generic transparent CATERING CO. starter logo declared through the Core brand
   asset handoff, with current Core logo/favicon rendered publicly and in admin
+- Separate Core-owned header/footer navigation trees and Core-owned editable
+  business copyright rendered by the public catering layout
 - Versioned module ZIP and SHA-256 latest-release record
 - Website Core 2.0.1 bundle, installer, MySQL, and MariaDB acceptance coverage
 
@@ -33,7 +35,7 @@
 
 ## Known issues
 
-- No code-level release blocker is recorded for `0.1.17`; Core and module CI
+- No code-level release blocker is recorded for `0.1.18`; Core and module CI
   evidence remains pending until the commits are published.
 - The module still needs its own isolated controller/database test suite instead
   of relying primarily on Website Core bundle and acceptance coverage.

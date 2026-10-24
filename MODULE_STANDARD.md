@@ -70,9 +70,11 @@ upgrade is required. A tested module snapshot may be copied into Website
 Core's `examples/` directory for bundle construction. That copy is a release
 input, not the module's development authority.
 
-Each industry module declares its default header navigation with
-`ModuleContext::navigationMenu()` and renders `navigationTree()`. Core imports
-the defaults once and owns all later administrator edits.
+Each industry module declares its default header and footer navigation as
+separate locations with `ModuleContext::navigationMenu()` and renders each
+`navigationTree()`. Core imports the defaults once and owns all later
+administrator edits. Module footers resolve the editable business copyright
+with `copyrightNotice()`; Core's mandatory platform attribution stays separate.
 
 Modules may also declare package-relative starting brand images with
 `ModuleContext::brandAssets()` and render the current Core-owned selection with

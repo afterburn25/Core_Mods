@@ -1,5 +1,13 @@
 # Catering Module Roadmap
 
+## 0.1.18 — Editable footer identity
+
+- [x] Declare a one-time default footer navigation location
+- [x] Render Core's current footer tree with nested items and link targets
+- [x] Render the Core-owned token-aware copyright notice
+- [x] Preserve the immutable Cajun Web Pro attribution as a separate Core layer
+- [ ] Pass module-branch and synchronized Website Core bundle CI
+
 ## 0.1.17 — Core-owned branding
 
 - [x] Bundle the approved transparent generic CATERING CO. logo

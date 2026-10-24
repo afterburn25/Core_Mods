@@ -1,5 +1,18 @@
 # Catering Module Testing
 
+## 2026-10-24 — Footer navigation and copyright release candidate
+
+- Module version advanced to `0.1.18` with Core `>=2.0.5,<3.0.0`.
+- Provider declares `footer` independently from `primary`; the public layout
+  renders the current Core tree and honors nesting and configured targets.
+- The public footer renders Core's token-expanded plain-text copyright and
+  remains compatible with the separately injected immutable platform credit.
+- Website Core coverage checks location isolation, module default import,
+  installed rendering, token expansion, Appearance input, and portable export.
+- Deterministic release ZIP SHA-256:
+  `e311c02e416fc5776ba7b9faf4a8016bfe77173364e5d68039d64589a2f4d8d5`.
+- Publication and CI evidence are recorded after both branch runs pass.
+
 ## 2026-10-24 — Branding integration release candidate
 
 - Module version advanced to `0.1.17` with Core `>=2.0.5,<3.0.0`.

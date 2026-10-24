@@ -403,8 +403,10 @@ final class CateringController
             'phone' => (string) $settings->get('catering.phone', '(555) 123-4567'),
             'contactEmail' => (string) $settings->get('site.contact_email', 'hello@example.com'),
             'navigation' => $this->navigation(),
+            'footerNavigation' => $this->ctx->navigationTree('footer'),
             'brandLogoUrl' => $this->ctx->brandAssetUrl($request, 'logo', 480),
             'faviconUrl' => $this->ctx->brandAssetUrl($request, 'favicon'),
+            'copyrightNotice' => $this->ctx->copyrightNotice((string) $settings->get('site.name', 'Catering Co.')),
             'page' => [
                 'title' => $title,
                 'meta_title' => $title,
