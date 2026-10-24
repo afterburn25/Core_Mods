@@ -9,7 +9,7 @@ foreach (['MOD_RULES.md', 'MODULE_STANDARD.md', 'MODULE_REGISTRY.md'] as $requir
     }
 }
 $rules = @file_get_contents($root . '/MOD_RULES.md');
-if (!is_string($rules) || !str_contains($rules, '**Contract version: 1.0**')) {
+if (!is_string($rules) || !str_contains($rules, '**Contract version: 1.1**')) {
     $rootErrors[] = 'repository: MOD_RULES.md contract version is missing or unsupported';
 }
 $modules = glob($root . '/modules/*', GLOB_ONLYDIR) ?: [];
@@ -65,8 +65,8 @@ foreach ($modules as $module) {
     }
 
     $moduleRules = @file_get_contents($module . '/MODULE_RULES.md');
-    if (!is_string($moduleRules) || !str_contains($moduleRules, 'Cajun Web Pro Module Rules 1.0')) {
-        $errors[] = "$name: MODULE_RULES.md does not declare rules contract 1.0";
+    if (!is_string($moduleRules) || !str_contains($moduleRules, 'Cajun Web Pro Module Rules 1.1')) {
+        $errors[] = "$name: MODULE_RULES.md does not declare rules contract 1.1";
     }
 
     $latestPath = $module . '/releases/LATEST.json';

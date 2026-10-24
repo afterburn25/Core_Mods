@@ -1,6 +1,6 @@
 # Cajun Web Pro Module Rules
 
-**Contract version: 1.0**
+**Contract version: 1.1**
 
 These are the permanent cross-module rules for every industry module and
 add-on in `afterburn25/Core_Mods`. A module roadmap may change its features;
@@ -34,7 +34,19 @@ it may not quietly bypass this contract. Changes to this file are made on
 - Module boot and upgrades must not overwrite a customized menu or repopulate
   a menu an administrator intentionally cleared.
 
-## 4. Administration remains predictable
+## 4. Modules may supply branding defaults; Core owns the live assets
+
+- An industry module may declare a starting logo, favicon, and social image
+  with `ModuleContext::brandAssets()` using package-relative image paths.
+- Core validates and copies missing defaults into Core Media once. Existing
+  selections always win; module updates never overwrite or repopulate an asset
+  an administrator replaced or intentionally cleared.
+- Public and module-admin layouts resolve the current Core selection through
+  `ModuleContext::brandAssetUrl()` and never keep rendering the bundled default
+  directly after installation.
+- Shared brand upload, selection, storage, and administration stay in Core.
+
+## 5. Administration remains predictable
 
 - Shared website controls stay in Core's existing categories.
 - Industry-specific screens register under one module-owned admin category.
@@ -42,7 +54,7 @@ it may not quietly bypass this contract. Changes to this file are made on
   its own server-side capability check.
 - Navigation visibility is never treated as authorization.
 
-## 5. Installation and upgrades are repeatable
+## 6. Installation and upgrades are repeatable
 
 - `addon.json` is the package identity and version source of truth.
 - Migrations are ordered, additive-first, safe on MySQL/MariaDB, and journaled
@@ -51,7 +63,7 @@ it may not quietly bypass this contract. Changes to this file are made on
   and administrator customization are preserved.
 - The manifest must state an honest Core version range and Module API major.
 
-## 6. Data and security boundaries are mandatory
+## 7. Data and security boundaries are mandatory
 
 - Use prepared database operations through Core's shared connection.
 - Prefix module-owned tables consistently and declare them in module
@@ -61,7 +73,7 @@ it may not quietly bypass this contract. Changes to this file are made on
   server, rate-limit public submissions, and never commit secrets.
 - Public assets and routes stay inside the module's assigned namespace.
 
-## 7. Releases are complete and traceable
+## 8. Releases are complete and traceable
 
 - Use stable semantic versions and increment whenever packaged behavior
   changes.
@@ -72,7 +84,7 @@ it may not quietly bypass this contract. Changes to this file are made on
 - Record only tests that actually ran. A release is not complete until its
   module-branch CI and the synchronized Website Core bundle CI pass.
 
-## 8. Accessibility and responsive behavior are release requirements
+## 9. Accessibility and responsive behavior are release requirements
 
 - Public and admin interfaces must be keyboard usable, semantically labeled,
   responsive, and readable at supported breakpoints.

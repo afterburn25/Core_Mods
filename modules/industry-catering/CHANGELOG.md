@@ -1,5 +1,16 @@
 # Catering Module Changelog
 
+## 0.1.17 — 2026-10-24
+
+- Added the approved transparent generic **CATERING CO.** starter logo.
+- Declares the logo through Core 2.0.5 `brandAssets()` so Core copies it into
+  Media once and owns all later administrator changes.
+- Renders the current Core-owned logo and favicon in the public catering layout
+  and uses the current logo/favicon in module administration.
+- Preserves text branding when no logo is selected and adds a contrast-safe
+  footer frame for transparent wordmarks.
+- Requires Website Core `>=2.0.5,<3.0.0` with Module API 1.
+
 ## 0.1.16 — 2026-10-24
 
 - Replaced the hard-coded catering header links with Website Core's editable

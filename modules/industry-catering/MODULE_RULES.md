@@ -1,6 +1,6 @@
 # Module Creation Rules
 
-**Rules contract: Cajun Web Pro Module Rules 1.0**
+**Rules contract: Cajun Web Pro Module Rules 1.1**
 
 Read this file before creating or changing this module. The authoritative
 cross-module contract is repository [`MOD_RULES.md`](../../MOD_RULES.md). If
@@ -17,6 +17,9 @@ branch from `main` before continuing.
       Core and is used only through `ModuleContext`.
 - [x] The module declares its starting header menu with `navigationMenu()` and
       renders Core's editable result with `navigationTree()`.
+- [x] The module declares its generic starting logo with `brandAssets()` and
+      renders Core's current logo/favicon through `brandAssetUrl()` without
+      overwriting later administrator choices.
 - [x] Industry admin screens use one module category, protected admin routes,
       and explicit server-side capabilities.
 - [x] Tables, migrations, public routes, assets, and settings are namespaced;
@@ -25,8 +28,8 @@ branch from `main` before continuing.
       access, and escaped output.
 - [x] The README, changelog, status, roadmap, testing, and handoff records have
       been created before the first release.
-- [x] Complete the current release ZIP, `LATEST.json`, module CI, and
-      synchronized Website Core bundle CI for version 0.1.16.
+- [ ] Complete the current release ZIP, `LATEST.json`, module CI, and
+      synchronized Website Core bundle CI for version 0.1.17.
 
 ## Catering decisions
 
@@ -36,7 +39,7 @@ branch from `main` before continuing.
    settings; administration appears in the Catering category.
 4. Core services: routing, views, settings, navigation, permissions, database,
    CSRF, rate limiting, mail, admin search, dashboard, and health checks.
-5. Compatibility: Catering 0.1.16 requires Core `>=2.0.1,<3.0.0` and Module
+5. Compatibility: Catering 0.1.17 requires Core `>=2.0.5,<3.0.0` and Module
    API 1; acceptance runs in the module branch and synchronized Core bundle.
 
 Do not remove this file. It preserves the creation rules and module decisions

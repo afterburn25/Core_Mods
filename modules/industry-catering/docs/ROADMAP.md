@@ -1,5 +1,13 @@
 # Catering Module Roadmap
 
+## 0.1.17 — Core-owned branding
+
+- [x] Bundle the approved transparent generic CATERING CO. logo
+- [x] Declare the logo through Core's one-time `brandAssets()` handoff
+- [x] Render the live Core logo and favicon in public and module-admin layouts
+- [x] Preserve accessible text branding when no logo is selected
+- [ ] Pass module-branch and synchronized Website Core bundle CI
+
 ## 0.1.16 — Editable site navigation
 
 - [x] Render the Core-managed primary menu in the catering header

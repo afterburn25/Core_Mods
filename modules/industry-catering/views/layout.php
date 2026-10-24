@@ -1,6 +1,7 @@
 <?php
 /** @var string $content @var string $siteName @var string $tagline @var string $basePath @var string $assetBase
- * @var string $currentPath @var string $phone @var string $contactEmail @var array $page @var array $navigation */
+ * @var string $currentPath @var string $phone @var string $contactEmail @var array $page @var array $navigation
+ * @var string|null $brandLogoUrl @var string|null $faviconUrl */
 $asset = $assetBase;
 $assetVersion = rawurlencode(defined('WC_VERSION') ? WC_VERSION : 'development');
 $renderNavigation = function (array $items, bool $child = false) use (&$renderNavigation, $basePath, $currentPath): void {
@@ -29,15 +30,20 @@ $renderNavigation = function (array $items, bool $child = false) use (&$renderNa
 <title><?= e(($page['title'] ?? '') !== 'Home' ? ($page['title'] ?? '') . ' — ' : '') ?><?= e($siteName) ?></title>
 <meta name="description" content="<?= e_attr($page['meta_description'] ?? '') ?>">
 <?php if (!empty($page['noindex'])): ?><meta name="robots" content="noindex,nofollow"><?php endif; ?>
+<?php if (!empty($faviconUrl)): ?><link rel="icon" href="<?= e_attr($faviconUrl) ?>"><?php endif; ?>
 <link rel="stylesheet" href="<?= e_attr($asset . '/assets/css/catering.css&v=' . $assetVersion) ?>">
 </head>
 <body>
 <a class="skip-link" href="#main-content">Skip to content</a>
 <header class="c-site-header" data-site-header>
 <a class="c-brand" href="<?= e_attr($basePath) ?>/" aria-label="<?= e_attr($siteName) ?> home">
+<?php if (!empty($brandLogoUrl)): ?>
+<img class="c-brand-logo" src="<?= e_attr($brandLogoUrl) ?>" alt="<?= e_attr($siteName) ?>">
+<?php else: ?>
 <span class="c-brand-name"><?= e($siteName) ?></span>
 <span class="c-brand-rule"></span>
 <span class="c-brand-kind">Catering</span>
+<?php endif; ?>
 </a>
 <button class="c-nav-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" data-nav-toggle>
 <span></span><span></span><span></span><span class="sr-only">Open navigation</span>
@@ -62,7 +68,9 @@ $renderNavigation = function (array $items, bool $child = false) use (&$renderNa
 <div class="c-footer-grid">
 <div>
 <a class="c-brand c-brand-footer" href="<?= e_attr($basePath) ?>/">
+<?php if (!empty($brandLogoUrl)): ?><span class="c-footer-logo-frame"><img class="c-brand-logo" src="<?= e_attr($brandLogoUrl) ?>" alt="<?= e_attr($siteName) ?>"></span><?php else: ?>
 <span class="c-brand-name"><?= e($siteName) ?></span><span class="c-brand-kind">Catering</span>
+<?php endif; ?>
 </a>
 <p><?= e($tagline) ?> Thoughtful food and gracious hospitality for weddings, corporate events, and private celebrations.</p>
 </div>

@@ -86,5 +86,8 @@ final class Provider
             ['label' => 'Gallery', 'url' => '/gallery'],
             ['label' => 'Contact', 'url' => '/contact'],
         ]);
+        $ctx->brandAssets([
+            'logo' => 'assets/images/catering-co-logo.png',
+        ]);
     }
 }

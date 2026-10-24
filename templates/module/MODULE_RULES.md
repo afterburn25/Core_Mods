@@ -1,6 +1,6 @@
 # Module Creation Rules
 
-**Rules contract: Cajun Web Pro Module Rules 1.0**
+**Rules contract: Cajun Web Pro Module Rules 1.1**
 
 Read this file before creating or changing this module. The authoritative
 cross-module contract is repository [`MOD_RULES.md`](../../MOD_RULES.md). If
@@ -17,6 +17,9 @@ branch from `main` before continuing.
       Core and is used only through `ModuleContext`.
 - [ ] The module declares its starting header menu with `navigationMenu()` and
       renders Core's editable result with `navigationTree()`.
+- [ ] If the module ships initial brand images, it declares package-relative
+      paths with `brandAssets()` and renders Core values with `brandAssetUrl()`;
+      it never overwrites or bypasses Core-owned branding.
 - [ ] Industry admin screens use one module category, protected admin routes,
       and explicit server-side capabilities.
 - [ ] Tables, migrations, public routes, assets, and settings are namespaced;

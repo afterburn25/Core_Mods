@@ -1,5 +1,19 @@
 # Catering Module Testing
 
+## 2026-10-24 — Branding integration release candidate
+
+- Module version advanced to `0.1.17` with Core `>=2.0.5,<3.0.0`.
+- The transparent CATERING CO. logo is present in the package manifest and
+  declared with `brandAssets()`; public and module-admin layouts resolve Core's
+  current logo/favicon through `brandAssetUrl()`.
+- Website Core regression coverage checks one-time copying, source
+  preservation, path confinement, the permanent clear marker, direct
+  Appearance uploads, shared admin wiring, and installed-package rendering.
+- Repository rules were advanced to contract 1.1 so every future module uses
+  the same default-then-Core-ownership branding rule.
+- Local PHP execution is unavailable in the current workspace. Do not mark the
+  release verified until module and synchronized Core GitHub CI pass.
+
 ## 2026-10-24 — Navigation integration
 
 - Module version advanced to `0.1.16`.
