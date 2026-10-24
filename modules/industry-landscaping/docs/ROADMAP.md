@@ -45,4 +45,4 @@
 - [x] Build module and four theme ZIPs with matching release digests.
 - [x] Update README, changelog, status, roadmap, testing, handoff, and rules preflight.
 - [ ] Pass live Core install, activation, upgrade, and rollback checks on MySQL/MariaDB.
-- [ ] Synchronize the accepted package into Website Core and pass bundle CI.
+- [x] Synchronize the accepted package into Website Core and pass bundle CI.

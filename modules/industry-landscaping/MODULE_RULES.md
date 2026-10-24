@@ -22,7 +22,7 @@ The authoritative contract is repository [`MOD_RULES.md`](../../MOD_RULES.md).
   media, prepared database operations, and escaped output.
 - [x] Required README, changelog, status, roadmap, testing, and handoff records exist.
 - [x] Current module/theme ZIPs and SHA-256 manifests are built and checked.
-- [ ] Record passing module-branch CI and synchronized Website Core bundle CI before
+- [x] Record passing module-branch CI and synchronized Website Core bundle CI before
   marking the commercial release fully accepted.
 
 ## Module-specific decisions

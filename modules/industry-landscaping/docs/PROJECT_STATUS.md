@@ -1,6 +1,6 @@
 # Project Status
 
-**Version:** 1.0.0 implementation candidate
+**Version:** 1.0.0 synchronized release
 **Branch:** `module/landscaping`
 **Default theme:** Landscaping — Bold Outdoors
 **Rules contract:** Cajun Web Pro Module Rules 1.1
@@ -25,9 +25,7 @@ industry record and process estimate leads from one Landscaping category in Core
 
 ## Acceptance state
 
-Repository validation, PHP lint, and package checks are delegated to module-branch CI.
-A release becomes fully accepted under the repository contract only after the module
-and theme archives are installed, activated, upgraded, and rolled back in a supported
-Website Core/MySQL environment and the synchronized Website Core bundle CI passes.
-Those deployment checks are recorded as pending in `TESTING.md`; the source and
-installable 1.0.0 packages are complete for that acceptance pass.
+Module CI and the synchronized latest-Core CI pass. Website Core 2.0.14 now carries
+the verified 1.0.0 runtime snapshot and builds dedicated landscaping TEST-BUNDLE and
+REPAIR-UPLOAD artifacts. Live-host browser, upgrade, and rollback acceptance remains
+recorded separately in `TESTING.md`; no unperformed external check is claimed.

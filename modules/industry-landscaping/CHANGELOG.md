@@ -9,6 +9,8 @@
   attachments, mail notification, dashboard summary, search, and diagnostics.
 - Added four separately packaged themes with Bold Outdoors as the default.
 - Added original landscaping photography and completed responsive component styling.
+- Synchronized the verified runtime release into Website Core 2.0.14 and passed the
+  complete latest-Core PHP, MySQL, MariaDB, package, and artifact CI matrix.
 
 ## 0.1.0 — 2026-10-24
 
