@@ -2,53 +2,31 @@
 
 **Rules contract: Cajun Web Pro Module Rules 1.1**
 
-Read this file before creating or changing this module. The authoritative
-cross-module contract is repository [`MOD_RULES.md`](../../MOD_RULES.md). If
-this file and the master contract ever differ, stop and update the module
-branch from `main` before continuing.
+The authoritative contract is repository [`MOD_RULES.md`](../../MOD_RULES.md).
 
 ## Creation preflight
 
-- [ ] This module has its own `module/<slug>` branch.
-- [ ] This module has one folder under `modules/<module-id>/`.
-- [ ] `addon.json` has a unique namespaced ID, semantic version, honest Core
-      range, Module API major, provider, autoload mapping, and capabilities.
-- [ ] Industry-specific behavior remains here; universal behavior remains in
-      Core and is used only through `ModuleContext`.
-- [ ] The module declares its starting header and footer menus as separate
-      `navigationMenu()` locations and renders each Core-owned
-      `navigationTree()`.
-- [ ] If the module ships initial brand images, it declares package-relative
-      paths with `brandAssets()` and renders Core values with `brandAssetUrl()`;
-      it never overwrites or bypasses Core-owned branding.
-- [ ] The public footer uses `copyrightNotice()` for the business copyright and
-      does not replace or hide Core's mandatory Cajun Web Pro attribution.
-- [ ] Header/footer social icons use Core's location-filtered `socialLinks()`;
-      the module owns no duplicate profile settings and emits no blank links.
-- [ ] Industry admin screens use one module category, protected admin routes,
-      and explicit server-side capabilities.
-- [ ] The module contributes overview data with `dashboardWidget()` and does
-      not register a duplicate module Dashboard page.
-- [ ] Tables, migrations, public routes, assets, and settings are namespaced;
-      installs and upgrades preserve existing data and customization.
-- [ ] Public forms use CSRF, validation, abuse controls, prepared database
-      access, and escaped output.
-- [ ] The README, changelog, status, roadmap, testing, and handoff records have
-      been created before the first release.
-- [ ] The current release ZIP, `LATEST.json`, checksum, module CI, and
-      synchronized Website Core bundle CI will be completed before release.
+- [x] Dedicated branch: `module/landscaping`.
+- [x] Single folder: `modules/industry-landscaping/`.
+- [x] Manifest identity, semantic version, Core range, API major, provider, PSR-4 map,
+  migrations, assets, and capabilities are declared.
+- [x] Industry behavior remains in the module and shared behavior uses `ModuleContext`.
+- [x] Separate primary/footer navigation defaults render Core-owned navigation trees.
+- [x] The shared default logo is declared with `brandAssets()` and the live logo and
+  favicon resolve through Core.
+- [x] Footer copyright and social links resolve through Core services.
+- [x] Admin routes share one Landscaping category and check explicit capabilities.
+- [x] The module contributes a compact Core dashboard widget and admin search provider.
+- [x] Namespaced tables, routes, assets, settings, and additive migration preserve data.
+- [x] Public intake uses CSRF, validation, rate limiting, a honeypot, validated private
+  media, prepared database operations, and escaped output.
+- [x] Required README, changelog, status, roadmap, testing, and handoff records exist.
+- [x] Current module/theme ZIPs and SHA-256 manifests are built and checked.
+- [ ] Record passing module-branch CI and synchronized Website Core bundle CI before
+  marking the commercial release fully accepted.
 
-## Module-specific decisions to record
+## Module-specific decisions
 
-Before implementation, put these decisions in `docs/PROJECT_STATUS.md` and
-`docs/ROADMAP.md`:
-
-1. Industry audience and primary visitor goals.
-2. Public page map and default navigation labels.
-3. Module-owned data, workflows, and administrator screens.
-4. Which Core services the module will reuse.
-5. Initial version, Core compatibility range, and acceptance tests.
-
-Do not remove this file. It is copied into every module at creation so future
-sessions can recover the shared rules without relying on conversation history.
-
+The audience, visitor goals, page map, navigation, module data, admin workflows, Core
+service boundaries, compatibility range, and acceptance tests are recorded in
+`docs/PROJECT_STATUS.md`, `docs/ROADMAP.md`, and `docs/TESTING.md`.

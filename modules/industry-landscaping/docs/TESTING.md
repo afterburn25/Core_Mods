@@ -1,18 +1,27 @@
 # Testing
 
-## 2026-10-24 — 0.1.0 foundation
+## 2026-10-24 — 1.0.0 source and package verification
 
-- Manifest JSON parsing: passed for the module and all four themes.
-- Package integrity: passed; the module and four theme ZIPs open cleanly and
-  each has the correct root manifest.
-- Module ZIP structure: passed; `addon.json` is at archive root and theme
-  source/release artifacts are excluded.
-- PHP syntax checks: not run locally because the execution image has no PHP
-  binary. Module CI is configured to run PHP 8.4 lint after the branch push.
-- Repository module validator: not run locally for the same reason; Module CI
-  is configured to run it after the branch push.
-- Manual browser rendering: not run.
-- Website Core installation/activation: not run.
-- Theme switching and visual regression: not run.
+The following local checks were run against the release candidate:
 
-No release acceptance is claimed for this foundation.
+- Module and four theme manifest JSON parsing: passed.
+- Git whitespace/error check (`git diff --check`): passed.
+- Module ZIP root structure and exclusion rules: passed.
+- Four theme ZIP root structures: passed.
+- Release manifest filenames, versions, and SHA-256 digests: passed.
+- Archive integrity (`ZipFile.testzip`) and 2 MiB module package budget: passed.
+
+The execution image does not include a PHP binary, so PHP 8.4 syntax lint and the
+repository PHP validator run in GitHub Module CI after the branch update. Record the
+final workflow URL and result below once available.
+
+## Deployment acceptance still required
+
+- Clean install and seed verification on supported MySQL/MariaDB.
+- Upgrade preservation and module rollback/uninstall behavior in Website Core.
+- Estimate submission, mail queue, private photo access, capability boundaries, and
+  lead-management browser testing.
+- All four themes at desktop, tablet, and mobile sizes, including keyboard and contrast review.
+- Synchronized Website Core bundle build and CI.
+
+No unperformed deployment or browser check is claimed as passed.

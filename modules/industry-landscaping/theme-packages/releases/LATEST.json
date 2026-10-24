@@ -1,30 +1,30 @@
 {
-  "version": "0.1.0",
+  "version": "1.0.0",
   "default": "landscaping-bold-outdoors",
   "themes": [
     {
       "id": "landscaping-bold-outdoors",
-      "version": "0.1.0",
-      "file": "landscaping-bold-outdoors-0.1.0.zip",
-      "sha256": "2cac82498785514f847084e9c985a228b24e7ca4c5ff20fcc93a0637e056c42a"
+      "version": "1.0.0",
+      "file": "landscaping-bold-outdoors-1.0.0.zip",
+      "sha256": "b13e851ee353f7eacb83bdaa5cb489dd4eea87860732d8942fe985c280f8ebb7"
     },
     {
       "id": "landscaping-earth-stone",
-      "version": "0.1.0",
-      "file": "landscaping-earth-stone-0.1.0.zip",
-      "sha256": "49d14fa6db0a7480dec6e9d2894dcf3b0558f8378ae3bdf859935b2930d6f034"
+      "version": "1.0.0",
+      "file": "landscaping-earth-stone-1.0.0.zip",
+      "sha256": "ff37722ef6269c91caae3521a611384c6597bbafcc25c66bba0cadfdd11b8b8f"
     },
     {
       "id": "landscaping-estate-green",
-      "version": "0.1.0",
-      "file": "landscaping-estate-green-0.1.0.zip",
-      "sha256": "c57d7aa78f26b79ce832a2fb090aa8b99fa0a0b6080c17b14c6ad001bb468784"
+      "version": "1.0.0",
+      "file": "landscaping-estate-green-1.0.0.zip",
+      "sha256": "d3cecbddfcb9594f3766b0efa91a931b74e29a5bf51645ebc9f91c64327f50f4"
     },
     {
       "id": "landscaping-neighborhood-lawn",
-      "version": "0.1.0",
-      "file": "landscaping-neighborhood-lawn-0.1.0.zip",
-      "sha256": "a6c41bc914156a929b57295f62d18f7a5019fa248af5c2cfd1b8c036d67c7c25"
+      "version": "1.0.0",
+      "file": "landscaping-neighborhood-lawn-1.0.0.zip",
+      "sha256": "546c5d73f1b60779f7f25dc12d00c0f9903f8b9a104826f4c25583e65157f36c"
     }
   ]
 }

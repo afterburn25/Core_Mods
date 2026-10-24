@@ -1,23 +1,33 @@
 # Project Status
 
-**Version:** 0.1.0 foundation  
-**Branch:** `module/landscaping`  
+**Version:** 1.0.0 implementation candidate
+**Branch:** `module/landscaping`
 **Default theme:** Landscaping — Bold Outdoors
+**Rules contract:** Cajun Web Pro Module Rules 1.1
 
-## Landed
+## Product scope
 
-- Module manifest and provider.
-- Home, services, projects, plans, service areas, about, contact, and estimate routes.
-- Core-imported nested header and footer navigation.
-- One shared default logo for every theme.
-- Responsive Bold Outdoors baseline.
-- Estate Green, Neighborhood Lawn, and Earth & Stone theme token/style packages.
+The module serves residential and commercial lawn care and landscaping companies.
+Visitors can explore services, projects, recurring plans, seasonal availability, and
+service areas, then submit a detailed estimate request. Administrators manage every
+industry record and process estimate leads from one Landscaping category in Core.
 
-## Not release-ready
+## Implemented
 
-- Temporary color fields stand in for approved photography.
-- Industry tables, admin CRUD, estimate submission, spam protection, mail, and
-  dashboard reporting remain for later milestones.
-- Theme packages still require package build, installation, activation, and
-  visual-regression acceptance testing in Website Core.
-- No installable ZIP is published yet.
+- Database-backed services, projects, plans, service areas, seasonal offers, and leads.
+- Public pages and Core-owned nested primary/footer navigation.
+- Secured estimate intake with private photo attachments, notification mail, statuses,
+  notes, filtering, dashboard count, search integration, and diagnostics.
+- Shared Core branding, logo, favicon, social profiles, copyright, admin shell, media,
+  permissions, CSRF, rate limiting, and settings.
+- Responsive Bold Outdoors presentation plus three separately packaged alternate themes.
+- Original module photography, release archives, and SHA-256 manifests.
+
+## Acceptance state
+
+Repository validation, PHP lint, and package checks are delegated to module-branch CI.
+A release becomes fully accepted under the repository contract only after the module
+and theme archives are installed, activated, upgraded, and rolled back in a supported
+Website Core/MySQL environment and the synchronized Website Core bundle CI passes.
+Those deployment checks are recorded as pending in `TESTING.md`; the source and
+installable 1.0.0 packages are complete for that acceptance pass.
