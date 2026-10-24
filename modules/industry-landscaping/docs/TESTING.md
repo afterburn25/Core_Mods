@@ -11,9 +11,9 @@ The following local checks were run against the release candidate:
 - Release manifest filenames, versions, and SHA-256 digests: passed.
 - Archive integrity (`ZipFile.testzip`) and 2 MiB module package budget: passed.
 
-The execution image does not include a PHP binary, so PHP 8.4 syntax lint and the
-repository PHP validator run in GitHub Module CI after the branch update. Record the
-final workflow URL and result below once available.
+The execution image does not include a PHP binary. GitHub Module CI supplied PHP 8.4
+syntax lint and the repository PHP validator; both passed in
+[run 40124327464](https://github.com/afterburn25/Core_Mods/actions/runs/40124327464).
 
 ## Deployment acceptance still required
 
