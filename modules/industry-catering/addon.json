@@ -3,10 +3,10 @@
   "id": "cajunwebpro/catering",
   "type": "industry",
   "name": "Catering Website",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "license": "PROPRIETARY",
   "requires": {
-    "core": ">=2.2.0,<3.0.0",
+    "core": ">=2.3.0,<3.0.0",
     "api": 1
   },
   "provider": "CajunWebPro\\Catering\\Provider",

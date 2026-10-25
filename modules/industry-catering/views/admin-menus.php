@@ -8,6 +8,7 @@ $chosenAllergens = MenuPlanner::tags($values['allergens'] ?? [], $allergenLabels
 ?>
 <?php if ($saved): ?><div class="flash-ok" role="status">Menu changes saved.</div><?php endif; ?>
 <?php if ($error): ?><div class="flash-error" role="alert"><?= e($error) ?> Your entries are retained below.</div><?php endif; ?>
+<?php if ($quickManagerUrl !== ''): ?><div class="card"><h2>Quick catalog management</h2><p class="muted">Use Core’s shared workspace for searching, accessible drag-free ordering, and bulk show, hide, feature, or unfeature actions. Return here for pricing, dietary, allergen, image, and discount-tier details.</p><a class="btn secondary" href="<?= e_attr($basePath . $quickManagerUrl) ?>">Open menu quick manager</a></div><?php endif; ?>
 <div class="card">
 <h2>Menu categories</h2>
 <div style="overflow:auto"><table><thead><tr><th>Name</th><th>Visible</th><th>Order</th></tr></thead><tbody>

@@ -56,9 +56,10 @@ final class Provider
         $ctx->adminRoute('POST', '/admin/catering/settings', fn ($r) => $ctl()->adminSettingsSave($r));
 
         $ctx->permission('catering.manage', 'Manage catering menus, packages, and settings');
-        $ctx->adminPage('Menus', '/admin/catering/menus', 'catering.manage', 'Catering');
-        $ctx->adminPage('Packages', '/admin/catering/packages', 'catering.manage', 'Catering');
+        $ctx->adminPage('Menu details & pricing', '/admin/catering/menus', 'catering.manage', 'Catering');
+        $ctx->adminPage('Package details & pricing', '/admin/catering/packages', 'catering.manage', 'Catering');
         $ctx->adminPage('Catering settings', '/admin/catering/settings', 'catering.manage', 'Catering');
+        (new CatalogResources($ctx->service(Connection::class)))->register($ctx);
 
         $ctx->healthCheck('inquiries-table', 'Inquiry storage', function () use ($ctx): array {
             $db = $ctx->service(Connection::class);

@@ -1,5 +1,20 @@
 # Catering Module Changelog
 
+## 0.2.1 — 2026-10-25
+
+- Require Website Core 2.3 and adopt its shared `adminResource()` workspace
+  for searchable dish/package quick management, pagination, accessible
+  visible-row ordering and declared bulk visibility/featured actions.
+- Keep advanced pricing, serving, discount-tier, dietary, allergen, image,
+  guest-range and package-choice fields in Catering's detailed editors; quick
+  edits preserve those fields and quick-created records require manual price
+  confirmation.
+- Validate every resource callback against module-owned tables, preserve
+  unsubmitted ordering positions and retain Core's shared permission, CSRF,
+  confirmation and audit workflow.
+- Pin module acceptance to the CI-verified Core 2.3.0 source, require the fixed
+  inquiry detail/notes contract, and add direct upgrade coverage from 0.2.0.
+
 ## 0.2.0 — 2026-10-25
 
 - Reconcile the menu planner with the 0.1.25 Core 2.2 adoption, preserving the

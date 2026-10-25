@@ -1,20 +1,13 @@
 {
   "module_id": "cajunwebpro/catering",
-  "version": "0.2.0",
-  "file": "industry-catering-0.2.0.zip",
-  "sha256": "d760e0e76f6996904bde04f9e94bd3b6763fc539c811219c9b5f2c6df4c2a26f",
+  "version": "0.2.1",
+  "file": "industry-catering-0.2.1.zip",
+  "sha256": "c504f551227e85ba6145ac514829d00d2bd1fc6abe6c5eadb277880543dc3d58",
   "module_api": 1,
   "verified_core": null,
   "released_at": "2026-10-25",
-  "verification": "Module CI and PHP 8.4/8.5/MySQL 8.4/MariaDB 11.4 acceptance passed; Core detail blocked by CORE-REUSE-7A; no combined build",
-  "tested_core": "2.2.1",
-  "tested_core_commit": "12f082936b0b2c9dae4f54f345e4d059c625f2e9",
-  "ci": {
-    "commit": "f3d20fe26a794513956cb8e6b4a7bb67388a7906",
-    "module_run": 40216516473,
-    "catering_run": 40216516597,
-    "module_result": "success",
-    "catering_result": "success",
-    "core_detail_contract": "failed: CORE-REUSE-7A (non-blocking diagnostic)"
-  }
+  "verification": "Core 2.3 shared catalog-management candidate; CI pending; no combined build",
+  "tested_core": "2.3.0",
+  "tested_core_commit": "861d1b3e3c8def4ed4bb0b9e29614ad4290663a5",
+  "ci": null
 }

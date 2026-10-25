@@ -1,5 +1,18 @@
 # Catering Module Testing
 
+## 0.2.1 Core 2.3 catalog-management candidate — 2026-10-25
+
+Pinned Core fixture: `861d1b3e3c8def4ed4bb0b9e29614ad4290663a5`
+(Core 2.3.0). Acceptance is pending publication.
+
+- Direct callback coverage exercises search, pagination-ready lists, partial
+  ordering, bulk visibility/featured actions, record ownership validation,
+  quick creation/deletion and preservation of advanced pricing fields.
+- Package lifecycle coverage includes the exact published 0.2.0 ZIP in
+  addition to the historical 0.1.21 and rebuilt 0.1.23 baselines.
+- `core-dependencies.php` is now blocking and must pass inquiry detail, note
+  attribution and package-isolation checks against the repaired Core service.
+
 ## GitHub publication and CI — 2026-10-25
 
 The reconciled 0.2.0 candidate is published at

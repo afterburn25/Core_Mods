@@ -6,6 +6,7 @@ $choices = is_array($old['choices'] ?? null) ? $old['choices'] : [];
 ?>
 <?php if ($saved): ?><div class="flash-ok" role="status">Package changes saved.</div><?php endif; ?>
 <?php if ($error): ?><div class="flash-error" role="alert"><?= e($error) ?> Your entries are retained below.</div><?php endif; ?>
+<?php if ($quickManagerUrl !== ''): ?><div class="card"><h2>Quick catalog management</h2><p class="muted">Use Core’s shared workspace for searching, accessible drag-free ordering, and bulk show, hide, feature, or unfeature actions. Return here for pricing, guest ranges, discount tiers, and included menu choices.</p><a class="btn secondary" href="<?= e_attr($basePath . $quickManagerUrl) ?>">Open package quick manager</a></div><?php endif; ?>
 <div class="card"><h2>Packages</h2><div style="overflow:auto"><table><thead><tr><th>Name</th><th>Unit price / method</th><th>Guests</th><th>Status</th><th>Actions</th></tr></thead><tbody>
 <?php foreach ($packages as $package): ?><tr><td><?= e($package['name']) ?></td><td>$<?= e(number_format(((int) $package['price_cents']) / 100, 2)) ?> · <?= e($pricingLabels[$package['pricing_basis']] ?? 'Team confirmation required') ?></td><td><?= (int) $package['guest_min'] ?><?= $package['guest_max'] ? '–' . (int) $package['guest_max'] : '+' ?></td><td><?= $package['visible'] ? 'Visible' : 'Hidden' ?></td><td>
 <a class="btn small secondary" href="<?= e_attr($basePath) ?>/admin/catering/packages&amp;edit_package=<?= (int) $package['id'] ?>#package-editor">Edit</a>

@@ -1,11 +1,21 @@
 # Catering Module Roadmap
 
-## Current release blocker — CORE-REUSE-7A
+## Resolved Core dependency — CORE-REUSE-7A
 
-The shared Core inquiry-detail query references the nonexistent admins.name
-column. Dependency recorded in the [active Core roadmap](https://github.com/afterburn25/Website_Core/blob/devin/website-core/docs/ROADMAP.md#core-reuse-7a--inquiry-detail-schema-regression-2026-10-25).
-Module-owned records and linking remain intact. Production acceptance waits
-for Core to fix detail/notes rendering; do not duplicate that workspace here.
+Core 2.2.2 repaired the administrator-field query. Catering 0.2.1 pins Core
+2.3 and promotes the detail/notes diagnostic to a required CI check. The
+module continues to preserve its questionnaire snapshot and use Core's shared
+inquiry workspace.
+
+## 0.2.1 — Shared catalog administration
+
+- [x] Register module-owned dishes and packages with Core's shared resource workspace
+- [x] Add searchable quick edits while preserving advanced Catering fields
+- [x] Add accessible partial ordering and bulk visibility/featured actions
+- [x] Reject unknown, duplicate and cross-resource record IDs in callbacks
+- [ ] Pass PHP 8.4/8.5, SQLite, MySQL 8.4 and MariaDB 11.4 acceptance
+- [ ] Verify direct packaged upgrade from 0.2.0
+- [ ] Verify the fixed Core inquiry detail and notes contract
 
 ## 0.2.0 — Catering menu planning
 
@@ -128,7 +138,7 @@ Core synchronization and combined packaging still require an explicit request.
 - [ ] Add first-class editing for public catering page copy and calls to action
 - [ ] Select or replace catering imagery through Core media management
 - [ ] Replace the bundled dish selector with first-class Core Media selection
-- [ ] Improve menu-item and package editing and ordering controls
+- [x] Improve menu-item and package editing and ordering controls (0.2.1)
 - [ ] Add draft/preview behavior for catering content changes
 - [x] Add isolated module tests for controllers, permissions, and migrations (0.2.0)
 

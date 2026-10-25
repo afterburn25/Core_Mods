@@ -256,6 +256,7 @@ final class CateringController
             'old' => $old, 'editing' => $editing,
             'dietaryLabels' => MenuPlanner::DIETARY, 'allergenLabels' => MenuPlanner::ALLERGENS,
             'pricingLabels' => MenuPlanner::PRICING,
+            'quickManagerUrl' => $this->resourceRoute('menu-items'),
         ], 'Catering Menus');
     }
 
@@ -342,6 +343,7 @@ final class CateringController
             'packages' => $packages, 'categories' => $categories,
             'saved' => $request->string('saved') === '1', 'error' => $error,
             'old' => $old, 'editing' => $editing, 'pricingLabels' => MenuPlanner::PRICING,
+            'quickManagerUrl' => $this->resourceRoute('packages'),
         ], 'Catering Packages');
     }
 
@@ -785,6 +787,14 @@ final class CateringController
     private function settings(): SettingsRepository
     {
         return $this->ctx->service(SettingsRepository::class);
+    }
+
+    private function resourceRoute(string $key): string
+    {
+        foreach ($this->ctx->adminResources() as $resource) {
+            if (($resource['key'] ?? null) === $key) return (string) ($resource['route'] ?? '');
+        }
+        return '';
     }
 
     private function plannerCatalog(): array

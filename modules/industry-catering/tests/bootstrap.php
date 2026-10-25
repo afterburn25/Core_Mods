@@ -48,7 +48,8 @@ function cateringFixture(?string $sqlitePath = null, bool $withModule = true): a
     $auth = new Core\Auth\AuthService($db, $admins, $permissions, new Core\Security\SessionManager($config), $limiter, $audit);
     $view = new Core\View\View();
     $view->share('coreVersion', WC_VERSION);
-    $view->share('industryVersions', [['name' => 'Catering Website', 'version' => '0.2.0']]);
+    $moduleManifest = json_decode((string) file_get_contents($moduleRoot . '/addon.json'), true, 512, JSON_THROW_ON_ERROR);
+    $view->share('industryVersions', [['name' => 'Catering Website', 'version' => (string) $moduleManifest['version']]]);
     $view->share('noticeCount', 0);
     $view->share('pageMeta', []);
     $view->addResolver('admin', static fn (string $name) => WC_ROOT . '/admin/views/' . $name . '.php');

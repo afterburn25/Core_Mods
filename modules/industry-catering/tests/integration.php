@@ -32,6 +32,43 @@ cateringTestIdentity($f, 'editor');
 verify($ctl->adminPackagesSave(cateringRequest('POST', '/admin/catering/packages', ['_csrf' => $token, 'action' => 'add_package']))->status() === 403, 'Core editor cannot modify catering packages');
 cateringTestIdentity($f, 'owner');
 verify($ctl->adminMenusSave(cateringRequest('POST', '/admin/catering/menus', ['action' => 'add_item']))->status() === 419, 'Direct admin action also requires CSRF');
+$resources = [];
+foreach ($f['ctx']->adminResources() as $resource) $resources[(string) $resource['key']] = $resource;
+verify(isset($resources['menu-items'], $resources['packages']), 'Core shared menu and package resources are registered');
+$menuRows = ($resources['menu-items']['list'])('', 1, 25);
+verify(count($menuRows['rows']) === 10 && $menuRows['total'] === 10, 'Shared menu resource lists the complete starter catalog');
+$searchRows = ($resources['menu-items']['list'])('Gumbo', 1, 25);
+verify($searchRows['total'] === 1 && str_contains($searchRows['rows'][0]['name'], 'Gumbo'), 'Shared menu resource searches dish and category names');
+$orderedIds = [(int) $items[2]['id'], (int) $items[0]['id'], (int) $items[1]['id']];
+verify(($resources['menu-items']['reorder'])($orderedIds) === true, 'Shared menu resource accepts visible-row ordering');
+$catalogOrder = array_map('intval', array_column($db->fetchAll('SELECT id FROM `' . $db->table('catering_menu_items') . '` ORDER BY sort_order, name, id'), 'id'));
+$selectedOrder = array_values(array_filter($catalogOrder, static fn (int $id): bool => in_array($id, $orderedIds, true)));
+verify($selectedOrder === $orderedIds && count($catalogOrder) === 10, 'Menu resource persists the submitted partial order without dropping records');
+verify(($resources['menu-items']['bulk'])([$items[0]['id'], $items[1]['id']], 'hide') === true
+    && (int) $db->fetchColumn('SELECT COUNT(*) FROM `' . $db->table('catering_menu_items') . '` WHERE id IN (?, ?) AND visible = 0', [$items[0]['id'], $items[1]['id']]) === 2,
+    'Menu resource performs validated bulk visibility changes');
+verify(($resources['menu-items']['bulk'])([$items[0]['id'], $items[1]['id']], 'show') === true, 'Menu resource restores bulk visibility');
+$preservedPrice = (int) $db->fetchColumn('SELECT price_cents FROM `' . $db->table('catering_menu_items') . '` WHERE id = ?', [$items[0]['id']]);
+[$quickItemId, $quickError] = ($resources['menu-items']['save'])((int) $items[0]['id'], [
+    'category_id' => (string) $categories[0]['id'], 'name' => 'Quick manager dish', 'visible' => 1,
+]);
+verify($quickError === null && $quickItemId === (int) $items[0]['id']
+    && (int) $db->fetchColumn('SELECT price_cents FROM `' . $db->table('catering_menu_items') . '` WHERE id = ?', [$items[0]['id']]) === $preservedPrice,
+    'Quick menu edits preserve advanced pricing fields');
+[$draftItemId, $quickError] = ($resources['menu-items']['save'])(null, [
+    'category_id' => (string) $categories[0]['id'], 'name' => 'Quick draft dish', 'visible' => 0,
+]);
+verify($quickError === null && (string) $db->fetchColumn('SELECT pricing_basis FROM `' . $db->table('catering_menu_items') . '` WHERE id = ?', [$draftItemId]) === 'manual',
+    'Quick-created dishes require team pricing confirmation');
+verify(($resources['menu-items']['delete'])($draftItemId) === true, 'Shared menu resource deletes only its validated record');
+$packageRows = ($resources['packages']['list'])('', 1, 25);
+verify($packageRows['total'] === 3 && count($packageRows['rows']) === 3, 'Shared package resource lists the package catalog');
+$packageIds = array_map('intval', array_column($packageRows['rows'], 'id'));
+verify(($resources['packages']['reorder'])(array_reverse($packageIds)) === true, 'Shared package resource saves accessible ordering');
+verify(($resources['packages']['bulk'])([$packageIds[0]], 'feature') === true
+    && (int) $db->fetchColumn('SELECT featured FROM `' . $db->table('catering_packages') . '` WHERE id = ?', [$packageIds[0]]) === 1,
+    'Shared package resource applies declared featured actions');
+verify(is_string(($resources['packages']['bulk'])([999999], 'hide')), 'Resource callbacks reject records outside the Catering catalog');
 $input = ['_csrf' => $token, 'action' => 'update_item', 'id' => (string) $items[0]['id'], 'category_id' => (string) $categories[0]['id'],
     'name' => '<script>alert(1)</script> Special', 'description' => 'A test dish', 'price' => '125.25', 'pricing_basis' => 'per_tray',
     'servings_per_tray' => '12', 'minimum_quantity' => '1', 'price_unit' => 'per tray', 'dietary_tags' => ['vegetarian'],
@@ -102,6 +139,10 @@ foreach (['/', '/menus', '/menus/' . $categories[0]['slug'], '/packages', '/pack
     $response = $router->dispatch(cateringRequest('GET', $path));
     verify($response->status() === 200, 'Public/admin route renders: ' . $path);
 }
+$menuAdmin = $router->dispatch(cateringRequest('GET', '/admin/catering/menus'));
+verify(str_contains($menuAdmin->body(), 'Open menu quick manager'), 'Detailed menu editor links to Core shared catalog management');
+$packageAdmin = $router->dispatch(cateringRequest('GET', '/admin/catering/packages'));
+verify(str_contains($packageAdmin->body(), 'Open package quick manager'), 'Detailed package editor links to Core shared catalog management');
 $limited = false;
 for ($i = 0; $i < 95; $i++) {
     if ($router->dispatch(cateringRequest('POST', '/catering/estimate', $estimateInput))->status() === 429) { $limited = true; break; }

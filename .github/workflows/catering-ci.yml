@@ -17,12 +17,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: afterburn25/Website_Core
-          ref: 12f082936b0b2c9dae4f54f345e4d059c625f2e9
+          ref: 861d1b3e3c8def4ed4bb0b9e29614ad4290663a5
           path: .core-test-fixture
       - uses: actions/checkout@v4
         with:
           ref: de3df977223fb8305bda91384447dae4843b5256
           path: .previous-module
+      - uses: actions/checkout@v4
+        with:
+          ref: f3d20fe26a794513956cb8e6b4a7bb67388a7906
+          path: .previous-release
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
@@ -49,8 +53,8 @@ jobs:
           php modules/industry-catering/tests/integration.php
           php modules/industry-catering/tests/package.php
           CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-module/modules/industry-catering/releases/industry-catering-0.1.21.zip" php modules/industry-catering/tests/package.php
-      - name: Diagnose Core inquiry detail dependency (CORE-REUSE-7A)
-        continue-on-error: true
+          CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-release/modules/industry-catering/releases/industry-catering-0.2.0.zip" php modules/industry-catering/tests/package.php
+      - name: Verify fixed Core inquiry detail and notes contract
         env:
           CATERING_CORE_ROOT: ${{ github.workspace }}/.core-test-fixture
         run: php modules/industry-catering/tests/core-dependencies.php
@@ -82,12 +86,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: afterburn25/Website_Core
-          ref: 12f082936b0b2c9dae4f54f345e4d059c625f2e9
+          ref: 861d1b3e3c8def4ed4bb0b9e29614ad4290663a5
           path: .core-test-fixture
       - uses: actions/checkout@v4
         with:
           ref: de3df977223fb8305bda91384447dae4843b5256
           path: .previous-module
+      - uses: actions/checkout@v4
+        with:
+          ref: f3d20fe26a794513956cb8e6b4a7bb67388a7906
+          path: .previous-release
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
@@ -105,3 +113,4 @@ jobs:
           php modules/industry-catering/tests/integration.php
           php modules/industry-catering/tests/package.php
           CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-module/modules/industry-catering/releases/industry-catering-0.1.21.zip" php modules/industry-catering/tests/package.php
+          CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-release/modules/industry-catering/releases/industry-catering-0.2.0.zip" php modules/industry-catering/tests/package.php

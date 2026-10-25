@@ -1,5 +1,15 @@
 # Catering Module Session Handoff
 
+## Current 0.2.1 candidate — 2026-10-25
+
+Catering now requires Core 2.3 and adopts its shared resource workspace for
+dish/package quick edits, search, pagination, keyboard-accessible visible-row
+ordering and bulk show/hide/feature controls. The detailed module editors still
+own every advanced catering field. The acceptance workflow pins Core 2.3.0
+commit `861d1b3e3c8def4ed4bb0b9e29614ad4290663a5`, tests direct upgrade from
+the exact published 0.2.0 candidate, and makes the repaired inquiry detail and
+notes contract blocking. No Core source or combined installer is changed.
+
 ## Publication completed — 2026-10-25
 
 The recovered 0.2.0 candidate is now on GitHub at
@@ -20,7 +30,7 @@ only module work; do not combine with Core without an explicit owner request.
 - Repository: `afterburn25/Core_Mods`
 - Branch: `module/catering`
 - Folder: `modules/industry-catering/`
-- Current version: `0.2.0`
+- Current version: `0.2.1`
 - Manifest ID: `cajunwebpro/catering`
 
 Do not develop the catering module directly on `main`, and do not create a
@@ -176,9 +186,8 @@ its `verified_core` field remains intentionally null until acceptance passes.
 
 ## Next safe task
 
-Module-specific GitHub CI for this reconciled candidate has passed. Continue
-module content/media work when the documented Core adapters are available
-(CORE-REUSE-3/4). Keep CORE-REUSE-7A visibly blocked until Core fixes its detail
-query. Run the core-dependencies.php diagnostic after the Core fix, then
-verify detail rendering and notes through the shared admin UI. Shared-host
-upload/upgrade remains unverified. No combined Core installer is authorized.
+Build the deterministic 0.2.1 module-only ZIP, run GitHub acceptance, and
+record the Core 2.3 inquiry detail/notes result. Then continue module
+content/media work when the documented adapters are available (CORE-REUSE-3/4).
+Shared-host upload/upgrade remains unverified. No combined Core installer is
+authorized.

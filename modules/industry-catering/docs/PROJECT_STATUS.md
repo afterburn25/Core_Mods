@@ -1,11 +1,11 @@
 # Catering Module Project Status
 
-- Current version: `0.2.0`
-- State: Active development; module candidate published and module CI passed
+- Current version: `0.2.1`
+- State: Active development; Core 2.3 shared catalog-management candidate
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
 - Module API: `1`
-- Required Core: Website Core `>=2.2.0,<3.0.0`
+- Required Core: Website Core `>=2.3.0,<3.0.0`
 - Last updated: 2026-10-25
 
 ## 0.2.0 delivered scope
@@ -20,6 +20,14 @@
 - Additive migration and guards against overwriting edited older demo content.
 - Local pricing, integration, packaged install/upgrade/lifecycle and browser
   acceptance; the current ZIP is complete and below the upload-size ceiling.
+
+## 0.2.1 candidate scope
+
+- Core-owned searchable resource workspaces for dish and package quick edits.
+- Keyboard-reachable visible-row ordering with safe partial-order persistence.
+- Bulk show, hide, feature and unfeature actions limited to module records.
+- Detailed module editors retained for all industry-specific configuration.
+- Required Core inquiry-detail and note-attribution regression acceptance.
 
 ## Completed
 
@@ -60,16 +68,14 @@
   when the owner explicitly requests integration (direction: 2026-10-25).
 - Defer combined Core bundle CI until that integration is requested; preserve
   honest compatibility requirements and continue module validation.
-- Preserve the published, CI-tested 0.2.0 module candidate, then continue content editing and
+- Verify and publish 0.2.1 against Core 2.3, then continue content editing and
   media-management improvements without moving industry-specific behavior into
   Core.
 
 ## Known issues and release gates
 
-- CORE-REUSE-7A: shared Core inquiry detail fails because its note query uses
-  admins.name instead of username. Recorded on Core's active roadmap; no Core
-  implementation change is made here. Production release remains blocked.
-- Local module checks cover persistence/linking, not the broken Core detail UI.
+- CORE-REUSE-7A was repaired in Core 2.2.2; 0.2.1 makes its detail/notes
+  diagnostic blocking against the Core 2.3 fixture.
 - PHP 8.4/8.5 and MySQL 8.4/MariaDB 11.4 module CI passed (Catering run `40216516597`; Module CI `40216516473`). Core detail/notes diagnostic still fails.
 - No combined Core bundle or live-host installation was performed.
 - Shared content/media/forms integration remains on CORE-REUSE-3/4.

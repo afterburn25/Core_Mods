@@ -9,11 +9,11 @@ adoption of [Cajun Web Pro Module Rules v1.1](../../MOD_RULES.md).
 
 ## Current release
 
-- Module version: `0.2.0`
+- Module version: `0.2.1`
 - Module ID: `cajunwebpro/catering`
 - Type: `industry`
 - Module API: `1`
-- Required Core: `>=2.2.0,<3.0.0`
+- Required Core: `>=2.3.0,<3.0.0`
 - Development branch: `module/catering`
 
 ## Menu planning in 0.2.0
@@ -41,6 +41,20 @@ service charges; no order, payment, availability reservation or final quote is
 created. Dietary labels do not establish allergy safety. Empty allergen lists
 mean information has not been supplied. Review starter recipes before assigning
 structured labels; the upgrade does not invent allergen or dietary claims.
+
+## Catalog management in 0.2.1
+
+Core 2.3's shared resource workspace now supplies searchable quick management,
+keyboard-accessible visible-row ordering, pagination, bulk selection, CSRF,
+permissions, confirmations and audit records for dishes and packages. Catering
+owns the persistence callbacks and rejects IDs outside its tables. Quick edits
+change only the record name, category and visibility; the detailed Catering
+editors continue to own prices, serving sizes, discount tiers, dietary and
+allergen data, images, guest ranges and package choice rules. Quick-created
+records use manual pricing until those details are completed.
+
+The Core 2.2 inquiry-detail schema defect is fixed and the 0.2.1 acceptance
+suite treats the shared detail/notes contract as a required check.
 
 ## Included features
 
@@ -74,7 +88,7 @@ structured labels; the upgrade does not invent allergen or dietary claims.
 
 ## Installation
 
-Install the single `industry-catering-0.2.0.zip` through Website Core’s
+Install the single `industry-catering-0.2.1.zip` through Website Core’s
 module/package manager. This delivery contains only the module; use an
 already-installed compatible Core. It contains no nested ZIP and does not
 include or update Core. Combined installers require an explicit owner request. The installable module ZIP keeps
