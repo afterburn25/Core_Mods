@@ -9,6 +9,9 @@ root = Path(__file__).resolve().parents[1]
 manifest = json.loads((root / 'addon.json').read_text())
 version = manifest['version']
 release = root / 'releases' / f'industry-catering-{version}.zip'
+for previous in (root / 'releases').glob('*.zip'):
+    if previous != release:
+        previous.unlink()
 with zipfile.ZipFile(release, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
     for path in sorted(root.rglob('*')):
         relative = path.relative_to(root)

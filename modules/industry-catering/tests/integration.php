@@ -27,6 +27,8 @@ $availabilityMigration = require $moduleRoot . '/migrations/0006_catalog_availab
 $availabilityMigration->up($db); $availabilityMigration->up($db);
 $operationsMigration = require $moduleRoot . '/migrations/0007_event_operations.php';
 $operationsMigration->up($db); $operationsMigration->up($db);
+$workspaceMigration = require $moduleRoot . '/migrations/0008_event_workspace.php';
+$workspaceMigration->up($db); $workspaceMigration->up($db);
 $custom = $db->fetch('SELECT * FROM `' . $db->table('catering_menu_items') . '` WHERE id = ?', [$items[0]['id']]);
 verify($custom['pricing_basis'] === 'manual' && $custom['dietary'] === 'Custom dietary note', 'Repeated upgrade preserves administrator pricing and content');
 verify($db->tableExists('catering_menu_groups') && $db->tableExists('catering_menu_group_items'),
@@ -36,6 +38,8 @@ $hasOperationsSnapshot = $db->driver() === 'sqlite'
     : (bool) $db->fetchColumn('SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name=? AND column_name=?',
         [$db->table('catering_inquiries'), 'operations_plan']);
 verify($hasOperationsSnapshot, 'Event operations migration adds the immutable operations snapshot');
+verify($db->tableExists('catering_events') && $db->tableExists('catering_event_costs') && $db->tableExists('catering_recipe_ingredients'),
+    'Event workspace migration is idempotent and creates production and costing tables');
 verify((new Core\Database\Migrator($db, $moduleRoot . '/migrations'))->pending() === [], 'Core migration journal records the module migrations');
 verify($router->dispatch(cateringRequest('POST', '/catering/estimate', ['guest_count' => '25']))->status() === 419, 'Estimate endpoint requires CSRF');
 verify($ctl->adminMenusSave(cateringRequest('POST', '/admin/catering/menus', ['_csrf' => $token, 'action' => 'delete_item', 'id' => $items[0]['id']]))->status() === 403, 'Direct admin action denies unauthenticated callers');
@@ -184,7 +188,8 @@ verify((int) $db->fetchColumn('SELECT COUNT(*) FROM `' . $db->table('catering_in
 $quote = $estimateInput + ['event_type' => 'Wedding', 'event_date' => date('Y-m-d', strtotime('+120 days')), 'name' => 'Menu Planner Test', 'email' => 'guest@example.test',
     'company' => 'Ignored disabled value', 'dietary' => 'Please discuss milk allergy', 'acknowledged' => '1', 'package_id' => (string) $package['id']];
 $quote += ['service_style' => 'Buffet', 'fulfillment_method' => 'delivery', 'fulfillment_window' => '12:00 PM–1:00 PM',
-    'postal_code' => '70001', 'extras' => ['setup']];
+    'address_line_1' => '101 Main Street', 'address_line_2' => 'Ballroom A', 'city' => 'New Orleans',
+    'region' => 'LA', 'postal_code' => '70001', 'extras' => ['setup'], 'tasting_requested' => '1'];
 $missingDietary = $quote; unset($missingDietary['dietary']);
 verify(str_contains($router->dispatch(cateringRequest('POST', '/request-a-quote', $missingDietary))->body(), 'Dietary needs, allergies and handling requests is required.'),
     'Server enforces administrator-configured required quote fields');
@@ -199,6 +204,9 @@ verify($operationsSnapshot['operations_cents'] === 20000 && $operationsSnapshot[
     && $row['fulfillment_method'] === 'delivery', 'Inquiry stores authoritative fulfillment, zone fee, and optional-service snapshot');
 verify($row['dietary'] === 'Please discuss milk allergy', 'Customer allergy requests remain separate from catalog labels');
 verify($row['company'] === '', 'Disabled quote fields are discarded even when submitted directly');
+verify($row['address_line_1'] === '101 Main Street' && $row['city'] === 'New Orleans', 'Structured delivery address is retained with the questionnaire');
+verify((int) $db->fetchColumn('SELECT COUNT(*) FROM `' . $db->table('catering_tastings') . '` WHERE inquiry_id=?', [(int)$row['id']]) === 1,
+    'Tasting request creates one review record without scheduling an appointment');
 $mail = $db->fetch('SELECT * FROM `' . $db->table('system_messages') . '` ORDER BY id DESC LIMIT 1');
 verify(str_contains($mail['body'], 'Selected dishes:') && str_contains($mail['body'], '$975.00') && str_contains($mail['body'], '$1,175.00'),
     'Core queued email includes the selected menu and combined estimate');
@@ -219,9 +227,76 @@ $invalidQuote = $quote; unset($invalidQuote['acknowledged']);
 verify(str_contains($router->dispatch(cateringRequest('POST', '/request-a-quote', $invalidQuote))->body(), 'acknowledge'), 'Booking acknowledgement enforced server-side');
 $outsideZone = $estimateInput + ['event_date' => date('Y-m-d', strtotime('+120 days')), 'guest_count' => '25', 'service_style' => 'Buffet',
     'fulfillment_method' => 'delivery', 'fulfillment_window' => '12:00 PM–1:00 PM', 'postal_code' => '99999'];
-verify(str_contains($router->dispatch(cateringRequest('POST', '/catering/estimate', $outsideZone))->body(), 'outside the configured delivery zones'),
-    'Server-authoritative estimate rejects out-of-zone delivery');
-foreach (['/', '/menus', '/menus/' . $categories[0]['slug'], '/packages', '/packages/' . $package['slug'], '/request-a-quote', '/admin/catering/menus', '/admin/catering/packages', '/admin/catering/menu-groups'] as $path) {
+verify(str_contains($router->dispatch(cateringRequest('POST', '/catering/estimate', $outsideZone))->body(), 'currently outside our service area'),
+    'Server-authoritative estimate gives a customer-facing out-of-area error');
+$eventCreate=$router->dispatch(cateringRequest('POST','/admin/catering/events',['_csrf'=>$token,'action'=>'create_event','inquiry_id'=>(string)$row['id']]));
+verify($eventCreate->status()===302,'Qualified quote request can be promoted to a tentative event');
+$event=$db->fetch('SELECT * FROM `'.$db->table('catering_events').'` WHERE inquiry_id=?',[(int)$row['id']]);
+verify($event!==null && $event['state']==='tentative' && json_decode((string)$event['menu_plan'],true)['estimate_cents']===97500,
+    'Event retains the immutable menu and operations source snapshots');
+$eventId=(int)$event['id'];
+$quoteService=$f['ctx']->service(Core\Leads\QuoteService::class);
+[$coreQuoteId,$quoteError,$responseToken]=$quoteService->save('cajunwebpro/catering',[
+    'inquiry_id'=>(int)$row['core_inquiry_id'],'customer_name'=>$row['name'],'customer_email'=>$row['email'],
+    'status'=>'sent','currency'=>'USD','discount'=>'0','tax'=>'0','valid_until'=>date('Y-m-d',strtotime('+30 days')),
+], [['description'=>'Accepted catering plan','quantity'=>1,'unit_price'=>'1175.00']]);
+verify($quoteError===null && $coreQuoteId!==null && is_string($responseToken) && $quoteService->respond($responseToken,true),
+    'Core quotation can be accepted for the Catering inquiry');
+verify($router->dispatch(cateringRequest('GET','/admin/catering/events'))->status()===200,'Event workspace renders and synchronizes accepted Core quotes');
+$event=$db->fetch('SELECT * FROM `'.$db->table('catering_events').'` WHERE id=?',[$eventId]);
+verify($event['state']==='confirmed' && (int)$event['core_quote_id']===$coreQuoteId
+    && (int)$db->fetchColumn('SELECT COUNT(*) FROM `'.$db->table('catering_events').'` WHERE inquiry_id=?',[(int)$row['id']])===1,
+    'Accepted Core quote confirms the existing event without duplicating it');
+$eventPath='/admin/catering/events/'.$eventId;
+$eventUpdate=['_csrf'=>$token,'action'=>'update_event','event_id'=>(string)$eventId,'state'=>'confirmed','title'=>'Final Wedding Plan',
+    'event_date'=>$row['event_date'],'event_time'=>'18:00','final_guest_count'=>'30','final_headcount_due'=>date('Y-m-d',strtotime($row['event_date'].' -7 days')),
+    'venue'=>'Grand Hall','run_of_show'=>'4:00 Load in\n6:00 Dinner','internal_notes'=>'Chef reviewed','delivery_status'=>'scheduled',
+    'driver_name'=>'Driver One','route_order'=>'2','setup_instructions'=>'Use south entrance','proof_reference'=>'Setup photo pending'];
+verify($router->dispatch(cateringRequest('POST',$eventPath,$eventUpdate))->status()===302,'Event plan, final headcount, timeline, and delivery manifest can be updated');
+verify($router->dispatch(cateringRequest('POST',$eventPath,['_csrf'=>$token,'action'=>'add_task','event_id'=>(string)$eventId,'title'=>'Confirm rental count','category'=>'rentals','due_date'=>date('Y-m-d',strtotime($row['event_date'].' -10 days')),'assignee'=>'Event captain','notes'=>'Check linens']))->status()===302,'Event task can be assigned');
+verify($router->dispatch(cateringRequest('POST',$eventPath,['_csrf'=>$token,'action'=>'add_staff','event_id'=>(string)$eventId,'position'=>'Server','staff_name'=>'Team Member','starts_at'=>$row['event_date'].'T16:00','ends_at'=>$row['event_date'].'T20:00','hourly_cost'=>'20.00','notes'=>'Dining room']))->status()===302,'Event staffing line can be scheduled');
+verify($router->dispatch(cateringRequest('POST',$eventPath,['_csrf'=>$token,'action'=>'add_equipment','event_id'=>(string)$eventId,'item_name'=>'Chafing dish','quantity'=>'10','replacement_cost'=>'5.00','notes'=>'Full-size']))->status()===302,'Equipment pull line can be added');
+$equipmentId=(int)$db->fetchColumn('SELECT id FROM `'.$db->table('catering_event_equipment').'` WHERE event_id=?',[$eventId]);
+verify($router->dispatch(cateringRequest('POST',$eventPath,['_csrf'=>$token,'action'=>'update_equipment','event_id'=>(string)$eventId,'id'=>(string)$equipmentId,'packed_quantity'=>'10','returned_quantity'=>'4','status'=>'damaged']))->status()===302,'Packing and equipment returns can be reconciled');
+verify($router->dispatch(cateringRequest('POST','/admin/catering/production',['_csrf'=>$token,'action'=>'add_ingredient','name'=>'Test rice','unit'=>'lb','cost'=>'2.00','supplier'=>'Local supplier','allergens'=>[]]))->status()===302,'Verified ingredient cost can be added');
+$ingredientId=(int)$db->fetchColumn('SELECT id FROM `'.$db->table('catering_ingredients').'` WHERE name=?',['Test rice']);
+verify($router->dispatch(cateringRequest('POST','/admin/catering/production',['_csrf'=>$token,'action'=>'add_recipe_ingredient','menu_item_id'=>(string)$items[0]['id'],'ingredient_id'=>(string)$ingredientId,'quantity_per_guest'=>'0.1000','waste_percent'=>'0','station'=>'Hot line','prep_lead_days'=>'1','label_notes'=>'Keep hot','prep_notes'=>'Rinse before cooking']))->status()===302,'Recipe quantity can be linked to a menu item');
+$recipeId=(int)$db->fetchColumn('SELECT id FROM `'.$db->table('catering_recipe_ingredients').'` WHERE menu_item_id=? AND ingredient_id=?',[(int)$items[0]['id'],$ingredientId]);
+verify($router->dispatch(cateringRequest('POST','/admin/catering/production',['_csrf'=>$token,'action'=>'update_ingredient','id'=>(string)$ingredientId,'name'=>'Test rice','unit'=>'lb','cost'=>'2.00','supplier'=>'Updated supplier','active'=>'1','allergens'=>[]]))->status()===302
+    && $db->fetchColumn('SELECT supplier FROM `'.$db->table('catering_ingredients').'` WHERE id=?',[$ingredientId])==='Updated supplier','Ingredient costs and supplier data can be maintained');
+verify($router->dispatch(cateringRequest('POST','/admin/catering/production',['_csrf'=>$token,'action'=>'update_recipe_ingredient','id'=>(string)$recipeId,'menu_item_id'=>(string)$items[0]['id'],'ingredient_id'=>(string)$ingredientId,'quantity_per_guest'=>'0.1000','waste_percent'=>'0','station'=>'Hot line','prep_lead_days'=>'1','label_notes'=>'Keep hot','prep_notes'=>'Rinse twice']))->status()===302
+    && $db->fetchColumn('SELECT prep_notes FROM `'.$db->table('catering_recipe_ingredients').'` WHERE id=?',[$recipeId])==='Rinse twice','Recipe production instructions can be maintained');
+$workspace=new CajunWebPro\Catering\EventWorkspace($db);
+$plannedEvent=$workspace->find($eventId); $production=$workspace->productionPlan($plannedEvent,$quoteService->find((int)$coreQuoteId,'cajunwebpro/catering'));
+verify($production['guests']===30 && $production['food_cost_minor']===600 && $production['labor_cost_minor']===8000
+    && $production['equipment_exposure_minor']===3000 && $production['revenue_minor']===117500
+    && isset($production['prep_groups'][date('Y-m-d',strtotime($row['event_date'].' -1 day'))]['Hot line']),
+    'Production worksheet scales ingredients, schedules stations, and uses accepted Core quote revenue');
+verify($router->dispatch(cateringRequest('POST',$eventPath,['_csrf'=>$token,'action'=>'add_cost','event_id'=>(string)$eventId,'category'=>'food','description'=>'Final ingredients','estimated'=>'100.00','actual'=>'110.00','notes'=>'Invoice received']))->status()===302,'Estimated and actual event costs can be recorded');
+$plannedEvent=$workspace->find($eventId); $production=$workspace->productionPlan($plannedEvent,$quoteService->find((int)$coreQuoteId,'cajunwebpro/catering'));
+verify($production['estimated_cost_minor']===10000 && $production['actual_cost_minor']===11000
+    && $production['estimated_margin_minor']===107500 && $production['actual_margin_minor']===106500,
+    'Event costing compares accepted revenue with estimated and actual operations costs');
+verify($workspace->purchasingPlan([$plannedEvent])[0]['quantity']===3.0,'Purchasing plan combines upcoming event ingredient requirements');
+$eventPage=$router->dispatch(cateringRequest('GET',$eventPath));
+verify($eventPage->status()===200 && str_contains($eventPage->body(),'Printable production worksheet') && str_contains($eventPage->body(),'Test rice'),
+    'Event workspace renders kitchen, packing, staffing, and delivery details');
+$tastingId=(int)$db->fetchColumn('SELECT id FROM `'.$db->table('catering_tastings').'` WHERE inquiry_id=?',[(int)$row['id']]);
+verify($router->dispatch(cateringRequest('POST','/admin/catering/tastings',['_csrf'=>$token,'id'=>(string)$tastingId,'eligibility'=>'eligible','status'=>'scheduled','preferred_date'=>date('Y-m-d',strtotime('+30 days')),'notes'=>'Two guests']))->status()===302
+    && $db->fetchColumn('SELECT status FROM `'.$db->table('catering_tastings').'` WHERE id=?',[$tastingId])==='scheduled','Tasting request can be reviewed and scheduled');
+$contentTypes=$f['ctx']->contentTypes();
+verify(isset($contentTypes['catering_venue'],$contentTypes['catering_case_study'],$contentTypes['catering_review']),
+    'Venue, case-study, and verified-review editing use Core content types');
+$now=date('Y-m-d H:i:s');
+foreach ([
+    ['catering_venue','Partner Hall',['name'=>'Partner Hall','city'=>'Lafayette, LA','website'=>'https://example.test/venue','description'=>'A flexible event venue.','service_notes'=>'Use the loading entrance.']],
+    ['catering_case_study','Fundraiser Gala',['event_name'=>'Fundraiser Gala','event_type'=>'Nonprofit','summary'=>'Dinner for 200 guests.','menu'=>'Cajun buffet','result'=>'Service completed on schedule.']],
+    ['catering_review','Verified Client',['customer_name'=>'Verified Client','event_type'=>'Wedding','rating'=>'5','review'=>'The team made the evening effortless.','verified'=>'1']],
+] as [$type,$title,$fields]) $db->insert('content_items',['package'=>'cajunwebpro/catering','type'=>$type,'title'=>$title,'status'=>'published','data'=>json_encode($fields,JSON_THROW_ON_ERROR),'sort'=>0,'created_by'=>null,'updated_by'=>null,'created_at'=>$now,'updated_at'=>$now]);
+verify(str_contains($router->dispatch(cateringRequest('GET','/'))->body(),'The team made the evening effortless.'),'Published verified review replaces the sample home testimonial');
+verify(str_contains($router->dispatch(cateringRequest('GET','/venues'))->body(),'Partner Hall') && str_contains($router->dispatch(cateringRequest('GET','/event-stories'))->body(),'Fundraiser Gala'),
+    'Published Core content renders venue partners and event case studies');
+foreach (['/', '/menus', '/menus/' . $categories[0]['slug'], '/packages', '/packages/' . $package['slug'], '/request-a-quote','/venues','/event-stories','/services/school-catering','/services/nonprofit-events','/services/holiday-catering','/services/memorial-gatherings', '/admin/catering/menus', '/admin/catering/packages', '/admin/catering/menu-groups','/admin/catering/events','/admin/catering/production',$eventPath] as $path) {
     $response = $router->dispatch(cateringRequest('GET', $path));
     verify($response->status() === 200, 'Public/admin route renders: ' . $path);
 }

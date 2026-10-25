@@ -71,7 +71,7 @@ final class EventOperations
                     break;
                 }
                 if ($zoneSnapshot === null) {
-                    $errors[] = 'That postal code is outside the configured delivery zones.';
+                    $errors[] = 'This address is currently outside our service area.';
                 } else {
                     $fee = max(0, (int) ($zoneSnapshot['fee_cents'] ?? 0));
                     if ($fee > 0) $lines[] = ['key' => 'delivery', 'name' => $zoneSnapshot['name'] . ' delivery', 'quantity' => 1, 'unit_cents' => $fee, 'total_cents' => $fee];

@@ -9,7 +9,7 @@ adoption of [Cajun Web Pro Module Rules v1.1](../../MOD_RULES.md).
 
 ## Current release
 
-- Module version: `1.0.0`
+- Module version: `1.5.0`
 - Module ID: `cajunwebpro/catering`
 - Type: `industry`
 - Module API: `1`
@@ -95,15 +95,37 @@ notification. These are request-screening and preliminary estimate tools only:
 they do not reserve capacity, create checkout, accept payment, or replace
 Core's final quotation workflow.
 
+## Commercial event operations in 1.5.0
+
+Accepted Core quotes now become one linked confirmed event without re-entering
+the preserved questionnaire, menu, or operations snapshot. Staff can also
+promote a qualified request to a tentative event, then manage event state,
+headcount deadlines, run of show, tasks, staffing shifts, equipment pulls and
+returns, delivery manifests, tastings, and revision acknowledgements.
+
+The production catalog stores maintainable ingredient costs and per-guest
+recipe quantities, including waste allowance, station, preparation date, and
+container/label notes. Event worksheets scale from final headcount, group work
+by station and preparation date, aggregate upcoming purchasing needs, and
+compare module-owned estimated/actual operating costs with revenue from the
+accepted Core quote. No invoice, tax, payment, signature, or customer-account
+record is duplicated in Catering.
+
+Core content types now support published venue partners, event case studies,
+and verified reviews. Focused wedding, corporate, school, nonprofit, holiday,
+memorial, private-celebration, and drop-off pages provide commercial entry
+points while shared media, page composition, schema, analytics, and theme
+selection remain Core-owned.
+
 ## Included features
 
 - Catering home, about, services, menus, packages, gallery, FAQ, service-area,
-  contact, and quote pages
+  venue, event-story, contact, and quote pages
 - Detail pages for services, menus, and packages
 - Quote and inquiry capture linked to Core's shared inquiry and quotation
   workspace while preserving detailed event questionnaires
 - Core-owned business identity plus module management screens for settings,
-  menus, and packages
+  menus, packages, events, tastings, and production
 - Responsive catering theme assets, fourteen bundled WebP images (including
   ten dish-specific photographs), and a transparent
   generic CATERING CO. starter logo without an opaque footer frame
@@ -127,7 +149,7 @@ Core's final quotation workflow.
 
 ## Installation
 
-Install the single `industry-catering-1.0.0.zip` through Website Core’s
+Install the single `industry-catering-1.5.0.zip` through Website Core’s
 module/package manager. This delivery contains only the module; use an
 already-installed compatible Core. It contains no nested ZIP and does not
 include or update Core. Combined installers require an explicit owner request. The installable module ZIP keeps
@@ -147,5 +169,6 @@ use the new validated package. Upgrade coverage includes the valid published
 - [Session handoff](docs/SESSION_HANDOFF.md)
 - [Operator guide](docs/OPERATOR_GUIDE.md)
 - [1.0 release notes](docs/RELEASE_NOTES_1.0.md)
+- [1.5 release notes](docs/RELEASE_NOTES_1.5.md)
 - [Changelog](CHANGELOG.md)
 

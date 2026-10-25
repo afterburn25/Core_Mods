@@ -68,6 +68,8 @@ function cateringFixture(?string $sqlitePath = null, bool $withModule = true): a
     $services[Core\Modules\ModuleRegistry::class] = $registry;
     $services[Core\Business\BusinessProfile::class] = new Core\Business\BusinessProfile($settings);
     $services[Core\Leads\InquiryService::class] = new Core\Leads\InquiryService($db);
+    $services[Core\Leads\QuoteService::class] = new Core\Leads\QuoteService($db);
+    $services[Core\Content\ContentItems::class] = new Core\Content\ContentItems($db, $registry);
     $services[Core\System\Version::class] = new Core\System\Version($registry);
     $services[Core\Admin\NoticeCenter::class] = new Core\Admin\NoticeCenter($db);
     foreach ($services as $id => $service) $container->instance($id, $service);

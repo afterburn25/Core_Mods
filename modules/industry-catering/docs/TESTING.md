@@ -1,5 +1,24 @@
 # Catering Module Testing
 
+## 1.5.0 commercial operations candidate — 2026-10-25
+
+- Pinned local Core 2.3 fixture:
+  `861d1b3e3c8def4ed4bb0b9e29614ad4290663a5`.
+- PHP syntax passed for every module PHP file.
+- Menu planner passed 55 checks; controller/database integration passed 113
+  checks; release-readiness passed 21 checks; cross-module isolation passed 18
+  checks; Core inquiry detail/notes contract passed.
+- Coverage includes migration idempotence, structured delivery addresses,
+  tasting creation/scheduling, tentative-event promotion, accepted-quote
+  confirmation without duplication, headcount/timeline changes, tasks,
+  staffing, equipment returns, recipe scaling, preparation station/date,
+  label notes, purchasing totals, estimated/actual event costs, accepted-quote
+  revenue/margins, Core content types, and focused public service routes.
+- A direct packaged 1.0.0 → 1.5.0 upgrade plus disable/enable,
+  uninstall-without-purge, retained-data reinstall, and fresh install passed 27
+  SQLite lifecycle checks. Native MySQL/MariaDB jobs, GitHub publication, and
+  CI evidence remain pending until the final archive is published.
+
 ## 1.0.0 production-baseline candidate — 2026-10-25
 
 - Added isolated operations-planner checks for service guest ranges, lead time,

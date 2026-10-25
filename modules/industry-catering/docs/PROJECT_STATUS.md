@@ -1,12 +1,25 @@
 # Catering Module Project Status
 
-- Current version: `1.0.0`
-- State: Production baseline; module-only CI passed
+- Current version: `1.5.0`
+- State: Commercial operations candidate; local module acceptance passed, publication CI pending
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
 - Module API: `1`
 - Required Core: Website Core `>=2.3.0,<3.0.0`
 - Last updated: 2026-10-25
+
+## 1.5.0 commercial operations scope
+
+- One tentative/confirmed event per Catering quote request with automatic
+  accepted-Core-quote synchronization and preserved immutable snapshots.
+- Final headcount/deadlines, run of show, tasks, staffing, equipment/returns,
+  delivery manifests, tasting workflow, and change acknowledgements.
+- Maintainable ingredients and recipes with waste, production station/date,
+  label notes, scaled worksheets, and cross-event purchasing totals.
+- Estimated/actual event operating costs compared with accepted Core quote
+  revenue without duplicating invoices, taxes, or payments.
+- Core-managed venue, case-study, and verified-review records plus focused
+  school, nonprofit, holiday, and memorial service pages.
 
 ## 0.2.0 delivered scope
 
@@ -102,9 +115,10 @@
   when the owner explicitly requests integration (direction: 2026-10-25).
 - Defer combined Core bundle CI until that integration is requested; preserve
   honest compatibility requirements and continue module validation.
-- Complete exact 1.0.0 archive publication and module-branch CI. Keep shared
-  follow-up, export, notification-template, attachment, content, media, schema,
-  form, commerce, account, and payment engines deferred to Core dependencies.
+- Publish and verify the exact 1.5.0 module archive. Keep shared radius maps,
+  ten-theme collection management, documents/signatures, portal workflows,
+  checkout validation, accounts, invoices, and payments on their Core
+  dependencies instead of duplicating them here.
 
 ## Known issues and release gates
 
@@ -121,6 +135,8 @@
 - Shared content/media/forms integration remains on CORE-REUSE-3/4.
 - Historical 0.1.22/0.1.23 archives are truncated. Only the complete current
   ZIP remains in releases; legacy-source fixtures are explicitly test-only.
-- Tasting requests, detailed event-production worksheets, venue/case-study
-  content, checkout, accounts, and payments remain later work. Commerce work
-  must use Core and is not a 1.0 module-owned release gate.
+- Radius maps/address-distance validation remain blocked on CORE-REUSE-9.
+- Ten structurally distinct theme layouts and palette/media state remain
+  blocked on CORE-REUSE-10.
+- Safe optional direct ordering remains blocked on CORE-REUSE-11 because Core
+  checkout cannot yet call module-owned event eligibility rules atomically.

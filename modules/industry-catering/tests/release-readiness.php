@@ -9,10 +9,10 @@ $check = static function (bool $condition, string $message) use (&$checks): void
     $checks++;
 };
 $manifest = json_decode((string) file_get_contents($root . '/addon.json'), true, 512, JSON_THROW_ON_ERROR);
-$check($manifest['version'] === '1.0.0', 'Release-readiness suite targets Catering 1.0.0');
+$check($manifest['version'] === '1.5.0', 'Release-readiness suite targets Catering 1.5.0');
 $check($manifest['requires']['core'] === '>=2.3.0,<3.0.0' && (int) $manifest['requires']['api'] === 1,
     'Supported Core and Module API ranges are explicit');
-foreach (['README.md', 'CHANGELOG.md', 'docs/OPERATOR_GUIDE.md', 'docs/RELEASE_NOTES_1.0.md', 'docs/TESTING.md'] as $file) {
+foreach (['README.md', 'CHANGELOG.md', 'docs/OPERATOR_GUIDE.md', 'docs/RELEASE_NOTES_1.0.md', 'docs/RELEASE_NOTES_1.5.md', 'docs/TESTING.md'] as $file) {
     $check(is_file($root . '/' . $file), $file . ' is packaged');
 }
 
@@ -22,6 +22,8 @@ $contact = (string) file_get_contents($root . '/views/contact.php');
 $css = (string) file_get_contents($root . '/assets/css/catering.css');
 $js = (string) file_get_contents($root . '/assets/js/catering.js');
 $controller = (string) file_get_contents($root . '/src/CateringController.php');
+$workspace = (string) file_get_contents($root . '/src/EventWorkspace.php');
+$provider = (string) file_get_contents($root . '/src/Provider.php');
 $check(str_contains($layout, '<html lang="en">') && str_contains($layout, 'href="#main-content"') && str_contains($layout, '<main id="main-content">'),
     'Public layout exposes language, skip link, and main landmark');
 $check(str_contains($layout, 'aria-controls="primary-navigation"') && str_contains($layout, 'aria-expanded="false"'),
@@ -40,11 +42,17 @@ $check(str_contains($controller, 'function guard(') && str_contains($controller,
     'Administrator actions enforce server-side capabilities');
 $check(!str_contains($controller, 'SELECT * FROM admins') && !str_contains($controller, 'CajunWebPro\\Landscaping'),
     'Catering does not bypass Core identity or another module boundary');
+$check(str_contains($workspace, 'synchronizeAcceptedQuotes') && str_contains($workspace, 'productionPlan')
+    && str_contains($workspace, 'purchasingPlan'), 'Confirmed-event, production, and purchasing services are packaged');
+$check(str_contains($provider, "contentType('catering_venue'") && str_contains($provider, "contentType('catering_case_study'")
+    && str_contains($provider, "contentType('catering_review'"), 'Commercial proof content uses Core content types');
+$check(!str_contains($provider, '->commerce(') && !str_contains($provider, '->customerAccounts('),
+    'Direct ordering stays disabled until Core supplies catering checkout validation hooks');
 
 $migrationFiles = array_map('basename', glob($root . '/migrations/*.php') ?: []);
 $check($migrationFiles === [
     '0001_catering.php', '0002_cajun_menu_images.php', '0003_home_search_metadata.php',
     '0004_core_sales_workspace.php', '0005_menu_planner.php', '0006_catalog_availability.php',
-    '0007_event_operations.php',
+    '0007_event_operations.php', '0008_event_workspace.php',
 ], 'Migration order is stable and append-only');
 echo "Release readiness: {$checks} checks passed.\n";

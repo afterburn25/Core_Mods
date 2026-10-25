@@ -49,6 +49,8 @@ packageCheck($db->driver() === 'sqlite'
     ? in_array('operations_plan', array_column($db->fetchAll('PRAGMA table_info(`' . $db->table('catering_inquiries') . '`)'), 'name'), true)
     : (bool) $db->fetchColumn('SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name=? AND column_name=?',
         [$db->table('catering_inquiries'), 'operations_plan']), 'Upgrade adds the event-operations snapshot column');
+packageCheck($db->tableExists('catering_events') && $db->tableExists('catering_event_costs')
+    && $db->tableExists('catering_recipe_ingredients'), 'Upgrade adds the commercial event, costing, and production workspace');
 packageCheck((int) $db->fetchColumn('SELECT COUNT(*) FROM `' . $db->table('menu_items') . '`') === $menuCount, 'Upgrade preserves navigation');
 $installed = glob($root . '/industries/*/addon.json');
 packageCheck(count($installed) === 1 && json_decode((string) file_get_contents($installed[0]), true)['version'] === $latest['version'], 'Installed manifest version matches release');
@@ -60,7 +62,8 @@ packageCheck($ok, 'Re-enable module: ' . (string) $error);
 packageCheck($ok, 'Disable before uninstall: ' . (string) $error);
 [$ok, $error] = $manager->uninstall($id);
 packageCheck($ok, 'Uninstall without data purge: ' . (string) $error);
-packageCheck($db->tableExists('catering_menu_items') && $db->tableExists('catering_inquiries'), 'Uninstall retains catering records');
+packageCheck($db->tableExists('catering_menu_items') && $db->tableExists('catering_inquiries')
+    && $db->tableExists('catering_events'), 'Uninstall retains catering records');
 [, $error] = $manager->stage($archive);
 packageCheck($error === null, 'Restage current module for reinstall: ' . (string) $error);
 [$ok, $error] = $manager->install($id);
@@ -83,6 +86,8 @@ packageCheck($ok, 'Install current ZIP on a fresh site: ' . (string) $error);
 [$ok, $error] = $freshManager->enable($id);
 packageCheck($ok, 'Enable current ZIP on a fresh site: ' . (string) $error);
 packageCheck((int) $fresh['db']->fetchColumn('SELECT COUNT(*) FROM `' . $fresh['db']->table('catering_menu_items') . '` WHERE pricing_basis = ?', ['per_guest']) === 10, 'Fresh install seeds usable planner pricing');
+packageCheck($fresh['db']->tableExists('catering_events') && $fresh['db']->tableExists('catering_tastings')
+    && $fresh['db']->tableExists('catering_ingredients'), 'Fresh install creates the event and production workspace');
 foreach ([$db, $fresh['db']] as $dbToClean) {
     if ($dbToClean->driver() !== 'mysql') continue;
     $dbToClean->pdo()->exec('SET FOREIGN_KEY_CHECKS=0');

@@ -49,6 +49,7 @@
   const packageSelect = form.querySelector('[data-planner-package]');
   const fulfillmentMethod = form.querySelector('[data-fulfillment-method]');
   const fulfillmentWindow = form.querySelector('[data-fulfillment-window]');
+  const deliveryAddress = form.querySelector('[data-delivery-address]');
   const rulesText = form.querySelector('[data-planner-rules]');
   const money = (cents) => new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(cents / 100);
   let current = 0;
@@ -122,6 +123,12 @@
       option.disabled = Boolean(fulfillmentMethod.value && option.dataset.method !== fulfillmentMethod.value);
     });
     if (fulfillmentWindow.selectedOptions[0]?.disabled) fulfillmentWindow.value = '';
+    if (deliveryAddress) {
+      const delivery = fulfillmentMethod.value === 'delivery';
+      deliveryAddress.querySelectorAll('[name="address_line_1"], [name="city"], [name="region"]').forEach((input) => {
+        input.required = delivery;
+      });
+    }
   };
   const refreshEstimate = async () => {
     clearTimeout(debounce);

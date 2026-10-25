@@ -1,5 +1,22 @@
 # Catering Module Changelog
 
+## 1.5.0 — 2026-10-25
+
+- Added a confirmed-event workspace that synchronizes accepted Core quotes and
+  preserves one event per detailed Catering questionnaire.
+- Added event states, final-headcount deadlines, run of show, tasks, staffing,
+  equipment/returns, delivery manifests, tastings, and revision acknowledgments.
+- Added maintainable ingredients and recipe quantities with waste allowance,
+  production station/date, container/label notes, scaled preparation sheets,
+  and cross-event purchasing totals.
+- Added estimated and actual operating-cost records plus accepted-quote revenue
+  and margin comparisons without duplicating Core invoices or payments.
+- Added structured delivery addresses, venue partners, event case studies,
+  verified reviews, and focused school, nonprofit, holiday, and memorial pages.
+- Kept radius maps/address geocoding, reusable theme collection management,
+  documents/signatures/portal workflows, and guarded direct ordering blocked on
+  shared Core contracts instead of shipping private duplicate engines.
+
 ## 1.0.0 — 2026-10-25
 
 - Added server-authoritative service-style guest limits and lead times,

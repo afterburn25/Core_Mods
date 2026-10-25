@@ -1,9 +1,9 @@
-# Catering 1.0 Operator Guide
+# Catering 1.5 Operator Guide
 
 ## Supported platform
 
-Catering 1.0.0 supports Website Core `>=2.3.0,<3.0.0` and Module API 1. Install
-the single `industry-catering-1.0.0.zip` through Core's package manager. The
+Catering 1.5.0 supports Website Core `>=2.3.0,<3.0.0` and Module API 1. Install
+the single `industry-catering-1.5.0.zip` through Core's package manager. The
 archive is a module-only package: it does not contain Core or another ZIP.
 
 Before installation or upgrade, create a complete Website Core backup using
@@ -26,6 +26,9 @@ uninstalled without an explicit purge.
    the immutable menu and operations summaries in Core's inquiry workspace.
 6. Replace demo copy and imagery before launch when the corresponding shared
    Core content/media workflows are available.
+7. In Catering → Production catalog, enter verified ingredient costs and
+   recipe quantities before relying on a production or purchasing total.
+8. Publish venue, case-study, and verified-review records through Core Content.
 
 ## Operations configuration formats
 
@@ -53,6 +56,29 @@ fees but remain inquiries, not orders, reservations, invoices, or payments.
 - Changing catalog or operations settings never rewrites a historical inquiry
   snapshot.
 
+## Event and production workflow
+
+1. Build and send the final quotation from Core's inquiry workspace. An
+   accepted Core quote confirms the linked Catering event automatically the
+   next time the event workspace opens.
+2. Use Catering → Events & tastings to promote a qualified request to a
+   tentative event when operational planning must begin before acceptance.
+3. Confirm the final headcount deadline, run of show, venue, delivery details,
+   tasks, staffing, equipment and tasting state. Event-plan changes create an
+   acknowledgement item for the team.
+4. Maintain recipe station, prep lead days, label/container notes, quantities,
+   waste, ingredient unit costs, and supplier names in Production catalog.
+5. Print the event worksheet for the preparation schedule, menu labels,
+   ingredient pull, delivery manifest, and cost summary. The combined
+   purchasing list excludes completed and cancelled events.
+6. Record actual food, labor, rental, travel, and other event costs as they
+   become known. Revenue comes only from the accepted Core quote; incomplete
+   actual costs remain marked incomplete.
+
+The public quote flow still uses postal delivery zones. Do not promise mileage
+coverage until Core supplies CORE-REUSE-9. Direct online ordering remains off
+until CORE-REUSE-11 can enforce Catering rules during checkout.
+
 ## Upgrade and rollback policy
 
 Upgrade only through Core's package manager and do not skip the pre-upgrade
@@ -60,7 +86,7 @@ backup. Catering migrations are forward-only. A code downgrade is not a data
 rollback: restore the complete Core backup if an upgrade must be reversed.
 Never install an older module ZIP over newer migrated data.
 
-The 1.0 acceptance matrix covers clean install; upgrades from the valid 0.1.21
+The acceptance matrix covers clean install; upgrades from the valid 0.1.21
 release, a rebuilt 0.1.23 source fixture, the exact 0.2.0 release, and the exact
 0.4.0 release; disable/enable; uninstall without purge; and reinstall with
 retained customer catalog and inquiry records. Whole-site backup restoration

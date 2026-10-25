@@ -1,5 +1,29 @@
 # Catering Module Session Handoff
 
+## 1.5.0 commercial operations candidate — 2026-10-25
+
+The module now contains the module-owned work from the 1.1, 1.2, 1.4 and 1.5
+commercial milestones: accepted Core quotes synchronize into one confirmed
+event; tentative events preserve the same questionnaire/menu/operations
+snapshots; event planning covers final count, timeline, tasks, staffing,
+equipment, delivery, tastings and revision acknowledgement; production covers
+ingredients, recipes, waste, stations/dates, labels, purchasing and event cost
+comparisons; Core content types supply venue partners, case studies and
+verified reviews; eight focused service pages are routed publicly.
+
+The exact 1.5.0 ZIP and GitHub CI are not yet claimed in this handoff section.
+Local acceptance currently passes 55 planner, 113 SQLite integration, 21
+release-readiness, 18 cross-module isolation, and 27 packaged lifecycle checks,
+all PHP syntax, and the pinned Core inquiry detail/notes contract.
+
+Three shared boundaries remain: CORE-REUSE-9 for the city/state + mileage map
+and server address distance result, CORE-REUSE-10 for the ten-layout theme
+collection and per-theme palette/media state, and CORE-REUSE-11 for atomic
+module validation during Core checkout. CORE-REUSE-11 was recorded in Website
+Core roadmap commit `0215410d4a6676350cf4f297497dccf9dba7c92a` after source
+inspection confirmed Core 2.3 has generic commerce but no catering eligibility
+hook. Direct ordering remains disabled; do not ship an unsafe generic store.
+
 ## Post-1.0 commercial roadmap decision — 2026-10-25
 
 The owner approved the next commercial catering milestones: a confirmed-event

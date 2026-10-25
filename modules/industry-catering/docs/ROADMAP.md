@@ -190,14 +190,14 @@ Core synchronization and combined packaging still require an explicit request.
 
 ## 1.1.0 — Confirmed-event workspace and service-area map
 
-- [ ] Convert an accepted Core quotation into one module-owned confirmed event
+- [x] Convert an accepted Core quotation into one module-owned confirmed event
       without re-entering the questionnaire, menu or operations snapshot
-- [ ] Add tentative, confirmed, completed and cancelled event states with a
+- [x] Add tentative, confirmed, completed and cancelled event states with a
       calendar/list workspace and an audit-safe change history
-- [ ] Add event timelines, final-headcount deadlines, task ownership and
-      deadline reminders through Core's shared notification services
-- [ ] Add tasting requests with configurable eligibility, capacity and lead-time
-      rules
+- [x] Add event timelines, final-headcount deadlines and task ownership
+- [ ] Send deadline reminders through Core's shared notification services
+- [x] Add tasting request review, eligibility and scheduling states
+- [ ] Add administrator-configurable tasting capacity and lead-time rules
 - [ ] Let an administrator set the shared service-area center by city/state and
       select a mileage radius in Core's business profile; render the generated,
       accessible radius map on Catering's Service Area page through
@@ -224,15 +224,15 @@ map-provider integration while that contract is unavailable.
 
 ## 1.2.0 — Production and fulfillment
 
-- [ ] Scale recipes, yields and ingredient quantities from the final headcount
-- [ ] Produce kitchen preparation sheets grouped by station and preparation date
-- [ ] Produce portion, packing, container, dietary and allergen labels/checklists
-- [ ] Track equipment/rental pull, load, return, damage and replacement tasks
-- [ ] Assign catering-specific positions and shifts without duplicating Core
+- [x] Scale recipes, yields and ingredient quantities from the final headcount
+- [x] Produce kitchen preparation sheets grouped by station and preparation date
+- [x] Produce portion, packing, container, dietary and allergen labels/checklists
+- [x] Track equipment/rental pull, load, return, damage and replacement tasks
+- [x] Assign catering-specific positions and shifts without duplicating Core
       administrator accounts or permissions
-- [ ] Produce delivery manifests, driver assignments, route order, venue
+- [x] Produce delivery manifests, driver assignments, route order, venue
       contacts, setup instructions and status/proof records
-- [ ] Highlight post-production event changes so affected teams acknowledge them
+- [x] Highlight post-production event changes so affected teams acknowledge them
 
 ## 1.3.0 — Proposals, contracts and customer completion
 
@@ -254,9 +254,11 @@ account, invoice, signature or payment engines.
 
 ## 1.4.0 — Costing and operational reporting
 
-- [ ] Add module-owned ingredients, recipe yields, food cost and dish margins
-- [ ] Compare estimated and actual food, labor, rental, travel and event costs
-- [ ] Generate ingredient requirements, vendor purchasing lists and preparation
+- [x] Add module-owned ingredients, recipe yields and food cost
+- [ ] Add per-dish margin reporting after accepted quote lines expose stable dish
+      attribution through Core
+- [x] Compare estimated and actual food, labor, rental, travel and event costs
+- [x] Generate ingredient requirements, vendor purchasing lists and preparation
       totals across multiple events
 - [ ] Report revenue, margin, covers and utilization by event type, menu,
       package, service style, venue and lead source using Core reporting hooks
@@ -265,10 +267,12 @@ account, invoice, signature or payment engines.
 
 ## 1.5.0 — Sales growth and public proof
 
-- [ ] Add venue partnerships, preferred-venue pages and venue-specific guidance
-- [ ] Add administrator-approved event case studies, galleries and verified
+- [x] Add venue partnerships, preferred-venue pages and venue-specific guidance
+- [x] Add administrator-approved event case studies and verified
       event-specific reviews through Core content/media services
-- [ ] Add focused wedding, corporate, school, nonprofit, holiday and memorial
+- [ ] Add Core Media galleries to event stories after adopting the delivered
+      `CORE-REUSE-3` media-field contract in a future tested Core baseline
+- [x] Add focused wedding, corporate, school, nonprofit, holiday and memorial
       landing-page patterns without duplicating Core's page composer
 - [ ] Add referral/promotion attribution, repeat-customer insights and abandoned
       inquiry follow-up through Core analytics, privacy and notification services
@@ -324,3 +328,11 @@ manager inside the module.
       corporate meal programs through Core customer accounts
 - [ ] Keep complex or manually priced events in the quotation workflow and
       never create a parallel cart, checkout, invoice or payment engine
+
+Core 2.3 supplies the dormant commerce/account surfaces, but its documented
+Module API does not yet let Catering enforce event date, lead time, capacity,
+fulfillment, postal/radius, minimum-order and manual-price rules atomically at
+checkout. The reusable validation contract is recorded as `CORE-REUSE-11` in
+Website Core roadmap commit `0215410d4a6676350cf4f297497dccf9dba7c92a`.
+Catering must remain quote-only until that hook exists and passes acceptance;
+enabling the generic store without those checks would create unsafe orders.

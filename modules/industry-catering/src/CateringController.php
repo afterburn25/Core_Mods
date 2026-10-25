@@ -6,11 +6,13 @@ namespace CajunWebPro\Catering;
 use Core\Audit\AuditLog;
 use Core\Auth\AuthService;
 use Core\Business\BusinessProfile;
+use Core\Content\ContentItems;
 use Core\Database\Connection;
 use Core\Http\Request;
 use Core\Http\Response;
 use Core\Mail\SystemMail;
 use Core\Leads\InquiryService;
+use Core\Leads\QuoteService;
 use Core\Modules\ModuleContext;
 use Core\Security\Csrf;
 use Core\Security\RateLimiter;
@@ -67,6 +69,7 @@ final class CateringController
     public function home(Request $request): Response
     {
         [$availability, $availabilityParams] = $this->availabilityClause();
+        $reviews = $this->ctx->service(ContentItems::class)->items($this->ctx->packageId(), 'catering_review', true);
         return $this->page($request, 'home', [
             'featuredItems' => $this->db()->fetchAll(
                 'SELECT * FROM `' . $this->db()->table('catering_menu_items')
@@ -74,6 +77,7 @@ final class CateringController
                 $availabilityParams
             ),
             'packages' => $this->visiblePackages(3),
+            'review' => $reviews[0] ?? null,
         ], 'Home', 'Thoughtful menus and polished service for memorable gatherings.');
     }
 
@@ -147,6 +151,21 @@ final class CateringController
     {
         return $this->page($request, 'gallery', [], 'Gallery',
             'A visual look at beautifully catered weddings, celebrations, and corporate gatherings.');
+    }
+
+    public function venues(Request $request): Response
+    {
+        return $this->page($request, 'venues', [
+            'venues' => $this->ctx->service(ContentItems::class)->items($this->ctx->packageId(), 'catering_venue', true),
+        ], 'Venue Partners', 'Preferred venues and location guidance for catered events.');
+    }
+
+    public function eventStories(Request $request): Response
+    {
+        return $this->page($request, 'event-stories', [
+            'stories' => $this->ctx->service(ContentItems::class)->items($this->ctx->packageId(), 'catering_case_study', true),
+            'reviews' => $this->ctx->service(ContentItems::class)->items($this->ctx->packageId(), 'catering_review', true),
+        ], 'Event Stories', 'Real catering events, results, and verified client feedback.');
     }
 
     public function about(Request $request): Response
@@ -561,6 +580,228 @@ final class CateringController
         return Response::redirect($this->ctx->url($request->basePath, '/admin/catering/menu-groups', ['saved' => 1]));
     }
 
+    public function adminEvents(Request $request, ?string $error = null): Response
+    {
+        if ($forbidden = $this->guard('catering.manage')) return $forbidden;
+        $workspace = new EventWorkspace($this->db());
+        $workspace->synchronizeAcceptedQuotes($this->ctx->service(QuoteService::class), $this->ctx->packageId());
+        return $this->adminPage($request, 'admin-events', [
+            'events' => $workspace->all(), 'inquiries' => $workspace->availableInquiries(),
+            'tastings' => $this->db()->fetchAll('SELECT * FROM `' . $this->db()->table('catering_tastings') . '` ORDER BY created_at DESC,id DESC LIMIT 100'),
+            'saved' => $request->string('saved') === '1', 'error' => $error,
+        ], 'Catering Events');
+    }
+
+    public function adminEvent(Request $request, ?string $error = null): Response
+    {
+        if ($forbidden = $this->guard('catering.manage')) return $forbidden;
+        $id = (int) ($request->attributes['id'] ?? 0);
+        $workspace = new EventWorkspace($this->db());
+        $event = $workspace->find($id);
+        if ($event === null) return Response::notFound();
+        $quote = !empty($event['core_quote_id'])
+            ? $this->ctx->service(QuoteService::class)->find((int)$event['core_quote_id'], $this->ctx->packageId())
+            : null;
+        return $this->adminPage($request, 'admin-event', [
+            'event' => $event, 'production' => $workspace->productionPlan($event, $quote),
+            'states' => EventWorkspace::STATES, 'taskStatuses' => EventWorkspace::TASK_STATUSES,
+            'staffStatuses' => EventWorkspace::STAFF_STATUSES, 'equipmentStatuses' => EventWorkspace::EQUIPMENT_STATUSES,
+            'costCategories' => EventWorkspace::COST_CATEGORIES,
+            'saved' => $request->string('saved') === '1', 'error' => $error,
+        ], 'Event Operations');
+    }
+
+    public function adminEventsSave(Request $request): Response
+    {
+        if ($forbidden = $this->guard('catering.manage')) return $forbidden;
+        if (!$this->ctx->service(Csrf::class)->validate($request)) return Response::text('Invalid CSRF token.', 419);
+        $workspace = new EventWorkspace($this->db());
+        $action = $request->string('action');
+        $eventId = 0;
+        try {
+            if ($action === 'create_event') {
+                $inquiryId = $this->boundedInt($request->string('inquiry_id'), 1, 999999999, 'Inquiry');
+                $eventId = $workspace->createFromInquiryId($inquiryId) ?? 0;
+                if ($eventId < 1) throw new \InvalidArgumentException('Choose an available catering quote request.');
+                $this->audit('catering.event.created', $eventId);
+            } else {
+                $eventId = $this->boundedInt($request->string('event_id'), 1, 999999999, 'Event');
+                $event = $workspace->find($eventId);
+                if ($event === null) throw new \InvalidArgumentException('This event no longer exists.');
+                if ($action === 'update_event') {
+                    $state = $request->string('state');
+                    if (!in_array($state, EventWorkspace::STATES, true)) throw new \InvalidArgumentException('Choose a valid event state.');
+                    $eventDate = $this->optionalDate($request->string('event_date'), 'Event date');
+                    $headcountDue = $this->optionalDate($request->string('final_headcount_due'), 'Final headcount deadline');
+                    if ($headcountDue !== null && $eventDate !== null && $headcountDue > $eventDate) throw new \InvalidArgumentException('Final headcount must be due on or before the event date.');
+                    $guestCount = $this->optionalBoundedInt($request->string('final_guest_count'), 1, 10000, 'Final guest count');
+                    $data = [
+                        'state'=>$state, 'title'=>mb_substr($request->string('title'),0,190),
+                        'event_date'=>$eventDate, 'event_time'=>mb_substr($request->string('event_time'),0,20) ?: null,
+                        'final_guest_count'=>$guestCount, 'final_headcount_due'=>$headcountDue,
+                        'venue'=>mb_substr($request->string('venue'),0,255) ?: null,
+                        'run_of_show'=>mb_substr($request->string('run_of_show'),0,10000) ?: null,
+                        'internal_notes'=>mb_substr($request->string('internal_notes'),0,10000) ?: null,
+                        'delivery_status'=>mb_substr($request->string('delivery_status','unassigned'),0,24),
+                        'driver_name'=>mb_substr($request->string('driver_name'),0,190) ?: null,
+                        'route_order'=>$this->optionalBoundedInt($request->string('route_order'),1,999,'Route order'),
+                        'setup_instructions'=>mb_substr($request->string('setup_instructions'),0,5000) ?: null,
+                        'proof_reference'=>mb_substr($request->string('proof_reference'),0,500) ?: null,
+                        'revision'=>(int)$event['revision']+1, 'updated_at'=>date('Y-m-d H:i:s'),
+                    ];
+                    if ($data['title'] === '') throw new \InvalidArgumentException('Event title is required.');
+                    if (!in_array($data['delivery_status'], ['unassigned','scheduled','out_for_delivery','delivered','completed','cancelled'], true)) throw new \InvalidArgumentException('Choose a valid delivery status.');
+                    $this->db()->transaction(function () use ($eventId, $data, $event): void {
+                        $this->db()->update('catering_events', $data, 'id=?', [$eventId]);
+                        $changes=[];
+                        foreach (['state','event_date','event_time','final_guest_count','final_headcount_due','venue','delivery_status','driver_name'] as $key) {
+                            if ((string)($event[$key]??'') !== (string)($data[$key]??'')) $changes[] = str_replace('_',' ',$key) . ' changed';
+                        }
+                        $this->db()->insert('catering_event_revisions', ['event_id'=>$eventId,'revision'=>$data['revision'],'summary'=>$changes!==[]?implode('; ',$changes):'Planning notes updated','acknowledged_at'=>null,'created_at'=>date('Y-m-d H:i:s')]);
+                    });
+                    $this->audit('catering.event.updated', $eventId);
+                } elseif ($action === 'add_task') {
+                    $title=mb_substr($request->string('title'),0,190); if($title==='') throw new \InvalidArgumentException('Task title is required.');
+                    $this->db()->insert('catering_event_tasks',['event_id'=>$eventId,'category'=>mb_substr($request->string('category','general'),0,40),'title'=>$title,'due_date'=>$this->optionalDate($request->string('due_date'),'Task due date'),'assignee'=>mb_substr($request->string('assignee'),0,190)?:null,'status'=>'open','notes'=>mb_substr($request->string('notes'),0,3000)?:null,'sort_order'=>0,'created_at'=>date('Y-m-d H:i:s'),'updated_at'=>null]);
+                    $this->audit('catering.event.task_added', $eventId);
+                } elseif ($action === 'update_task') {
+                    $this->updateChildStatus($request,'catering_event_tasks',EventWorkspace::TASK_STATUSES,$eventId);
+                } elseif ($action === 'add_staff') {
+                    $position=mb_substr($request->string('position'),0,120); if($position==='') throw new \InvalidArgumentException('Staff position is required.');
+                    $this->db()->insert('catering_event_staff',['event_id'=>$eventId,'position'=>$position,'staff_name'=>mb_substr($request->string('staff_name'),0,190)?:null,'starts_at'=>mb_substr($request->string('starts_at'),0,30)?:null,'ends_at'=>mb_substr($request->string('ends_at'),0,30)?:null,'status'=>$request->string('staff_name')!==''?'assigned':'needed','hourly_cost_minor'=>MenuPlanner::cents($request->string('hourly_cost','0')),'notes'=>mb_substr($request->string('notes'),0,3000)?:null,'created_at'=>date('Y-m-d H:i:s'),'updated_at'=>null]);
+                    $this->audit('catering.event.staff_added', $eventId);
+                } elseif ($action === 'update_staff') {
+                    $this->updateChildStatus($request,'catering_event_staff',EventWorkspace::STAFF_STATUSES,$eventId);
+                } elseif ($action === 'add_equipment') {
+                    $name=mb_substr($request->string('item_name'),0,190); if($name==='') throw new \InvalidArgumentException('Equipment name is required.');
+                    $this->db()->insert('catering_event_equipment',['event_id'=>$eventId,'item_name'=>$name,'quantity'=>$this->boundedInt($request->string('quantity','1'),1,10000,'Equipment quantity'),'packed_quantity'=>0,'returned_quantity'=>0,'replacement_cost_minor'=>MenuPlanner::cents($request->string('replacement_cost','0')),'status'=>'needed','notes'=>mb_substr($request->string('notes'),0,3000)?:null,'created_at'=>date('Y-m-d H:i:s'),'updated_at'=>null]);
+                    $this->audit('catering.event.equipment_added', $eventId);
+                } elseif ($action === 'update_equipment') {
+                    $id=$this->childId($request,'catering_event_equipment',$eventId); $status=$request->string('status');
+                    if(!in_array($status,EventWorkspace::EQUIPMENT_STATUSES,true)) throw new \InvalidArgumentException('Choose a valid equipment status.');
+                    $row=$this->db()->fetch('SELECT quantity FROM `'.$this->db()->table('catering_event_equipment').'` WHERE id=?',[$id]);
+                    $packed=$this->boundedInt($request->string('packed_quantity','0'),0,(int)$row['quantity'],'Packed quantity');
+                    $returned=$this->boundedInt($request->string('returned_quantity','0'),0,(int)$row['quantity'],'Returned quantity');
+                    $this->db()->update('catering_event_equipment',['status'=>$status,'packed_quantity'=>$packed,'returned_quantity'=>$returned,'updated_at'=>date('Y-m-d H:i:s')],'id=?',[$id]);
+                    $this->audit('catering.event.equipment_updated',$eventId);
+                } elseif ($action === 'add_cost') {
+                    $category=$request->string('category');
+                    if(!in_array($category,EventWorkspace::COST_CATEGORIES,true)) throw new \InvalidArgumentException('Choose a valid cost category.');
+                    $description=mb_substr($request->string('description'),0,190);
+                    if($description==='') throw new \InvalidArgumentException('Cost description is required.');
+                    $id=(int)$this->db()->insert('catering_event_costs',[
+                        'event_id'=>$eventId,'category'=>$category,'description'=>$description,
+                        'estimated_minor'=>MenuPlanner::cents($request->string('estimated','0')),
+                        'actual_minor'=>$this->optionalMoney($request->string('actual')),
+                        'notes'=>mb_substr($request->string('notes'),0,3000)?:null,
+                        'created_at'=>date('Y-m-d H:i:s'),'updated_at'=>null,
+                    ]);
+                    $this->audit('catering.event.cost_added',$id);
+                } elseif ($action === 'update_cost') {
+                    $id=$this->childId($request,'catering_event_costs',$eventId);
+                    $category=$request->string('category');
+                    if(!in_array($category,EventWorkspace::COST_CATEGORIES,true)) throw new \InvalidArgumentException('Choose a valid cost category.');
+                    $description=mb_substr($request->string('description'),0,190);
+                    if($description==='') throw new \InvalidArgumentException('Cost description is required.');
+                    $this->db()->update('catering_event_costs',[
+                        'category'=>$category,'description'=>$description,
+                        'estimated_minor'=>MenuPlanner::cents($request->string('estimated','0')),
+                        'actual_minor'=>$this->optionalMoney($request->string('actual')),
+                        'notes'=>mb_substr($request->string('notes'),0,3000)?:null,
+                        'updated_at'=>date('Y-m-d H:i:s'),
+                    ],'id=?',[$id]);
+                    $this->audit('catering.event.cost_updated',$id);
+                } elseif ($action === 'acknowledge_revision') {
+                    $id=$this->childId($request,'catering_event_revisions',$eventId);
+                    $this->db()->update('catering_event_revisions',['acknowledged_at'=>date('Y-m-d H:i:s')],'id=?',[$id]);
+                    $this->audit('catering.event.revision_acknowledged',$eventId);
+                } else throw new \InvalidArgumentException('Unknown event action.');
+            }
+        } catch (\InvalidArgumentException $e) {
+            return $eventId > 0 ? $this->adminEvent($request, $e->getMessage()) : $this->adminEvents($request, $e->getMessage());
+        }
+        return Response::redirect($request->routeUrl('/admin/catering/events/' . $eventId, ['saved'=>1]));
+    }
+
+    public function adminTastingsSave(Request $request): Response
+    {
+        if ($forbidden = $this->guard('catering.manage')) return $forbidden;
+        if (!$this->ctx->service(Csrf::class)->validate($request)) return Response::text('Invalid CSRF token.',419);
+        try {
+            $id=$this->existingId($request,'catering_tastings'); $status=$request->string('status');
+            if(!in_array($status,EventWorkspace::TASTING_STATUSES,true)) throw new \InvalidArgumentException('Choose a valid tasting status.');
+            $eligibility=$request->string('eligibility');
+            if(!in_array($eligibility,['review','eligible','ineligible'],true)) throw new \InvalidArgumentException('Choose a valid eligibility state.');
+            $this->db()->update('catering_tastings',['status'=>$status,'eligibility'=>$eligibility,'preferred_date'=>$this->optionalDate($request->string('preferred_date'),'Tasting date'),'notes'=>mb_substr($request->string('notes'),0,5000)?:null,'updated_at'=>date('Y-m-d H:i:s')],'id=?',[$id]);
+            $this->audit('catering.tasting.updated',$id);
+        } catch(\InvalidArgumentException $e) { return $this->adminEvents($request,$e->getMessage()); }
+        return Response::redirect($request->routeUrl('/admin/catering/events',['saved'=>1]));
+    }
+
+    public function adminProduction(Request $request, ?string $error = null): Response
+    {
+        if ($forbidden = $this->guard('catering.manage')) return $forbidden;
+        $workspace = new EventWorkspace($this->db());
+        $events = $workspace->all();
+        return $this->adminPage($request,'admin-production',[
+            'ingredients'=>$this->db()->fetchAll('SELECT * FROM `'.$this->db()->table('catering_ingredients').'` ORDER BY active DESC,name,unit'),
+            'recipes'=>$this->db()->fetchAll('SELECT r.*,m.name menu_name,i.name ingredient_name,i.unit FROM `'.$this->db()->table('catering_recipe_ingredients').'` r INNER JOIN `'.$this->db()->table('catering_menu_items').'` m ON m.id=r.menu_item_id INNER JOIN `'.$this->db()->table('catering_ingredients').'` i ON i.id=r.ingredient_id ORDER BY m.name,i.name'),
+            'menuItems'=>$this->db()->fetchAll('SELECT id,name FROM `'.$this->db()->table('catering_menu_items').'` ORDER BY name'),
+            'purchasing'=>$workspace->purchasingPlan($events),
+            'saved'=>$request->string('saved')==='1','error'=>$error,
+        ],'Production Catalog');
+    }
+
+    public function adminProductionSave(Request $request): Response
+    {
+        if ($forbidden = $this->guard('catering.manage')) return $forbidden;
+        if (!$this->ctx->service(Csrf::class)->validate($request)) return Response::text('Invalid CSRF token.',419);
+        try {
+            $action=$request->string('action');
+            if(in_array($action,['add_ingredient','update_ingredient'],true)) {
+                $name=mb_substr($request->string('name'),0,190); $unit=mb_substr($request->string('unit'),0,40);
+                if($name===''||$unit==='') throw new \InvalidArgumentException('Ingredient name and unit are required.');
+                $tags=$this->validatedTags($request->input('allergens',[]),MenuPlanner::ALLERGENS);
+                $active=$action==='add_ingredient'||$request->string('active')==='1'?1:0;
+                $data=['name'=>$name,'unit'=>$unit,'cost_minor_per_unit'=>MenuPlanner::cents($request->string('cost','0')),'supplier'=>mb_substr($request->string('supplier'),0,190)?:null,'allergens'=>json_encode($tags,JSON_THROW_ON_ERROR),'active'=>$active,'updated_at'=>date('Y-m-d H:i:s')];
+                if($action==='update_ingredient') {
+                    $id=$this->existingId($request,'catering_ingredients');
+                    $this->db()->update('catering_ingredients',$data,'id=?',[$id]);
+                } else $id=(int)$this->db()->insert('catering_ingredients',$data+['created_at'=>date('Y-m-d H:i:s')]);
+                $this->audit('catering.ingredient.'.($action==='add_ingredient'?'created':'updated'),$id);
+            } elseif(in_array($action,['add_recipe_ingredient','update_recipe_ingredient'],true)) {
+                $menuId=$this->boundedInt($request->string('menu_item_id'),1,999999999,'Menu item');
+                $ingredientId=$this->boundedInt($request->string('ingredient_id'),1,999999999,'Ingredient');
+                if(!(bool)$this->db()->fetchColumn('SELECT COUNT(*) FROM `'.$this->db()->table('catering_menu_items').'` WHERE id=?',[$menuId]) || !(bool)$this->db()->fetchColumn('SELECT COUNT(*) FROM `'.$this->db()->table('catering_ingredients').'` WHERE id=? AND active=1',[$ingredientId])) throw new \InvalidArgumentException('Choose an available menu item and ingredient.');
+                $quantity=$request->string('quantity_per_guest'); $waste=$request->string('waste_percent','0');
+                if(!preg_match('/^\d{1,8}(?:\.\d{1,4})?$/D',$quantity)||(float)$quantity<=0) throw new \InvalidArgumentException('Quantity per guest must be a positive number with up to four decimals.');
+                if(!preg_match('/^\d{1,3}(?:\.\d{1,2})?$/D',$waste)||(float)$waste>100) throw new \InvalidArgumentException('Waste percentage must be between 0 and 100.');
+                $station=mb_substr($request->string('station','Kitchen'),0,80); if($station==='') throw new \InvalidArgumentException('Preparation station is required.');
+                $data=['menu_item_id'=>$menuId,'ingredient_id'=>$ingredientId,'quantity_per_guest'=>(float)$quantity,'waste_percent'=>(float)$waste,
+                    'station'=>$station,'prep_lead_days'=>$this->boundedInt($request->string('prep_lead_days','0'),0,365,'Preparation lead days'),
+                    'label_notes'=>mb_substr($request->string('label_notes'),0,500)?:null,'prep_notes'=>mb_substr($request->string('prep_notes'),0,3000)?:null,'updated_at'=>date('Y-m-d H:i:s')];
+                if($action==='update_recipe_ingredient') {
+                    $id=$this->existingId($request,'catering_recipe_ingredients');
+                    if((bool)$this->db()->fetchColumn('SELECT COUNT(*) FROM `'.$this->db()->table('catering_recipe_ingredients').'` WHERE menu_item_id=? AND ingredient_id=? AND id<>?',[$menuId,$ingredientId,$id])) throw new \InvalidArgumentException('That ingredient is already assigned to this recipe.');
+                    $this->db()->update('catering_recipe_ingredients',$data,'id=?',[$id]);
+                } else {
+                    if((bool)$this->db()->fetchColumn('SELECT COUNT(*) FROM `'.$this->db()->table('catering_recipe_ingredients').'` WHERE menu_item_id=? AND ingredient_id=?',[$menuId,$ingredientId])) throw new \InvalidArgumentException('That ingredient is already assigned to this recipe.');
+                    $id=(int)$this->db()->insert('catering_recipe_ingredients',$data+['created_at'=>date('Y-m-d H:i:s')]);
+                }
+                $this->audit('catering.recipe_ingredient.'.($action==='add_recipe_ingredient'?'created':'updated'),$id);
+            } elseif($action==='delete_recipe_ingredient') {
+                $id=$this->existingId($request,'catering_recipe_ingredients');
+                if($request->string('confirm_delete')!=='1') throw new \InvalidArgumentException('Confirm recipe-line removal.');
+                $this->db()->run('DELETE FROM `'.$this->db()->table('catering_recipe_ingredients').'` WHERE id=?',[$id]);
+                $this->audit('catering.recipe_ingredient.deleted',$id);
+            } else throw new \InvalidArgumentException('Unknown production action.');
+        } catch(\Throwable $e) {
+            if(!$e instanceof \InvalidArgumentException) $e=new \InvalidArgumentException('That production record could not be saved. It may already exist.');
+            return $this->adminProduction($request,$e->getMessage());
+        }
+        return Response::redirect($request->routeUrl('/admin/catering/production',['saved'=>1]));
+    }
+
     public function legacyInquiryRedirect(Request $request): Response
     {
         if ($forbidden = $this->guard('inquiries.manage')) return $forbidden;
@@ -736,7 +977,12 @@ final class CateringController
             'service_style' => $data['service_style'] ?? '',
             'fulfillment_method' => $data['fulfillment_method'] ?? '',
             'fulfillment_window' => $data['fulfillment_window'] ?? '',
+            'address_line_1' => $data['address_line_1'] ?? '',
+            'address_line_2' => $data['address_line_2'] ?? '',
+            'city' => $data['city'] ?? '',
+            'region' => $data['region'] ?? '',
             'postal_code' => $data['postal_code'] ?? '',
+            'tasting_requested' => !empty($data['tasting_requested']) ? 1 : 0,
             'menu_interest' => $data['menu_interest'] ?? '',
             'budget' => $data['budget'] ?? '',
             'dietary' => $data['dietary'] ?? '',
@@ -748,6 +994,17 @@ final class CateringController
             'operations_plan' => $data['operations_plan'] ?? null,
         ];
         $id = (int) $this->db()->insert('catering_inquiries', $record);
+        if ($kind === 'quote' && !empty($record['tasting_requested'])) {
+            $this->db()->insert('catering_tastings', [
+                'inquiry_id' => $id, 'event_id' => null,
+                'customer_name' => $record['name'], 'customer_email' => $record['email'],
+                'preferred_date' => null, 'guest_count' => 2,
+                'status' => 'requested', 'eligibility' => 'review',
+                'dietary' => $record['dietary'] ?: null,
+                'notes' => 'Requested with quote submission.',
+                'created_at' => date('Y-m-d H:i:s'), 'updated_at' => null,
+            ]);
+        }
         $this->linkInquiryToCore($id, $record);
         $profile = $this->ctx->service(BusinessProfile::class)->get();
         $to = $profile['email'] !== ''
@@ -861,7 +1118,10 @@ final class CateringController
             'company' => 'Company', 'event_type' => 'Event type', 'event_date' => 'Event date',
             'event_time' => 'Start time', 'guest_count' => 'Estimated guests', 'venue' => 'Venue',
             'service_style' => 'Service style', 'menu_interest' => 'Menu interest', 'budget' => 'Budget',
-            'fulfillment_method' => 'Fulfillment', 'fulfillment_window' => 'Fulfillment window', 'postal_code' => 'Postal code',
+            'fulfillment_method' => 'Fulfillment', 'fulfillment_window' => 'Fulfillment window',
+            'address_line_1' => 'Delivery address', 'address_line_2' => 'Delivery address line 2',
+            'city' => 'Delivery city', 'region' => 'Delivery state / region', 'postal_code' => 'Postal code',
+            'tasting_requested' => 'Tasting requested',
             'dietary' => 'Dietary needs', 'message' => 'Customer message', 'created_at' => 'Originally received',
         ];
         $lines = [];
@@ -937,7 +1197,12 @@ final class CateringController
             'service_style' => mb_substr($request->string('service_style'), 0, 100),
             'fulfillment_method' => mb_substr($request->string('fulfillment_method'), 0, 20),
             'fulfillment_window' => mb_substr($request->string('fulfillment_window'), 0, 120),
+            'address_line_1' => mb_substr($request->string('address_line_1'), 0, 255),
+            'address_line_2' => mb_substr($request->string('address_line_2'), 0, 255),
+            'city' => mb_substr($request->string('city'), 0, 120),
+            'region' => mb_substr($request->string('region'), 0, 120),
             'postal_code' => mb_substr(strtoupper($request->string('postal_code')), 0, 20),
+            'tasting_requested' => $request->string('tasting_requested') === '1' ? 1 : 0,
             'menu_interest' => mb_substr($request->string('menu_interest'), 0, 190),
             'budget' => mb_substr($request->string('budget'), 0, 100),
             'dietary' => mb_substr($request->string('dietary'), 0, 3000),
@@ -946,7 +1211,9 @@ final class CateringController
         foreach (self::QUOTE_FIELDS as $key => $_label) {
             if (empty($config['fields'][$key]['enabled'])) $data[$key] = '';
         }
-        if ($data['fulfillment_method'] !== 'delivery') $data['postal_code'] = '';
+        if ($data['fulfillment_method'] !== 'delivery') {
+            foreach (['address_line_1', 'address_line_2', 'city', 'region', 'postal_code'] as $field) $data[$field] = '';
+        }
         return $data;
     }
 
@@ -988,6 +1255,11 @@ final class CateringController
         }
         if ((int) $data['guest_count'] < 1 || (int) $data['guest_count'] > 10000) {
             $errors[] = 'Guest count must be between 1 and 10,000.';
+        }
+        if ($data['fulfillment_method'] === 'delivery') {
+            if ($data['address_line_1'] === '') $errors[] = 'Delivery street address is required.';
+            if ($data['city'] === '') $errors[] = 'Delivery city is required.';
+            if ($data['region'] === '') $errors[] = 'Delivery state or region is required.';
         }
         foreach (self::QUOTE_FIELDS as $key => $label) {
             if (!empty($config['fields'][$key]['enabled']) && !empty($config['fields'][$key]['required'])
@@ -1385,6 +1657,27 @@ final class CateringController
         return (int) $raw;
     }
 
+    private function optionalBoundedInt(string $raw, int $min, int $max, string $label): ?int
+    {
+        $raw = trim($raw);
+        return $raw === '' ? null : $this->boundedInt($raw, $min, $max, $label);
+    }
+
+    private function optionalDate(string $raw, string $label): ?string
+    {
+        $raw = trim($raw);
+        if ($raw === '') return null;
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $raw);
+        if ($date === false || $date->format('Y-m-d') !== $raw) throw new \InvalidArgumentException($label . ' must be a valid date.');
+        return $raw;
+    }
+
+    private function optionalMoney(string $raw): ?int
+    {
+        $raw = trim($raw);
+        return $raw === '' ? null : MenuPlanner::cents($raw);
+    }
+
     private function validatedTags(mixed $value, array $allowed): array
     {
         if (!is_array($value) || count($value) > count($allowed)) throw new \InvalidArgumentException('Choose supported dietary or allergen labels.');
@@ -1420,6 +1713,24 @@ final class CateringController
             throw new \InvalidArgumentException('This record no longer exists.');
         }
         return $id;
+    }
+
+    private function childId(Request $request, string $table, int $eventId): int
+    {
+        $id = $this->boundedInt($request->string('id'), 1, 999999999, 'Record ID');
+        if (!(bool) $this->db()->fetchColumn('SELECT COUNT(*) FROM `' . $this->db()->table($table) . '` WHERE id=? AND event_id=?', [$id,$eventId])) {
+            throw new \InvalidArgumentException('This event record no longer exists.');
+        }
+        return $id;
+    }
+
+    private function updateChildStatus(Request $request, string $table, array $allowed, int $eventId): void
+    {
+        $id = $this->childId($request,$table,$eventId);
+        $status = $request->string('status');
+        if (!in_array($status,$allowed,true)) throw new \InvalidArgumentException('Choose a valid status.');
+        $this->db()->update($table,['status'=>$status,'updated_at'=>date('Y-m-d H:i:s')],'id=?',[$id]);
+        $this->audit('catering.event.record_updated',$eventId);
     }
 
     private function audit(string $event, int $id): void
@@ -1466,6 +1777,38 @@ final class CateringController
                 'intro' => 'Choose your menu and delivery window, and we will arrive with labeled dishes, serving guidance, and everything arranged for a smooth meal.',
                 'features' => ['Scheduled delivery or pickup', 'Disposable service ware', 'Hot and cold packaging', 'Clear dish labels', 'Dietary accommodations', 'Optional setup service'],
                 'process' => ['Select a menu', 'Confirm headcount', 'Choose delivery or pickup', 'Unpack and serve'],
+            ],
+            'school-catering' => [
+                'title' => 'School Catering', 'short' => 'Schools', 'event_type' => 'School Event',
+                'summary' => 'Dependable meals for faculty gatherings, graduations, athletics, and campus celebrations.',
+                'kicker' => 'Ready for the school day', 'image' => 'corporate-service.webp',
+                'intro' => 'Clear delivery windows, labeled meal options, and practical service plans help school teams feed groups without disrupting the day.',
+                'features' => ['Faculty meals', 'Graduation receptions', 'Team banquets', 'Individually labeled meals', 'Allergy-request review', 'Delivery coordination'],
+                'process' => ['Share the schedule', 'Review menu and dietary requests', 'Confirm counts and access', 'Receive a labeled, organized service'],
+            ],
+            'nonprofit-events' => [
+                'title' => 'Nonprofit Event Catering', 'short' => 'Nonprofit Events', 'event_type' => 'Fundraiser',
+                'summary' => 'Mission-minded catering plans for fundraisers, volunteer meals, and community gatherings.',
+                'kicker' => 'Hospitality that supports the mission', 'image' => 'hero.webp',
+                'intro' => 'We build an efficient plan around the program, donor experience, venue, and budget while keeping service polished and welcoming.',
+                'features' => ['Fundraiser receptions', 'Volunteer meals', 'Sponsor hospitality', 'Budget-aware menu design', 'Service staffing', 'Run-of-show coordination'],
+                'process' => ['Define the mission and budget', 'Shape the guest experience', 'Coordinate venue and program', 'Serve with confidence'],
+            ],
+            'holiday-catering' => [
+                'title' => 'Holiday Catering', 'short' => 'Holiday Events', 'event_type' => 'Holiday Party',
+                'summary' => 'Seasonal menus and warm service for company parties, family celebrations, and community traditions.',
+                'kicker' => 'Gather around the season', 'image' => 'plated-dinner.webp',
+                'intro' => 'Choose full service, delivery, or pickup and let the team coordinate a festive menu around your timing, guest count, and venue.',
+                'features' => ['Seasonal menu planning', 'Office celebrations', 'Family-style service', 'Cocktail bites', 'Dessert displays', 'Pickup and delivery'],
+                'process' => ['Choose the gathering style', 'Reserve an available date', 'Finalize menu and count', 'Celebrate together'],
+            ],
+            'memorial-gatherings' => [
+                'title' => 'Memorial Gathering Catering', 'short' => 'Memorial Gatherings', 'event_type' => 'Memorial Gathering',
+                'summary' => 'Compassionate, straightforward meal service for families gathering to remember someone important.',
+                'kicker' => 'Quiet support when it matters', 'image' => 'wedding-table.webp',
+                'intro' => 'Our team keeps planning gentle and practical, with clear choices, respectful service, and flexible delivery or setup.',
+                'features' => ['Simple consultation', 'Comforting menu options', 'Home or venue delivery', 'Buffet setup', 'Disposable service ware', 'Dietary-request review'],
+                'process' => ['Tell us what is needed', 'Choose a fitting menu', 'Confirm place and timing', 'Let our team handle service'],
             ],
         ];
     }
