@@ -24,6 +24,17 @@ failures go to correction/manual review rather than being mislabeled. Do not
 add a module-private map provider, public geocoding request, or exposed
 provider key.
 
+The owner also requires a ten-theme Catering collection. Each theme must use a
+different layout and different default imagery, not a shared layout recolored
+ten times. Each theme will offer at least four selectable, accessible color
+palettes, with its palette and Core Media replacements preserved while other
+themes are active. Core must own the chooser, desktop/mobile preview,
+draft/publish/rollback state, palette controls and theme-media persistence so
+other industry modules can reuse the same design. That dependency is recorded
+as `CORE-REUSE-10` in Website Core roadmap commit
+`1ef7c5545e40bbd993be298fd1368519a2d0a216`; Catering's ten-layout theme pack
+is staged as 1.6.0 and is not implemented or included in the 1.0.0 ZIP.
+
 ## Current 1.0.0 candidate — 2026-10-25
 
 Catering 1.0.0 adds module-owned operational request screening: service-style
