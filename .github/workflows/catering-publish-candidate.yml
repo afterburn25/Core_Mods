@@ -1,0 +1,51 @@
+name: Publish Catering 1.0 candidate
+
+on:
+  push:
+    branches:
+      - module/catering
+    paths:
+      - .github/workflows/catering-publish-candidate.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: catering-publish-candidate
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reconstruct and verify archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          part_dir="modules/industry-catering/tools/.publication"
+          archive="modules/industry-catering/releases/industry-catering-1.0.0.zip"
+          test "$(find "$part_dir" -maxdepth 1 -type f -name 'part-*.b64' | wc -l)" -eq 38
+          cat "$part_dir"/part-*.b64 | base64 --decode > "$archive"
+          test "$(stat -c '%s' "$archive")" -eq 1679894
+          echo "2e060aafdbb06e1c3aa75805025132b2285dbb95c7b73dc2a73c2b9a994fff36  $archive" | sha256sum --check
+          unzip -t "$archive"
+          test -z "$(unzip -Z1 "$archive" | grep -E '\\.zip$' || true)"
+          php -r '$j=json_decode(file_get_contents("modules/industry-catering/addon.json"), true, 512, JSON_THROW_ON_ERROR); if (($j["version"] ?? null) !== "1.0.0") { exit(1); }'
+          php -r '$j=json_decode(file_get_contents("modules/industry-catering/releases/LATEST.json"), true, 512, JSON_THROW_ON_ERROR); if (($j["version"] ?? null) !== "1.0.0" || ($j["sha256"] ?? null) !== "2e060aafdbb06e1c3aa75805025132b2285dbb95c7b73dc2a73c2b9a994fff36") { exit(1); }'
+      - name: Create exact candidate commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -r modules/industry-catering/tools/.publication
+          git rm modules/industry-catering/releases/industry-catering-0.4.0.zip
+          git rm .github/workflows/catering-publish-candidate.yml
+          git add modules/industry-catering/releases/industry-catering-1.0.0.zip
+          test "$(git write-tree)" = "69951a492632d49332794797e192e7f5e47e2ec9"
+          git commit -m "Release Catering 1.0.0 production baseline"
+          echo "CANDIDATE_COMMIT=$(git rev-parse HEAD)"
+          git push origin HEAD:module/catering
