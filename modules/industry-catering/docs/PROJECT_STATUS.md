@@ -6,7 +6,7 @@
 - Repository folder: `modules/industry-catering/`
 - Module API: `1`
 - Required Core: Website Core `>=2.0.5,<3.0.0`
-- Last updated: 2026-10-24
+- Last updated: 2026-10-25
 
 ## Completed
 
@@ -37,7 +37,11 @@
 ## Current focus
 
 - Treat this repository branch as the authoritative module-development source.
-- Keep the tested snapshot in Website Core synchronized only at release points.
+- Develop and release catering independently while Core is developed separately.
+- Synchronize the Website Core snapshot and build a combined installer only
+  when the owner explicitly requests integration (direction: 2026-10-25).
+- Defer combined Core bundle CI until that integration is requested; preserve
+  honest compatibility requirements and continue module validation.
 - Continue content editing and media-management improvements in future module
   versions without moving industry-specific behavior into Core.
 
