@@ -14,10 +14,15 @@
   staffing, equipment returns, recipe scaling, preparation station/date,
   label notes, purchasing totals, estimated/actual event costs, accepted-quote
   revenue/margins, Core content types, and focused public service routes.
-- A direct packaged 1.0.0 → 1.5.0 upgrade plus disable/enable,
+- Exact archive: 1,710,238 bytes; SHA-256
+  `e99f9a6c753600260d853b434209ad75b7cfeeaef8d78e94287b069fb1d6c3f0`;
+  65 files; no nested ZIP. A direct packaged 1.0.0 → 1.5.0 upgrade plus disable/enable,
   uninstall-without-purge, retained-data reinstall, and fresh install passed 27
-  SQLite lifecycle checks. Native MySQL/MariaDB jobs, GitHub publication, and
-  CI evidence remain pending until the final archive is published.
+  SQLite lifecycle checks.
+- The bounded release assembly run `40238026047` verified the exact archive
+  digest, committed it, and removed every temporary chunk/workflow. Module CI
+  `40238129164` passed. Catering acceptance `40238129179` passed PHP 8.4/8.5,
+  SQLite, native MySQL 8.4, and native MariaDB 11.4.
 
 ## 1.0.0 production-baseline candidate — 2026-10-25
 

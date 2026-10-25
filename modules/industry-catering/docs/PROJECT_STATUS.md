@@ -1,7 +1,7 @@
 # Catering Module Project Status
 
 - Current version: `1.5.0`
-- State: Commercial operations candidate; local module acceptance passed, publication CI pending
+- State: Commercial operations release; module-only CI passed
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
 - Module API: `1`
@@ -121,6 +121,11 @@
   dependencies instead of duplicating them here.
 
 ## Known issues and release gates
+
+- Catering 1.5.0 is published at branch commit
+  `c97bfb17d7bc19448f70d9e3b2e431223dde5085`. Module CI `40238129164`
+  and all four Catering acceptance jobs in `40238129179` passed on PHP
+  8.4/8.5, SQLite, MySQL 8.4, and MariaDB 11.4.
 
 - CORE-REUSE-7A was repaired in Core 2.2.2; 0.2.1 makes its detail/notes
   diagnostic blocking against the Core 2.3 fixture, and that diagnostic passes.

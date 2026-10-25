@@ -11,8 +11,12 @@ ingredients, recipes, waste, stations/dates, labels, purchasing and event cost
 comparisons; Core content types supply venue partners, case studies and
 verified reviews; eight focused service pages are routed publicly.
 
-The exact 1.5.0 ZIP and GitHub CI are not yet claimed in this handoff section.
-Local acceptance currently passes 55 planner, 113 SQLite integration, 21
+The exact 1.5.0 ZIP is 1,710,238 bytes with SHA-256
+`e99f9a6c753600260d853b434209ad75b7cfeeaef8d78e94287b069fb1d6c3f0`;
+it contains 65 files and no nested ZIP. The published source/archive cleanup
+commit is `c97bfb17d7bc19448f70d9e3b2e431223dde5085`. Module CI
+`40238129164` and all four jobs in Catering acceptance `40238129179` passed.
+Acceptance includes 55 planner, 113 SQLite integration, 21
 release-readiness, 18 cross-module isolation, and 27 packaged lifecycle checks,
 all PHP syntax, and the pinned Core inquiry detail/notes contract.
 
