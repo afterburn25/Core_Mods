@@ -22,6 +22,10 @@ function packageCheck(bool $condition, string $description): void {
     if (!$condition) throw new RuntimeException($description);
     $checks++;
 }
+$preMigrationResources = [];
+foreach ($f['ctx']->adminResources() as $resource) $preMigrationResources[(string) $resource['key']] = $resource;
+packageCheck(isset($preMigrationResources['menu-items'], $preMigrationResources['packages']),
+    'Register shared catalog resources before module migrations');
 $id = 'cajunwebpro/catering';
 [, $error] = $manager->stage($previous);
 packageCheck($error === null, 'Stage previous module: ' . (string) $error);

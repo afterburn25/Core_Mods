@@ -18,10 +18,15 @@ final class CatalogResources
     public function register(ModuleContext $ctx): void
     {
         $categoryOptions = [];
-        foreach ($this->db->fetchAll(
-            'SELECT id, name FROM `' . $this->db->table('catering_menu_categories') . '` ORDER BY sort_order, name'
-        ) as $category) {
-            $categoryOptions[(string) $category['id']] = (string) $category['name'];
+        // Core registers providers before it runs a module's migrations on a
+        // clean install. Keep registration side-effect free until the catalog
+        // tables exist; the next request will expose the migrated categories.
+        if ($this->db->tableExists('catering_menu_categories')) {
+            foreach ($this->db->fetchAll(
+                'SELECT id, name FROM `' . $this->db->table('catering_menu_categories') . '` ORDER BY sort_order, name'
+            ) as $category) {
+                $categoryOptions[(string) $category['id']] = (string) $category['name'];
+            }
         }
 
         $ctx->adminResource(
