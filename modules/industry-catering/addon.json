@@ -3,15 +3,24 @@
   "id": "cajunwebpro/catering",
   "type": "industry",
   "name": "Catering Website",
-  "version": "0.1.23",
+  "version": "0.2.0",
   "license": "PROPRIETARY",
-  "requires": { "core": ">=2.0.5,<3.0.0", "api": 1 },
+  "requires": {
+    "core": ">=2.2.0,<3.0.0",
+    "api": 1
+  },
   "provider": "CajunWebPro\\Catering\\Provider",
-  "psr4": { "CajunWebPro\\Catering\\": "src/" },
+  "psr4": {
+    "CajunWebPro\\Catering\\": "src/"
+  },
   "migrations": "migrations",
   "assets": {
-    "css": ["assets/css/catering.css"],
-    "js": ["assets/js/catering.js"],
+    "css": [
+      "assets/css/catering.css"
+    ],
+    "js": [
+      "assets/js/catering.js"
+    ],
     "images": [
       "assets/images/hero.webp",
       "assets/images/plated-dinner.webp",
@@ -30,5 +39,7 @@
       "assets/images/menu/bananas-foster-bread-pudding.webp"
     ]
   },
-  "capabilities": ["catering.manage", "catering.inquiries"]
+  "capabilities": [
+    "catering.manage"
+  ]
 }

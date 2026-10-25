@@ -9,27 +9,56 @@ adoption of [Cajun Web Pro Module Rules v1.1](../../MOD_RULES.md).
 
 ## Current release
 
-- Module version: `0.1.23`
+- Module version: `0.2.0`
 - Module ID: `cajunwebpro/catering`
 - Type: `industry`
 - Module API: `1`
-- Required Core: `>=2.0.5,<3.0.0`
+- Required Core: `>=2.2.0,<3.0.0`
 - Development branch: `module/catering`
+
+## Menu planning in 0.2.0
+
+Customers can select dishes and a package in Request a Quote, enter a guest
+count, filter business-verified dietary labels, and calculate a preliminary
+food estimate. The same server calculation handles preview and submission.
+Every selected dish is assumed to serve the full headcount. Per-guest prices,
+rounded-up tray quantities, fixed event prices, minimum billing quantities
+and optional guest-count discounts are supported. Unknown/manual prices stay
+unconfirmed instead of producing a misleading complete total.
+
+Catering → Menus now edits existing dishes, serving sizes, pricing methods,
+five optional discount tiers, dietary labels, known allergens and handling
+notes. Catering → Packages edits existing packages, guest ranges and the
+minimum/maximum number of dishes allowed from each included category.
+Configured package dishes are included in the package price and never billed
+again. A package with no configured allowances requires team confirmation for
+any selected dishes. Existing packages are not assigned invented allowances.
+
+Inquiries retain the selected menu, labels, quantities and calculated prices
+as a submission snapshot, even if the catalog changes later. Core queues the
+notification email. Estimates exclude taxes, staffing, rentals, delivery and
+service charges; no order, payment, availability reservation or final quote is
+created. Dietary labels do not establish allergy safety. Empty allergen lists
+mean information has not been supplied. Review starter recipes before assigning
+structured labels; the upgrade does not invent allergen or dietary claims.
 
 ## Included features
 
 - Catering home, about, services, menus, packages, gallery, FAQ, service-area,
   contact, and quote pages
 - Detail pages for services, menus, and packages
-- Quote and inquiry capture
-- A catering inquiry summary on Core's main Dashboard, plus module management
-  screens for settings, menus, packages, and inquiries
+- Quote and inquiry capture linked to Core's shared inquiry and quotation
+  workspace while preserving detailed event questionnaires
+- Core-owned business identity plus module management screens for settings,
+  menus, and packages
 - Responsive catering theme assets, fourteen bundled WebP images (including
   ten dish-specific photographs), and a transparent
   generic CATERING CO. starter logo without an opaque footer frame
 - Database migration and seeded catering content
 - A ten-dish Cajun starter menu with Gumbo, Crawfish Bisque, Crawfish Étouffée,
   Shrimp Fettuccine, Jambalaya, Blackened Redfish, appetizers, and dessert
+- Complete starter home-page search metadata with an upgrade-safe repair for
+  the original short Welcome placeholder
 - Integration with Core navigation, administration, permissions, installation,
   licensing, and version reporting
 - Module-owned navigation defaults imported through Core's Module API, followed
@@ -45,12 +74,17 @@ adoption of [Cajun Web Pro Module Rules v1.1](../../MOD_RULES.md).
 
 ## Installation
 
-Install this module through Website Core's module/package manager, or use a
-Website Core bundle that already contains it. The installable module ZIP keeps
+Install the single `industry-catering-0.2.0.zip` through Website Core’s
+module/package manager. This delivery contains only the module; use an
+already-installed compatible Core. It contains no nested ZIP and does not
+include or update Core. Combined installers require an explicit owner request. The installable module ZIP keeps
 `addon.json` at its archive root as required by Package Spec v1.
 
-The keyless Website Core + Catering TEST-BUNDLE is for testing. Production
-licensing is controlled by Website Core's package and licensing services.
+Production licensing remains controlled by Core. The historical 0.1.22 and
+0.1.23 repository ZIPs were found truncated during this release's acceptance;
+use the new validated package. Upgrade coverage includes the valid published
+0.1.21 package and a clearly identified fixture rebuilt from historical
+0.1.23 source. See the testing record for exact evidence and limitations.
 
 ## Development records
 

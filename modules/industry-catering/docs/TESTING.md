@@ -1,5 +1,90 @@
 # Catering Module Testing
 
+## Reconciled 0.2.0 acceptance — 2026-10-25
+
+Read-only published Core 2.2.1 fixture:
+`12f082936b0b2c9dae4f54f345e4d059c625f2e9`. Local PHP 8.3.6/SQLite.
+
+- Pricing: 44 checks passed.
+- Module controllers/database: 45 checks passed, including new quote capture,
+  Core inquiry linkage, preserved menu summary, repeated-link deduplication,
+  exactly one queued notification, permission/CSRF checks and escaped views.
+- Packaged lifecycle: 21 checks passed upgrading from valid local 0.1.25.
+- Core detail contract: FAILED. InquiryService::find() selects a.name from
+  admins; SQLite reports no such column. Reproduced against 2.2.0 and inspected
+  in 2.2.1. This failure is CORE-REUSE-7A on the active Core roadmap, not hidden
+  by the module persistence tests. Production release remains blocked.
+- Chromium browser checks passed on the reconciled candidate: desktop menu
+  estimate/submission, admin label edits, dietary filtering, 390px layout and
+  no-JavaScript preview.
+- GitHub PHP 8.4/8.5 and native MySQL/MariaDB acceptance remains pending.
+- Combined Core bundle and live-host deployment remain owner-deferred.
+
+## Earlier unreconciled planner checks — 2026-10-25
+
+Local runtime: PHP 8.3.6 with PDO/SQLite/mbstring/zip; production PHP 8.4/8.5
+and MySQL/MariaDB acceptance is queued in Catering acceptance CI. Core test
+fixture: read-only Website_Core `a119e4281c85449471a124f14e5b10f674410023`
+(version 2.1.0). No Core source or combined installer was changed.
+
+- `tests/planner.php`: 44 checks passed, covering exact cents, tray rounding,
+  minimum billing, fixed pricing, guest discounts, package ranges and choices,
+  manual/incomplete estimates, client tampering and malformed inputs.
+- `tests/integration.php`: 42 checks passed on SQLite using real Core services,
+  covering migrations, preserved edits, permissions, CSRF, audit, validation,
+  discounts, hidden categories, no-store estimates, preview without saves,
+  inquiry snapshots, queued notification content and rate limiting.
+- `tests/package.php`: 21 checks passed for each upgrade baseline, including
+  fresh installation of the exact current ZIP, upgrade with edited menu data
+  and inquiry history, navigation preservation, disable/enable, uninstall and
+  data-preserving reinstall without duplicate starter items.
+- Upgrade baselines: valid published 0.1.21 ZIP; historical-source 0.1.23 fixture
+  rebuilt from commit `de3df977223fb8305bda91384447dae4843b5256`. The original
+  0.1.22/0.1.23 ZIPs are truncated and fail ZIP integrity/digest checks.
+- Chromium 153 browser checks passed: desktop menu selection and estimate,
+  inquiry submission, admin dietary/allergen editing, dietary filtering,
+  390px layout without horizontal overflow and no-JavaScript server preview.
+- Module PHP syntax and JavaScript syntax checks passed locally.
+
+The module-specific workflow uses a pinned read-only Core fixture, exercises
+source extracted from the current ZIP on PHP 8.4/8.5, and runs controller and
+packaged lifecycle checks on MySQL 8.4 and MariaDB 11.4. It never synchronizes
+or produces a combined Core bundle.
+
+Still pending: GitHub CI results, oldest-supported Core-specific acceptance,
+and real shared-host module upload/upgrade. No production deployment occurred.
+
+## Historical verification record
+
+
+## 2026-10-25 — Core 2.2 adoption candidate
+
+- Module version advanced to `0.1.25` with Core `>=2.2.0,<3.0.0`.
+- Static review confirms the provider declares `businessProfile()` and
+  `leadManagement()` and no longer registers a duplicate lead navigation item,
+  dashboard widget, or search provider.
+- Migration `catering_0004_core_sales_workspace` adds the nullable Core link
+  portably and does not alter or remove existing questionnaire fields.
+- New and legacy questionnaires use Core `InquiryService`; the module retains
+  its detailed source row and queues exactly one existing notification email.
+- Public identity values now come from Core `BusinessProfile`; operational
+  Catering defaults remain module-owned.
+- Local PHP is unavailable in this workspace. Module CI and packaged Core 2.2
+  database/browser acceptance remain required and are not claimed as passed.
+- Release archive integrity passed with no nested ZIP. Size: 1,610,452 bytes.
+  SHA-256:
+  `8c0b6fe3474e459fe32ff6f9fec8adb93a71c019b527d9366da414bf9427b729`.
+
+## 2026-10-24 — Home search metadata repair candidate
+
+- Module version advanced to `0.1.24` with Core `>=2.0.5,<3.0.0`.
+- Added the portable `catering_0003_home_search_metadata` migration with
+  guarded updates that preserve customized titles and existing metadata.
+- Module validator and synchronized Core test results must be recorded here
+  after the 0.1.24 release artifact is built and CI completes.
+- Release archive size: 1,609,810 bytes. SHA-256:
+  `f3e04792e5e495b0513dd9a91d2eb18cf753d93ff1ea029d2a7feae5904379f0`.
+
 ## 2026-10-24 — Shared-host upload compatibility release candidate
 
 - Module version advanced to `0.1.23` with Core `>=2.0.5,<3.0.0`.

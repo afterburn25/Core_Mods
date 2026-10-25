@@ -57,17 +57,18 @@ release with Core.
       no module-owned profile or placement settings and no empty placeholders.
 - [x] Industry admin screens use one module category, protected admin routes,
       and explicit server-side capabilities.
-- [x] Catering contributes its inquiry summary to Core's overview through
-      `dashboardWidget()` and registers no duplicate module Dashboard page.
+- [x] Catering declares Core's shared inquiry/quote workspace, which supplies
+      the overview metrics, search, assignment, notes, and quote navigation;
+      the module registers no duplicate lead or Dashboard page.
 - [x] Tables, migrations, public routes, assets, and settings are namespaced;
       installs and upgrades preserve existing data and customization.
 - [x] Public forms use CSRF, validation, abuse controls, prepared database
       access, and escaped output.
 - [x] The README, changelog, status, roadmap, testing, and handoff records have
       been created before the first release.
-- [ ] Complete module release ZIP, `LATEST.json`, and module CI verification
-      for version 0.1.23. Combined Core bundle verification is deferred until
-      the owner explicitly requests integration.
+- [ ] Complete module CI verification for version 0.2.0. The release ZIP and
+      `LATEST.json` are complete; combined Core bundle verification remains
+      deferred until the owner explicitly requests integration.
 
 ## Catering decisions
 
@@ -75,11 +76,12 @@ release with Core.
 2. Public navigation: the header begins with Our Story, Menus, Services,
    Packages, Gallery, Contact; the footer begins with planning and contact
    links. Core owns both trees after their independent one-time imports.
-3. Module data: menu categories/items, packages, inquiries, and catering
-   settings; administration appears in the Catering category.
-4. Core services: routing, views, settings, navigation, permissions, database,
-   CSRF, rate limiting, mail, admin search, dashboard, and health checks.
-5. Compatibility: Catering 0.1.23 requires Core `>=2.0.5,<3.0.0` and Module
+3. Module data: menu categories/items, packages, detailed event questionnaires,
+   and catering settings; Core owns the linked inquiry and quotation workflow.
+4. Core services: routing, views, settings, business profile, navigation,
+   permissions, database, CSRF, rate limiting, mail, leads, quotes, admin
+   search, dashboard, shared admin rendering, and health checks.
+5. Compatibility: Catering 0.2.0 requires Core `>=2.2.0,<3.0.0` and Module
    API 1; acceptance runs in the module branch. Combined Core bundle
    acceptance is deferred until the owner requests integration.
 

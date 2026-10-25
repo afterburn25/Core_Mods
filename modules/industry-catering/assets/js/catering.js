@@ -17,6 +17,22 @@
     });
   });
 
+  const filter = document.querySelector('[data-dietary-filter]');
+  const cards = [...document.querySelectorAll('[data-dietary-tags]')];
+  const applyFilter = () => {
+    cards.forEach((card) => {
+      const selected = card.querySelector('input[type="checkbox"]')?.checked;
+      card.hidden = Boolean(filter?.value && !card.dataset.dietaryTags.split(' ').includes(filter.value) && !selected);
+    });
+    document.querySelectorAll('[data-planner-category]').forEach((category) => {
+      category.hidden = [...category.querySelectorAll('[data-dietary-tags]')].every((card) => card.hidden);
+    });
+  };
+  if (filter) {
+    document.querySelector('[data-filter-controls]')?.removeAttribute('hidden');
+    filter.addEventListener('change', applyFilter);
+  }
+
   const form = document.querySelector('[data-quote-form]');
   if (!form) return;
   const steps = [...form.querySelectorAll('[data-quote-step]')];
@@ -26,28 +42,138 @@
   const back = form.querySelector('[data-quote-back]');
   const next = form.querySelector('[data-quote-next]');
   const submit = form.querySelector('[data-quote-submit]');
+  const estimate = form.querySelector('[data-menu-estimate]');
+  const review = form.querySelector('[data-review-plan]');
+  const packageSelect = form.querySelector('[data-planner-package]');
+  const rulesText = form.querySelector('[data-planner-rules]');
+  const money = (cents) => new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(cents / 100);
   let current = 0;
+  let debounce;
+  let sequence = 0;
+  let controller;
+  form.noValidate = true;
+  document.querySelector('[data-quote-progress]').hidden = false;
+  estimate.tabIndex = -1;
 
-  const show = (index) => {
+  const paragraph = (parent, text, className = '') => {
+    const element = document.createElement('p');
+    element.textContent = text;
+    if (className) element.className = className;
+    parent.append(element);
+  };
+  const renderPlan = (plan) => {
+    estimate.replaceChildren();
+    review.replaceChildren();
+    const heading = document.createElement('h3');
+    heading.textContent = 'Preliminary food estimate';
+    estimate.append(heading);
+    if (plan.errors?.length) paragraph(estimate, plan.errors.join(' '), 'c-form-error');
+    if (plan.items?.length) paragraph(review, 'Selected dishes: ' + plan.items.map((item) => item.name).join(', '));
+    if (plan.package_name) paragraph(review, 'Package: ' + plan.package_name);
+    (plan.lines || []).forEach((line) => {
+      if (line.discount_bps) paragraph(estimate, `${line.name}: guest-count discount ${(line.discount_bps / 100).toFixed(2)}% applied.`);
+      paragraph(estimate, line.name + (line.quantity === null ? ' · Team confirmation required' :
+        ` · ${line.quantity} × ${money(line.unit_cents)} = ${money(line.total_cents)}`));
+    });
+    const total = plan.estimate_cents === null || plan.estimate_cents === undefined ?
+      'Complete estimate needs team confirmation' : 'Food estimate: ' + money(plan.estimate_cents);
+    const strong = document.createElement('strong');
+    strong.textContent = total;
+    estimate.append(strong);
+    paragraph(review, total);
+    (plan.notes || []).forEach((note) => paragraph(estimate, note, 'c-disclaimer'));
+  };
+  const updateRules = () => {
+    let rules = {};
+    try { rules = JSON.parse(packageSelect.selectedOptions[0]?.dataset.rules || '{}'); } catch { /* Server still validates the catalog. */ }
+    const details = Object.values(rules).map((rule) => `${rule.label}: choose ${rule.min}–${rule.max}`);
+    rulesText.textContent = details.length ? 'Included in the package price — ' + details.join('; ') + '. Other categories are outside this package.' :
+      (packageSelect.value ? 'Dish allowances have not been configured for this package. The team will confirm your selected menu and price.' :
+        'Choose individual dishes, or leave your menu open for recommendations.');
+  };
+  const refreshEstimate = async () => {
+    clearTimeout(debounce);
+    controller?.abort();
+    controller = new AbortController();
+    const request = ++sequence;
+    estimate.setAttribute('aria-busy', 'true');
+    try {
+      const payload = new FormData();
+      ['_csrf', 'guest_count', 'package_id'].forEach((name) => payload.set(name, form.elements.namedItem(name)?.value || ''));
+      form.querySelectorAll('[name="menu_items[]"]:checked').forEach((field) => payload.append('menu_items[]', field.value));
+      const response = await fetch(form.dataset.estimateUrl, {
+        method: 'POST', body: payload, credentials: 'same-origin',
+        headers: {'Accept': 'application/json'}, signal: controller.signal,
+      });
+      const plan = await response.json();
+      if (request !== sequence) return null;
+      if (!response.ok && !Array.isArray(plan.errors)) throw new Error('Invalid estimate response');
+      renderPlan(plan);
+      return plan;
+    } catch (error) {
+      if (error.name !== 'AbortError' && request === sequence) {
+        estimate.replaceChildren();
+        paragraph(estimate, 'The estimate could not be updated. Try Calculate food estimate again. You can still send a request for the team to review.');
+      }
+      return null;
+    } finally {
+      if (request === sequence) estimate.removeAttribute('aria-busy');
+    }
+  };
+  const show = (index, focus = true) => {
     current = Math.max(0, Math.min(index, steps.length - 1));
     steps.forEach((step, i) => { step.hidden = i !== current; });
-    stepItems.forEach((item, i) => item.classList.toggle('is-active', i === current));
-    if (label) label.textContent = `Step ${current + 1} of ${steps.length}`;
-    if (progress) progress.style.width = `${((current + 1) / steps.length) * 100}%`;
+    stepItems.forEach((item, i) => {
+      item.classList.toggle('is-active', i === current);
+      if (i === current) item.setAttribute('aria-current', 'step'); else item.removeAttribute('aria-current');
+    });
+    label.textContent = `Step ${current + 1} of ${steps.length}`;
+    progress.style.width = `${((current + 1) / steps.length) * 100}%`;
     back.hidden = current === 0;
     next.hidden = current === steps.length - 1;
     submit.hidden = current !== steps.length - 1;
-    const first = steps[current].querySelector('input,select,textarea');
-    if (first && current > 0) first.focus({preventScroll: true});
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    if (focus) {
+      steps[current].querySelector('input,select,textarea')?.focus({preventScroll: true});
+      window.scrollTo({top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
+    }
   };
-
-  next.addEventListener('click', () => {
-    const fields = [...steps[current].querySelectorAll('input,select,textarea')];
-    const invalid = fields.find((field) => !field.checkValidity());
+  next.addEventListener('click', async () => {
+    const invalid = [...steps[current].querySelectorAll('input,select,textarea')].find((field) => !field.checkValidity());
     if (invalid) { invalid.reportValidity(); return; }
+    if (current === 1) {
+      next.disabled = true;
+      const plan = await refreshEstimate();
+      next.disabled = false;
+      if (plan?.errors?.length) { estimate.focus(); return; }
+    }
     show(current + 1);
   });
   back.addEventListener('click', () => show(current - 1));
-  show(0);
+  form.addEventListener('input', (event) => {
+    if (!event.target.matches('[name="guest_count"], [name="package_id"], [name="menu_items[]"]')) return;
+    updateRules();
+    applyFilter();
+    clearTimeout(debounce);
+    debounce = setTimeout(refreshEstimate, 400);
+  });
+  form.addEventListener('submit', (event) => {
+    if (event.submitter?.matches('[data-preview-plan]')) {
+      event.preventDefault();
+      refreshEstimate();
+      return;
+    }
+    const invalid = [...form.querySelectorAll('input,select,textarea')].find((field) => !field.checkValidity());
+    if (invalid) {
+      event.preventDefault();
+      show(steps.findIndex((step) => step.contains(invalid)));
+      invalid.reportValidity();
+      return;
+    }
+    if (current < steps.length - 1) { event.preventDefault(); next.click(); }
+  });
+  updateRules();
+  const invalid = [...form.querySelectorAll('input,select,textarea')].find((field) => !field.checkValidity());
+  const serverError = document.querySelector('[data-quote-error]');
+  show(serverError ? (invalid ? steps.findIndex((step) => step.contains(invalid)) : 1) : 0, false);
+  if (serverError) serverError.focus();
 })();

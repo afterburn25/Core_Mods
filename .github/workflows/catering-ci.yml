@@ -1,0 +1,107 @@
+name: Catering acceptance
+on:
+  push:
+    branches: ['module/catering']
+  pull_request:
+    branches: ['module/catering']
+permissions:
+  contents: read
+jobs:
+  php:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.4', '8.5']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: afterburn25/Website_Core
+          ref: 12f082936b0b2c9dae4f54f345e4d059c625f2e9
+          path: .core-test-fixture
+      - uses: actions/checkout@v4
+        with:
+          ref: de3df977223fb8305bda91384447dae4843b5256
+          path: .previous-module
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_sqlite, mbstring, zip
+      - name: Rebuild the historical 0.1.23 source fixture
+        run: python3 modules/industry-catering/tests/build-legacy-fixture.py .previous-module/modules/industry-catering /tmp/catering-legacy-source.zip
+      - name: Validate release and exercise packaged source
+        env:
+          CATERING_CORE_ROOT: ${{ github.workspace }}/.core-test-fixture
+          CATERING_MODULE_ROOT: /tmp/catering-package
+          CATERING_PREVIOUS_ZIP: /tmp/catering-legacy-source.zip
+        run: |
+          php tools/validate-modules.php
+          python3 - <<'PY'
+          import json, pathlib, zipfile
+          root = pathlib.Path('modules/industry-catering')
+          latest = json.loads((root / 'releases/LATEST.json').read_text())
+          with zipfile.ZipFile(root / 'releases' / latest['file']) as archive:
+              assert 'addon.json' in archive.namelist()
+              assert not any(name.lower().endswith('.zip') for name in archive.namelist())
+              archive.extractall('/tmp/catering-package')
+          PY
+          php modules/industry-catering/tests/planner.php
+          php modules/industry-catering/tests/integration.php
+          php modules/industry-catering/tests/package.php
+          CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-module/modules/industry-catering/releases/industry-catering-0.1.21.zip" php modules/industry-catering/tests/package.php
+      - name: Diagnose Core inquiry detail dependency (CORE-REUSE-7A)
+        continue-on-error: true
+        env:
+          CATERING_CORE_ROOT: ${{ github.workspace }}/.core-test-fixture
+        run: php modules/industry-catering/tests/core-dependencies.php
+  native:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - database: mysql
+            image: mysql:8.4
+            health: mysqladmin ping -h 127.0.0.1 -ptest-root --silent
+          - database: mariadb
+            image: mariadb:11.4
+            health: healthcheck.sh --connect --innodb_initialized
+    services:
+      database:
+        image: ${{ matrix.image }}
+        env:
+          MYSQL_ROOT_PASSWORD: test-root
+          MYSQL_DATABASE: catering_test
+          MYSQL_USER: catering
+          MYSQL_PASSWORD: test-pass
+        ports: ['3306/tcp']
+        options: >-
+          --health-cmd="${{ matrix.health }}"
+          --health-interval=10s --health-timeout=5s --health-retries=15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: afterburn25/Website_Core
+          ref: 12f082936b0b2c9dae4f54f345e4d059c625f2e9
+          path: .core-test-fixture
+      - uses: actions/checkout@v4
+        with:
+          ref: de3df977223fb8305bda91384447dae4843b5256
+          path: .previous-module
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, mbstring, zip
+      - name: Rebuild the historical 0.1.23 source fixture
+        run: python3 modules/industry-catering/tests/build-legacy-fixture.py .previous-module/modules/industry-catering /tmp/catering-legacy-source.zip
+      - name: Verify native catering migrations and packaged upgrade
+        env:
+          CATERING_CORE_ROOT: ${{ github.workspace }}/.core-test-fixture
+          CATERING_PREVIOUS_ZIP: /tmp/catering-legacy-source.zip
+          CATERING_TEST_MYSQL_DSN: mysql:host=127.0.0.1;port=${{ job.services.database.ports[3306] }};dbname=catering_test;charset=utf8mb4
+          CATERING_TEST_MYSQL_USER: catering
+          CATERING_TEST_MYSQL_PASS: test-pass
+        run: |
+          php modules/industry-catering/tests/integration.php
+          php modules/industry-catering/tests/package.php
+          CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-module/modules/industry-catering/releases/industry-catering-0.1.21.zip" php modules/industry-catering/tests/package.php

@@ -1,5 +1,61 @@
 # Catering Module Changelog
 
+## 0.2.0 — 2026-10-25
+
+- Reconcile the menu planner with the 0.1.25 Core 2.2 adoption, preserving the
+  shared business profile, admin renderer and sales workspace.
+- Fix quote-submission ID typing; serialize inquiry linking and include the
+  submitted menu snapshot in Core's readable inquiry summary.
+- Record Core's inquiry-detail schema defect as CORE-REUSE-7A; this candidate
+  is not production-ready until that dependency passes acceptance.
+
+- Add a dish/package menu planner to the quote workflow with server-computed
+  preliminary food estimates and an accessible no-JavaScript preview.
+- Add per-guest, tray and fixed food pricing, tray serving sizes, minimum
+  quantities and guest-count discount tiers using integer-cent calculations.
+- Add editable package guest ranges and included category choice limits;
+  validate selections server-side without charging included dishes twice.
+- Add structured dietary filters, business-supplied known allergens and
+  cross-contact notes while preserving existing dietary display text.
+- Add existing dish/package editors, retained validation errors, server-side
+  permissions/CSRF, confirmed removal and Core audit records.
+- Save an authoritative menu/price snapshot with each inquiry and include
+  selected dishes and food estimates in Core-queued notifications.
+- Keep estimates incomplete for manual pricing or unconfigured package dish
+  allowances, and distinguish requests from bookings, orders and payments.
+- Preserve edited legacy demo dishes/categories when their older Cajun-menu
+  migration is still pending. Fix portable menu/category proposal URLs and
+  invalidate assets using the module manifest version.
+- Add isolated pricing, controller, database and exact-ZIP lifecycle checks,
+  plus module-specific PHP/MySQL/MariaDB CI. No Core implementation, bundled
+  catering snapshot or combined installer is changed.
+
+
+## 0.1.25 — 2026-10-25
+
+- Requires Website Core 2.2 and opts Catering into the Core-owned business
+  profile, inquiry workspace, and itemized quotations.
+- Seeds only blank shared business fields from existing settings, then reads
+  the live Core profile for the public name, email, phone, and service area.
+- Preserves detailed Catering questionnaires while linking existing and new
+  records into the Core sales pipeline through `InquiryService`.
+- Retires the duplicate Catering inquiry screen, dashboard/search
+  contributions, and identity settings; old inquiry bookmarks redirect to the
+  shared workspace.
+- Retires the obsolete `catering.inquiries` permission; Core activates and
+  enforces its shared `inquiries.manage` and `quotes.manage` capabilities.
+- Uses Core's shared module-admin renderer for consistent permissions,
+  navigation, notices, branding, and page presentation.
+
+## 0.1.24 — 2026-10-24
+
+- Adds a safe upgrade migration that completes missing search metadata on the
+  Core starter home page while preserving any existing custom title or text.
+- Replaces the untouched short “Welcome” label with the installed business
+  name and supplies a useful catering search title and description.
+- Keeps the public module-rendered home page unchanged; this repair brings the
+  Core page record and SEO audit into agreement with the live catering site.
+
 ## 0.1.23 — 2026-10-24
 
 - Re-optimized all ten Cajun dish photographs to 1000×667 WebP assets while

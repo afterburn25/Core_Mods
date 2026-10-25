@@ -5,6 +5,7 @@ namespace CajunWebPro\Catering;
 
 use Core\Modules\ModuleContext;
 use Core\Database\Connection;
+use Core\Settings\SettingsRepository;
 
 final class Provider
 {
@@ -12,6 +13,18 @@ final class Provider
     {
         $ns = $ctx->views(dirname(__DIR__) . '/views');
         $ctl = fn () => new CateringController($ctx, $ns);
+
+        // Core owns the reusable business identity and sales workspace. Seed
+        // only blank profile values from the module's legacy settings; later
+        // administrator edits remain authoritative.
+        $settings = $ctx->service(SettingsRepository::class);
+        $ctx->businessProfile([
+            'name' => (string) $settings->get('site.name', 'Catering Co.'),
+            'email' => (string) $settings->get('site.contact_email', ''),
+            'phone' => (string) $settings->get('catering.phone', ''),
+            'service_area' => (string) $settings->get('catering.service_area', ''),
+        ]);
+        $ctx->leadManagement(['quotes' => true, 'label' => 'Catering sales']);
 
         $ctx->route('GET', '/', fn ($r) => $ctl()->home($r));
         $ctx->route('GET', '/services', fn ($r) => $ctl()->services($r));
@@ -29,51 +42,33 @@ final class Provider
         $ctx->route('POST', '/contact', fn ($r) => $ctl()->submitContact($r));
         $ctx->route('GET', '/request-a-quote', fn ($r) => $ctl()->quote($r));
         $ctx->route('POST', '/request-a-quote', fn ($r) => $ctl()->submitQuote($r));
+        $ctx->route('POST', '/catering/estimate', fn ($r) => $ctl()->estimate($r));
 
         $ctx->adminRoute('GET', '/admin/catering/menus', fn ($r) => $ctl()->adminMenus($r));
         $ctx->adminRoute('POST', '/admin/catering/menus', fn ($r) => $ctl()->adminMenusSave($r));
         $ctx->adminRoute('GET', '/admin/catering/packages', fn ($r) => $ctl()->adminPackages($r));
         $ctx->adminRoute('POST', '/admin/catering/packages', fn ($r) => $ctl()->adminPackagesSave($r));
-        $ctx->adminRoute('GET', '/admin/catering/inquiries', fn ($r) => $ctl()->adminInquiries($r));
-        $ctx->adminRoute('POST', '/admin/catering/inquiries', fn ($r) => $ctl()->adminInquirySave($r));
+        // Preserve old bookmarks while Core takes ownership of the shared
+        // inquiry workspace.
+        $ctx->adminRoute('GET', '/admin/catering/inquiries', fn ($r) => $ctl()->legacyInquiryRedirect($r));
+        $ctx->adminRoute('POST', '/admin/catering/inquiries', fn ($r) => $ctl()->legacyInquiryRedirect($r));
         $ctx->adminRoute('GET', '/admin/catering/settings', fn ($r) => $ctl()->adminSettings($r));
         $ctx->adminRoute('POST', '/admin/catering/settings', fn ($r) => $ctl()->adminSettingsSave($r));
 
         $ctx->permission('catering.manage', 'Manage catering menus, packages, and settings');
-        $ctx->permission('catering.inquiries', 'View and manage catering inquiries');
         $ctx->adminPage('Menus', '/admin/catering/menus', 'catering.manage', 'Catering');
         $ctx->adminPage('Packages', '/admin/catering/packages', 'catering.manage', 'Catering');
-        $ctx->adminPage('Leads & inquiries', '/admin/catering/inquiries', 'catering.inquiries', 'Catering');
         $ctx->adminPage('Catering settings', '/admin/catering/settings', 'catering.manage', 'Catering');
 
-        // Package data joins shared Core admin surfaces through stable API
-        // hooks; the industry module never patches Core controllers/views.
-        $ctx->dashboardWidget('new-inquiries', 'New catering inquiries', function () use ($ctx): array {
-            $db = $ctx->service(Connection::class);
-            return [
-                'value' => (int) $db->fetchColumn(
-                    'SELECT COUNT(*) FROM `' . $db->table('catering_inquiries') . '` WHERE status = ?', ['new']
-                ),
-                'detail' => 'Awaiting review',
-            ];
-        }, 'catering.inquiries', '/admin/catering/inquiries');
-        $ctx->adminSearchProvider(function (string $query) use ($ctx): array {
-            $db = $ctx->service(Connection::class);
-            $like = '%' . $query . '%';
-            return array_map(fn (array $row): array => [
-                'type' => 'Catering lead', 'title' => $row['name'],
-                'detail' => $row['email'] . ' · ' . $row['status'],
-                'url' => '/admin/catering/inquiries',
-            ], $db->fetchAll(
-                'SELECT name, email, status FROM `' . $db->table('catering_inquiries')
-                . '` WHERE name LIKE ? OR email LIKE ? ORDER BY id DESC LIMIT 10', [$like, $like]
-            ));
-        }, 'catering.inquiries');
         $ctx->healthCheck('inquiries-table', 'Inquiry storage', function () use ($ctx): array {
             $db = $ctx->service(Connection::class);
-            return $db->tableExists('catering_inquiries')
-                ? ['status' => 'ok', 'detail' => 'Ready']
-                : ['status' => 'error', 'detail' => 'Required table is missing'];
+            if (!$db->tableExists('catering_inquiries')) {
+                return ['status' => 'error', 'detail' => 'Required catering questionnaire table is missing'];
+            }
+            $pending = CateringController::pendingCoreLinks($db);
+            return $pending === 0
+                ? ['status' => 'ok', 'detail' => 'Questionnaires linked to the Core inquiry workspace']
+                : ['status' => 'warn', 'detail' => $pending . ' questionnaire(s) are waiting to link to Core'];
         });
 
         $ctx->navigationMenu([
@@ -97,5 +92,10 @@ final class Provider
         $ctx->brandAssets([
             'logo' => 'assets/images/catering-co-logo.png',
         ]);
+
+        // Import legacy inquiries in bounded batches through the supported
+        // Core service. The local questionnaire remains intact for detailed
+        // event fields and makes retries lossless.
+        $ctl()->synchronizeLegacyInquiries();
     }
 }
