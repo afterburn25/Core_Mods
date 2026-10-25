@@ -1,5 +1,24 @@
 # Catering Module Session Handoff
 
+## Post-1.0 commercial roadmap decision — 2026-10-25
+
+The owner approved the next commercial catering milestones: a confirmed-event
+workspace, production/fulfillment tools, Core-backed proposals/contracts and
+customer completion, costing/reporting, sales-growth content, and optional
+direct ordering through Core commerce/accounts. The module roadmap now stages
+that work as 1.1.0 through 2.0.0; no post-1.0 behavior or release archive has
+been claimed yet.
+
+Service-area mapping is explicitly a shared Core design. Administrators will
+enter a city/state center and mileage radius in the Core-owned business
+profile; Core will geocode/cache the center and supply the accessible radius
+map component to Catering and other modules. The dependency is recorded as
+`CORE-REUSE-9` in Website Core commit
+`130994dc28305ad0353fe2273b7fe1f2dc109737`. Catering's public Service Area
+page will adopt that contract when available and will continue to use its
+postal delivery zones for authoritative quote validation. Do not add a
+module-private map provider, public geocoding request, or exposed provider key.
+
 ## Current 1.0.0 candidate — 2026-10-25
 
 Catering 1.0.0 adds module-owned operational request screening: service-style
