@@ -9,7 +9,7 @@ adoption of [Cajun Web Pro Module Rules v1.1](../../MOD_RULES.md).
 
 ## Current release
 
-- Module version: `0.4.0`
+- Module version: `1.0.0`
 - Module ID: `cajunwebpro/catering`
 - Type: `industry`
 - Module API: `1`
@@ -81,6 +81,20 @@ no-JavaScript submissions all use the same server-authoritative availability
 and membership rules. Expired records and removed relationships do not rewrite
 historical inquiry snapshots.
 
+## Operations screening in 1.0.0
+
+Catering settings now defines service-style guest limits and lead times,
+blackout dates, a per-request capacity ceiling, pickup/delivery windows,
+delivery zones with fees and food minimums, and optional fixed or per-guest
+staffing/setup/rental/cleanup lines. The public planner, JavaScript estimate,
+no-JavaScript preview, and final submission use the same server rules.
+
+The detailed questionnaire retains an immutable operations snapshot alongside
+the menu snapshot and summarizes both in Core's inquiry workspace and queued
+notification. These are request-screening and preliminary estimate tools only:
+they do not reserve capacity, create checkout, accept payment, or replace
+Core's final quotation workflow.
+
 ## Included features
 
 - Catering home, about, services, menus, packages, gallery, FAQ, service-area,
@@ -113,7 +127,7 @@ historical inquiry snapshots.
 
 ## Installation
 
-Install the single `industry-catering-0.4.0.zip` through Website Core’s
+Install the single `industry-catering-1.0.0.zip` through Website Core’s
 module/package manager. This delivery contains only the module; use an
 already-installed compatible Core. It contains no nested ZIP and does not
 include or update Core. Combined installers require an explicit owner request. The installable module ZIP keeps
@@ -131,5 +145,7 @@ use the new validated package. Upgrade coverage includes the valid published
 - [Roadmap](docs/ROADMAP.md)
 - [Testing](docs/TESTING.md)
 - [Session handoff](docs/SESSION_HANDOFF.md)
+- [Operator guide](docs/OPERATOR_GUIDE.md)
+- [1.0 release notes](docs/RELEASE_NOTES_1.0.md)
 - [Changelog](CHANGELOG.md)
 

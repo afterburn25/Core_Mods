@@ -25,10 +25,17 @@ $migration = require $moduleRoot . '/migrations/0005_menu_planner.php';
 $migration->up($db); $migration->up($db);
 $availabilityMigration = require $moduleRoot . '/migrations/0006_catalog_availability.php';
 $availabilityMigration->up($db); $availabilityMigration->up($db);
+$operationsMigration = require $moduleRoot . '/migrations/0007_event_operations.php';
+$operationsMigration->up($db); $operationsMigration->up($db);
 $custom = $db->fetch('SELECT * FROM `' . $db->table('catering_menu_items') . '` WHERE id = ?', [$items[0]['id']]);
 verify($custom['pricing_basis'] === 'manual' && $custom['dietary'] === 'Custom dietary note', 'Repeated upgrade preserves administrator pricing and content');
 verify($db->tableExists('catering_menu_groups') && $db->tableExists('catering_menu_group_items'),
     'Seasonal catalog migration creates reusable menu collections idempotently');
+$hasOperationsSnapshot = $db->driver() === 'sqlite'
+    ? in_array('operations_plan', array_column($db->fetchAll('PRAGMA table_info(`' . $db->table('catering_inquiries') . '`)'), 'name'), true)
+    : (bool) $db->fetchColumn('SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name=? AND column_name=?',
+        [$db->table('catering_inquiries'), 'operations_plan']);
+verify($hasOperationsSnapshot, 'Event operations migration adds the immutable operations snapshot');
 verify((new Core\Database\Migrator($db, $moduleRoot . '/migrations'))->pending() === [], 'Core migration journal records the module migrations');
 verify($router->dispatch(cateringRequest('POST', '/catering/estimate', ['guest_count' => '25']))->status() === 419, 'Estimate endpoint requires CSRF');
 verify($ctl->adminMenusSave(cateringRequest('POST', '/admin/catering/menus', ['_csrf' => $token, 'action' => 'delete_item', 'id' => $items[0]['id']]))->status() === 403, 'Direct admin action denies unauthenticated callers');
@@ -52,6 +59,13 @@ $settingsInput = [
     'lead_time' => '10', 'quote_expiry' => '21',
     'event_types' => "Wedding\nFundraiser", 'service_styles' => "Buffet\nChef stations",
     'budget_ranges' => "Under \$5,000\n\$5,000+",
+    'capacity_guests' => '300',
+    'service_style_rules' => "Buffet|20|200|10\nChef stations|40|300|21",
+    'optional_extras' => "setup|Setup service|150.00|fixed\nstaff|Service staff|12.00|per_guest",
+    'blackout_dates' => date('Y-m-d', strtotime('+200 days')),
+    'pickup_windows' => "11:00 AM–12:00 PM\n4:00 PM–5:00 PM",
+    'delivery_windows' => "12:00 PM–1:00 PM\n5:00 PM–6:00 PM",
+    'delivery_zones' => 'Greater New Orleans|70001,70002|50.00|500.00',
     'quote_fields' => [
         'dietary' => ['enabled' => '1', 'required' => '1'],
         'service_style' => ['enabled' => '1'], 'budget' => ['enabled' => '1'],
@@ -60,12 +74,14 @@ $settingsInput = [
 verify($router->dispatch(cateringRequest('POST', '/admin/catering/settings', $settingsInput))->status() === 302,
     'Owner can save Catering-specific quote choices through the protected settings route');
 verify($f['settings']->get('catering.event_types') === ['Wedding', 'Fundraiser']
-    && $f['settings']->get('catering.quote_fields')['dietary']['required'] === true,
-    'Quote choices and field requirements persist in Core settings');
+    && $f['settings']->get('catering.quote_fields')['dietary']['required'] === true
+    && $f['settings']->get('catering.delivery_zones')[0]['fee_cents'] === 5000,
+    'Quote choices, field requirements, and operations rules persist in Core settings');
 $configuredQuote = $router->dispatch(cateringRequest('GET', '/request-a-quote'))->body();
 verify(str_contains($configuredQuote, 'Fundraiser') && !str_contains($configuredQuote, 'name="company"')
-    && str_contains($configuredQuote, 'name="dietary"') && str_contains($configuredQuote, 'name="dietary" rows="4" maxlength="3000" required'),
-    'Quote form renders configured event choices and optional-field visibility/requirements');
+    && str_contains($configuredQuote, 'name="dietary"') && str_contains($configuredQuote, 'name="dietary" rows="4" maxlength="3000" required')
+    && str_contains($configuredQuote, 'name="fulfillment_method"') && str_contains($configuredQuote, 'Setup service'),
+    'Quote form renders configured event choices, field requirements, fulfillment, and optional services');
 $resources = [];
 foreach ($f['ctx']->adminResources() as $resource) $resources[(string) $resource['key']] = $resource;
 verify(isset($resources['menu-items'], $resources['packages']), 'Core shared menu and package resources are registered');
@@ -164,8 +180,10 @@ $before = (int) $db->fetchColumn('SELECT COUNT(*) FROM `' . $db->table('catering
 $preview = $router->dispatch(cateringRequest('POST', '/request-a-quote', $estimateInput + ['preview_plan' => '1']));
 verify($preview->status() === 200 && str_contains($preview->body(), '375.75'), 'No-JavaScript preview calculates the server estimate');
 verify((int) $db->fetchColumn('SELECT COUNT(*) FROM `' . $db->table('catering_inquiries') . '`') === $before, 'Preview does not create an inquiry');
-$quote = $estimateInput + ['event_type' => 'Wedding', 'event_date' => '2027-06-15', 'name' => 'Menu Planner Test', 'email' => 'guest@example.test',
+$quote = $estimateInput + ['event_type' => 'Wedding', 'event_date' => date('Y-m-d', strtotime('+120 days')), 'name' => 'Menu Planner Test', 'email' => 'guest@example.test',
     'company' => 'Ignored disabled value', 'dietary' => 'Please discuss milk allergy', 'acknowledged' => '1', 'package_id' => (string) $package['id']];
+$quote += ['service_style' => 'Buffet', 'fulfillment_method' => 'delivery', 'fulfillment_window' => '12:00 PM–1:00 PM',
+    'postal_code' => '70001', 'extras' => ['setup']];
 $missingDietary = $quote; unset($missingDietary['dietary']);
 verify(str_contains($router->dispatch(cateringRequest('POST', '/request-a-quote', $missingDietary))->body(), 'Dietary needs, allergies and handling requests is required.'),
     'Server enforces administrator-configured required quote fields');
@@ -173,16 +191,22 @@ $response = $router->dispatch(cateringRequest('POST', '/request-a-quote', $quote
 verify($response->status() === 302 && str_contains($response->headers()['Location'], '/catering/index.php?p=/request-a-quote&sent=1'), 'Quote redirects correctly under subfolder/query routing');
 $row = $db->fetch('SELECT * FROM `' . $db->table('catering_inquiries') . '` ORDER BY id DESC LIMIT 1');
 $snapshot = json_decode($row['menu_plan'], true);
+$operationsSnapshot = json_decode($row['operations_plan'], true);
 verify($snapshot['estimate_cents'] === 97500 && $snapshot['items'][0]['name'] === $input['name'], 'Inquiry stores authoritative package/menu/price snapshot');
+verify($operationsSnapshot['operations_cents'] === 20000 && $operationsSnapshot['combined_estimate_cents'] === 117500
+    && $row['fulfillment_method'] === 'delivery', 'Inquiry stores authoritative fulfillment, zone fee, and optional-service snapshot');
 verify($row['dietary'] === 'Please discuss milk allergy', 'Customer allergy requests remain separate from catalog labels');
 verify($row['company'] === '', 'Disabled quote fields are discarded even when submitted directly');
 $mail = $db->fetch('SELECT * FROM `' . $db->table('system_messages') . '` ORDER BY id DESC LIMIT 1');
-verify(str_contains($mail['body'], 'Selected dishes:') && str_contains($mail['body'], '$975.00'), 'Core queued email includes the selected menu and estimate');
+verify(str_contains($mail['body'], 'Selected dishes:') && str_contains($mail['body'], '$975.00') && str_contains($mail['body'], '$1,175.00'),
+    'Core queued email includes the selected menu and combined estimate');
 $db->update('catering_menu_items', ['name' => 'Renamed later'], 'id = ?', [$items[0]['id']]);
 $inbox = $router->dispatch(cateringRequest('GET', '/admin/catering/inquiries'));
 verify($inbox->status() === 302 && str_contains($inbox->headers()['Location'], '/admin/inquiries'), 'Legacy inbox redirects to Core');
 $coreInquiry = $db->fetch('SELECT * FROM `' . $db->table('crm_inquiries') . '` WHERE id = ? AND owner_package = ?', [(int) $row['core_inquiry_id'], 'cajunwebpro/catering']);
-verify($coreInquiry !== null && str_contains($coreInquiry['message'], 'Menu submission snapshot') && str_contains($coreInquiry['message'], 'Special') && str_contains($coreInquiry['message'], '$975.00'), 'Core inquiry retains original selected menu and estimate');
+verify($coreInquiry !== null && str_contains($coreInquiry['message'], 'Menu submission snapshot') && str_contains($coreInquiry['message'], 'Special')
+    && str_contains($coreInquiry['message'], '$975.00') && str_contains($coreInquiry['message'], 'Operations submission snapshot'),
+    'Core inquiry retains original selected menu and operations estimates');
 $coreCount = (int) $db->fetchColumn('SELECT COUNT(*) FROM `' . $db->table('crm_inquiries') . '`');
 $ctl->synchronizeLegacyInquiries(); $ctl->synchronizeLegacyInquiries();
 verify((int) $db->fetchColumn('SELECT COUNT(*) FROM `' . $db->table('crm_inquiries') . '`') === $coreCount, 'Repeated linking does not duplicate sales inquiries');
@@ -191,6 +215,10 @@ $invalidQuote = $quote; $invalidQuote['event_date'] = '2027-02-30';
 verify(str_contains($router->dispatch(cateringRequest('POST', '/request-a-quote', $invalidQuote))->body(), 'valid event date'), 'Impossible calendar date rejected server-side');
 $invalidQuote = $quote; unset($invalidQuote['acknowledged']);
 verify(str_contains($router->dispatch(cateringRequest('POST', '/request-a-quote', $invalidQuote))->body(), 'acknowledge'), 'Booking acknowledgement enforced server-side');
+$outsideZone = $estimateInput + ['event_date' => date('Y-m-d', strtotime('+120 days')), 'guest_count' => '25', 'service_style' => 'Buffet',
+    'fulfillment_method' => 'delivery', 'fulfillment_window' => '12:00 PM–1:00 PM', 'postal_code' => '99999'];
+verify(str_contains($router->dispatch(cateringRequest('POST', '/catering/estimate', $outsideZone))->body(), 'outside the configured delivery zones'),
+    'Server-authoritative estimate rejects out-of-zone delivery');
 foreach (['/', '/menus', '/menus/' . $categories[0]['slug'], '/packages', '/packages/' . $package['slug'], '/request-a-quote', '/admin/catering/menus', '/admin/catering/packages', '/admin/catering/menu-groups'] as $path) {
     $response = $router->dispatch(cateringRequest('GET', $path));
     verify($response->status() === 200, 'Public/admin route renders: ' . $path);

@@ -1,5 +1,20 @@
 # Catering Module Testing
 
+## 1.0.0 production-baseline candidate — 2026-10-25
+
+- Added isolated operations-planner checks for service guest ranges, lead time,
+  blackout dates, capacity, fulfillment windows, delivery zones/fees/minimums,
+  fixed/per-guest extras, exact cents, and unknown-selection rejection.
+- Expanded controller/database coverage for structured settings validation,
+  public fulfillment rendering, authoritative operations snapshots, combined
+  inquiry/mail summaries, and out-of-zone rejection.
+- Expanded packaged lifecycle coverage to direct 0.4.0 upgrade and retained
+  catalog/inquiry data after uninstall-without-purge and reinstall.
+- Added a release-readiness static suite and a pinned, read-only Landscaping
+  1.0.0 Module API contract/isolation suite.
+- JavaScript syntax and whitespace checks pass locally. Exact ZIP, PHP 8.4/8.5,
+  SQLite, MySQL 8.4, MariaDB 11.4, lifecycle, and GitHub CI evidence are pending.
+
 ## 0.4.0 seasonal catalog candidate — 2026-10-25
 
 - Migration coverage repeats the availability/group migration and verifies
@@ -8,7 +23,13 @@
   package, rejects an out-of-collection dish, and excludes expired dishes and
   packages from planning.
 - Planner unit coverage independently verifies linked-collection membership.
-- Exact ZIP lifecycle and PHP/native database acceptance are pending.
+- Final archive: 1,667,506 bytes; SHA-256
+  `00ba3bfc2e70286567b0ae198dd36f30587dc6b5202f76de9a5679080f8f67e0`;
+  53 files; no nested ZIP.
+- Module CI `40221582234` passed. The first acceptance run `40221440854`
+  exposed a workflow-only filename error after all module integration checks
+  passed; the corrected Catering acceptance run `40221582233` passed PHP
+  8.4/8.5, SQLite, MySQL 8.4, MariaDB 11.4, and direct 0.3.0 upgrade.
 
 ## 0.3.0 configurable quote-planner release — 2026-10-25
 

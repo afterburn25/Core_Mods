@@ -1,7 +1,7 @@
 # Catering Module Project Status
 
-- Current version: `0.4.0`
-- State: Active development; seasonal catalog and menu-collection candidate
+- Current version: `1.0.0`
+- State: Production-baseline candidate; CI pending
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
 - Module API: `1`
@@ -47,6 +47,22 @@
 - Structured-data contribution remains blocked on CORE-REUSE-3 rather than
   bypassing Core's SEO and schema editor.
 
+## 1.0.0 candidate scope
+
+- Service-style guest limits and lead times, blackout dates, and a configurable
+  event request-capacity ceiling.
+- Pickup/delivery windows, delivery-zone postal rules, zone fees, food
+  minimums, and optional fixed/per-guest service estimate lines.
+- Immutable operations snapshots retained with menu snapshots and summarized
+  through Core's inquiry and mail services.
+- Release-readiness checks for accessibility, responsive/reduced-motion
+  support, client injection primitives, CSRF/rate limiting, capability guards,
+  migration order, and package documentation.
+- Pinned read-only contract/isolation verification against Landscaping 1.0.0;
+  no Landscaping code, Core code, or combined installer is changed.
+- Operator guide, 1.0 release notes, supported Core policy, forward-only
+  migration policy, and Core-owned backup/restore guidance.
+
 ## Completed
 
 - Public multi-page catering website and detail pages
@@ -86,9 +102,9 @@
   when the owner explicitly requests integration (direction: 2026-10-25).
 - Defer combined Core bundle CI until that integration is requested; preserve
   honest compatibility requirements and continue module validation.
-- Continue with module-owned 0.3.0 lead configuration and operations work.
-  Keep shared follow-up, export, notification-template, attachment, content,
-  media and form engines deferred to their documented Core dependencies.
+- Complete exact 1.0.0 archive publication and module-branch CI. Keep shared
+  follow-up, export, notification-template, attachment, content, media, schema,
+  form, commerce, account, and payment engines deferred to Core dependencies.
 
 ## Known issues and release gates
 
@@ -101,5 +117,6 @@
 - Shared content/media/forms integration remains on CORE-REUSE-3/4.
 - Historical 0.1.22/0.1.23 archives are truncated. Only the complete current
   ZIP remains in releases; legacy-source fixtures are explicitly test-only.
-- Additional charges, availability, tastings, event operations, checkout and
-  payments remain on the roadmap.
+- Tasting requests, detailed event-production worksheets, venue/case-study
+  content, checkout, accounts, and payments remain later work. Commerce work
+  must use Core and is not a 1.0 module-owned release gate.

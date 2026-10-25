@@ -25,8 +25,12 @@ jobs:
           path: .previous-module
       - uses: actions/checkout@v4
         with:
-          ref: 5a72464f046343291ad7a7b4b4b4d9466ce803db
+          ref: 4d4f7e7b427fd07438c64dfcf31a38337f69e147
           path: .previous-release
+      - uses: actions/checkout@v4
+        with:
+          ref: be009de567286b16ea60e4188b6e7eb34f482b83
+          path: .landscaping-contract
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
@@ -38,6 +42,7 @@ jobs:
           CATERING_CORE_ROOT: ${{ github.workspace }}/.core-test-fixture
           CATERING_MODULE_ROOT: /tmp/catering-package
           CATERING_PREVIOUS_ZIP: /tmp/catering-legacy-source.zip
+          CATERING_LANDSCAPING_ROOT: ${{ github.workspace }}/.landscaping-contract/modules/industry-landscaping
         run: |
           php tools/validate-modules.php
           python3 - <<'PY'
@@ -51,9 +56,11 @@ jobs:
           PY
           php modules/industry-catering/tests/planner.php
           php modules/industry-catering/tests/integration.php
+          php modules/industry-catering/tests/shared-contracts.php
+          php modules/industry-catering/tests/release-readiness.php
           php modules/industry-catering/tests/package.php
           CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-module/modules/industry-catering/releases/industry-catering-0.1.21.zip" php modules/industry-catering/tests/package.php
-          CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-release/modules/industry-catering/releases/industry-catering-0.3.0.zip" php modules/industry-catering/tests/package.php
+          CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-release/modules/industry-catering/releases/industry-catering-0.4.0.zip" php modules/industry-catering/tests/package.php
       - name: Verify fixed Core inquiry detail and notes contract
         env:
           CATERING_CORE_ROOT: ${{ github.workspace }}/.core-test-fixture
@@ -94,7 +101,7 @@ jobs:
           path: .previous-module
       - uses: actions/checkout@v4
         with:
-          ref: 5a72464f046343291ad7a7b4b4b4d9466ce803db
+          ref: 4d4f7e7b427fd07438c64dfcf31a38337f69e147
           path: .previous-release
       - uses: shivammathur/setup-php@v2
         with:
@@ -113,4 +120,4 @@ jobs:
           php modules/industry-catering/tests/integration.php
           php modules/industry-catering/tests/package.php
           CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-module/modules/industry-catering/releases/industry-catering-0.1.21.zip" php modules/industry-catering/tests/package.php
-          CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-release/modules/industry-catering/releases/industry-catering-0.3.0.zip" php modules/industry-catering/tests/package.php
+          CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-release/modules/industry-catering/releases/industry-catering-0.4.0.zip" php modules/industry-catering/tests/package.php

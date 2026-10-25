@@ -1,6 +1,23 @@
 # Catering Module Session Handoff
 
-## Current 0.4.0 candidate — 2026-10-25
+## Current 1.0.0 candidate — 2026-10-25
+
+Catering 1.0.0 adds module-owned operational request screening: service-style
+guest limits and lead times, blackout dates, a request-capacity ceiling,
+pickup/delivery windows, delivery zones/fees/food minimums, and optional fixed
+or per-guest service lines. The public planner, no-JavaScript preview, final
+submission, stored operations snapshot, Core inquiry summary, and queued mail
+all use server-authoritative values. It remains quote-only and does not create
+a booking, cart, account, invoice, or payment system.
+
+The candidate adds an operator guide, release notes, a release-readiness suite,
+expanded lifecycle data-preservation checks, and a pinned read-only shared
+Module API/isolation check against Landscaping 1.0.0 commit
+`be009de567286b16ea60e4188b6e7eb34f482b83`. No Landscaping source, Website
+Core source, synchronized snapshot, or combined installer changed. Exact ZIP
+publication and CI evidence are pending and must not be claimed until green.
+
+## 0.4.0 release — 2026-10-25
 
 Migration `catering_0006_catalog_availability` adds optional availability
 windows plus reusable menu collections and their package relationship.
@@ -8,7 +25,10 @@ Public queries and estimates exclude out-of-window records. Linked packages
 accept only current collection members, with JavaScript guidance backed by
 the same server validation. The protected collection workspace cleans up
 memberships and package links without changing inquiry snapshots. Structured
-data stays deferred to CORE-REUSE-3. The 0.4.0 ZIP and CI evidence are pending.
+data stays deferred to CORE-REUSE-3. The archive is 1,667,506 bytes with
+SHA-256 `00ba3bfc2e70286567b0ae198dd36f30587dc6b5202f76de9a5679080f8f67e0`.
+The final branch commit is `4d4f7e7b427fd07438c64dfcf31a38337f69e147`;
+Module CI `40221582234` and Catering acceptance `40221582233` passed.
 The missing package-scoped schema contribution contract is recorded in the
 Core roadmap at documentation commit
 `30349cff3bfa971cbed359ead041850bc58d14e7`; no Core implementation changed.
@@ -64,7 +84,7 @@ request.
 - Repository: `afterburn25/Core_Mods`
 - Branch: `module/catering`
 - Folder: `modules/industry-catering/`
-- Current version: `0.2.1`
+- Current version: `1.0.0`
 - Manifest ID: `cajunwebpro/catering`
 
 Do not develop the catering module directly on `main`, and do not create a

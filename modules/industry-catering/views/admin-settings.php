@@ -41,6 +41,25 @@
     </div>
 
     <div class="card">
+        <div class="card-heading"><div><p class="section-kicker">Catering operations</p><h2>Availability and service rules</h2><p class="muted">These rules screen quote requests only. They do not reserve capacity or create bookings.</p></div></div>
+        <div class="form-grid">
+            <label>Maximum guests for one event<input type="number" name="capacity_guests" min="1" max="10000" value="<?= (int) $values['capacity_guests'] ?>"></label>
+            <label>Blackout dates <small>one YYYY-MM-DD date per line</small><textarea name="blackout_dates" rows="7" maxlength="4026"><?= e((string) $values['blackout_dates']) ?></textarea></label>
+        </div>
+        <label>Service-style rules <small>Style|min guests|max guests|lead days — style must match the public choices above</small><textarea name="service_style_rules" rows="8" required maxlength="8000"><?= e((string) $values['service_style_rules']) ?></textarea></label>
+    </div>
+
+    <div class="card">
+        <div class="card-heading"><div><p class="section-kicker">Catering operations</p><h2>Fulfillment and optional services</h2><p class="muted">Prices are preliminary estimate lines. Core quotations remain the source of final terms.</p></div></div>
+        <div class="form-grid">
+            <label>Pickup windows <small>one public choice per line</small><textarea name="pickup_windows" rows="6" required maxlength="2424"><?= e((string) $values['pickup_windows']) ?></textarea></label>
+            <label>Delivery windows <small>one public choice per line</small><textarea name="delivery_windows" rows="6" required maxlength="2424"><?= e((string) $values['delivery_windows']) ?></textarea></label>
+        </div>
+        <label>Delivery zones <small>Name|postal codes separated by commas|fee|minimum food order. Use * only for a team-confirmed catch-all zone.</small><textarea name="delivery_zones" rows="7" maxlength="8000"><?= e((string) $values['delivery_zones']) ?></textarea></label>
+        <label>Optional services <small>key|public name|price|fixed or per_guest</small><textarea name="optional_extras" rows="7" maxlength="8000"><?= e((string) $values['optional_extras']) ?></textarea></label>
+    </div>
+
+    <div class="card">
         <div class="card-heading"><div><p class="section-kicker">Quote planner</p><h2>Optional questions</h2><p class="muted">Event type, date, guest count, menu selection, consent, name, and email remain required. Configure the Catering-specific planning questions below.</p></div></div>
         <div class="table-wrap"><table><thead><tr><th scope="col">Question</th><th scope="col">Show</th><th scope="col">Require</th></tr></thead><tbody>
         <?php foreach ($quoteFieldLabels as $key => $label): ?>

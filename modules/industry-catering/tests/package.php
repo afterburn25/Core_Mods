@@ -45,6 +45,10 @@ $custom = $db->fetch('SELECT * FROM `' . $db->table('catering_menu_items') . '` 
 packageCheck($custom['name'] === 'Customer-owned menu item' && $custom['dietary'] === 'Preserved note' && (int) $custom['price_cents'] === 1234,
     'Upgrade preserves customer menu content and prices');
 packageCheck($db->fetchColumn('SELECT message FROM `' . $db->table('catering_inquiries') . '` WHERE id = ?', [$inquiryId]) === 'Preserve this inquiry', 'Upgrade preserves inquiry history');
+packageCheck($db->driver() === 'sqlite'
+    ? in_array('operations_plan', array_column($db->fetchAll('PRAGMA table_info(`' . $db->table('catering_inquiries') . '`)'), 'name'), true)
+    : (bool) $db->fetchColumn('SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name=? AND column_name=?',
+        [$db->table('catering_inquiries'), 'operations_plan']), 'Upgrade adds the event-operations snapshot column');
 packageCheck((int) $db->fetchColumn('SELECT COUNT(*) FROM `' . $db->table('menu_items') . '`') === $menuCount, 'Upgrade preserves navigation');
 $installed = glob($root . '/industries/*/addon.json');
 packageCheck(count($installed) === 1 && json_decode((string) file_get_contents($installed[0]), true)['version'] === $latest['version'], 'Installed manifest version matches release');
@@ -62,6 +66,10 @@ packageCheck($error === null, 'Restage current module for reinstall: ' . (string
 [$ok, $error] = $manager->install($id);
 packageCheck($ok, 'Reinstall current module with retained records: ' . (string) $error);
 packageCheck((int) $db->fetchColumn('SELECT COUNT(*) FROM `' . $db->table('catering_menu_items') . '`') === 10, 'Reinstall does not duplicate starter content');
+packageCheck($db->fetchColumn('SELECT name FROM `' . $db->table('catering_menu_items') . '` WHERE id = ?', [$itemId]) === 'Customer-owned menu item',
+    'Data-preserving reinstall retains customer catalog edits');
+packageCheck($db->fetchColumn('SELECT message FROM `' . $db->table('catering_inquiries') . '` WHERE id = ?', [$inquiryId]) === 'Preserve this inquiry',
+    'Data-preserving reinstall retains inquiry history for backup/restore continuity');
 $fresh = cateringFixture(null, false);
 $freshRoot = $root . '/fresh';
 foreach (['staging', 'industries', 'addons', 'themes'] as $dir) mkdir($freshRoot . '/' . $dir, 0750, true);

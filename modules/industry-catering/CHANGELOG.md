@@ -1,5 +1,18 @@
 # Catering Module Changelog
 
+## 1.0.0 — 2026-10-25
+
+- Added server-authoritative service-style guest limits and lead times,
+  blackout dates, request-capacity ceilings, fulfillment windows, delivery
+  zones/fees/minimums, and optional fixed/per-guest service lines.
+- Added immutable operations snapshots alongside the existing menu snapshot in
+  module questionnaires, Core inquiry summaries, and queued notifications.
+- Added no-JavaScript and progressive-enhancement support for combined food and
+  configured operations estimates.
+- Added release-readiness and pinned Landscaping contract-isolation checks.
+- Published supported Core, upgrade, backup, rollback, launch, and daily
+  operations guidance.
+
 ## 0.4.0 — 2026-10-25
 
 - Add inclusive availability windows to dishes, packages, and reusable menu

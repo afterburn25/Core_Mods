@@ -47,6 +47,8 @@
   const estimate = form.querySelector('[data-menu-estimate]');
   const review = form.querySelector('[data-review-plan]');
   const packageSelect = form.querySelector('[data-planner-package]');
+  const fulfillmentMethod = form.querySelector('[data-fulfillment-method]');
+  const fulfillmentWindow = form.querySelector('[data-fulfillment-window]');
   const rulesText = form.querySelector('[data-planner-rules]');
   const money = (cents) => new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(cents / 100);
   let current = 0;
@@ -83,6 +85,18 @@
     strong.textContent = total;
     estimate.append(strong);
     paragraph(review, total);
+    (plan.operations?.lines || []).forEach((line) => {
+      paragraph(estimate, `${line.name} · ${line.quantity} × ${money(line.unit_cents)} = ${money(line.total_cents)}`);
+    });
+    if (plan.operations?.combined_estimate_cents !== null && plan.operations?.combined_estimate_cents !== undefined) {
+      const combined = 'Combined preliminary estimate: ' + money(plan.operations.combined_estimate_cents);
+      const combinedStrong = document.createElement('strong');
+      combinedStrong.textContent = combined;
+      estimate.append(combinedStrong);
+      paragraph(review, combined);
+    }
+    if (plan.operations?.fulfillment_method) paragraph(review,
+      `Fulfillment: ${plan.operations.fulfillment_method} · ${plan.operations.fulfillment_window}`);
     (plan.notes || []).forEach((note) => paragraph(estimate, note, 'c-disclaimer'));
   };
   const updateRules = () => {
@@ -101,6 +115,14 @@
         'Choose individual dishes, or leave your menu open for recommendations.');
     applyFilter();
   };
+  const updateFulfillmentWindows = () => {
+    if (!fulfillmentMethod || !fulfillmentWindow) return;
+    [...fulfillmentWindow.options].forEach((option) => {
+      if (!option.dataset.method) return;
+      option.disabled = Boolean(fulfillmentMethod.value && option.dataset.method !== fulfillmentMethod.value);
+    });
+    if (fulfillmentWindow.selectedOptions[0]?.disabled) fulfillmentWindow.value = '';
+  };
   const refreshEstimate = async () => {
     clearTimeout(debounce);
     controller?.abort();
@@ -109,8 +131,10 @@
     estimate.setAttribute('aria-busy', 'true');
     try {
       const payload = new FormData();
-      ['_csrf', 'guest_count', 'package_id'].forEach((name) => payload.set(name, form.elements.namedItem(name)?.value || ''));
+      ['_csrf', 'guest_count', 'package_id', 'event_date', 'service_style', 'fulfillment_method', 'fulfillment_window', 'postal_code']
+        .forEach((name) => payload.set(name, form.elements.namedItem(name)?.value || ''));
       form.querySelectorAll('[name="menu_items[]"]:checked').forEach((field) => payload.append('menu_items[]', field.value));
+      form.querySelectorAll('[name="extras[]"]:checked').forEach((field) => payload.append('extras[]', field.value));
       const response = await fetch(form.dataset.estimateUrl, {
         method: 'POST', body: payload, credentials: 'same-origin',
         headers: {'Accept': 'application/json'}, signal: controller.signal,
@@ -160,8 +184,9 @@
   });
   back.addEventListener('click', () => show(current - 1));
   form.addEventListener('input', (event) => {
-    if (!event.target.matches('[name="guest_count"], [name="package_id"], [name="menu_items[]"]')) return;
+    if (!event.target.matches('[name="guest_count"], [name="package_id"], [name="menu_items[]"], [name="event_date"], [name="service_style"], [name="fulfillment_method"], [name="fulfillment_window"], [name="postal_code"], [name="extras[]"]')) return;
     updateRules();
+    updateFulfillmentWindows();
     applyFilter();
     clearTimeout(debounce);
     debounce = setTimeout(refreshEstimate, 400);
@@ -182,6 +207,7 @@
     if (current < steps.length - 1) { event.preventDefault(); next.click(); }
   });
   updateRules();
+  updateFulfillmentWindows();
   const invalid = [...form.querySelectorAll('input,select,textarea')].find((field) => !field.checkValidity());
   const serverError = document.querySelector('[data-quote-error]');
   show(serverError ? (invalid ? steps.findIndex((step) => step.contains(invalid)) : 1) : 0, false);

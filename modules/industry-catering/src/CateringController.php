@@ -207,6 +207,7 @@ final class CateringController
     {
         [$categories, $items, $packages] = $this->plannerCatalog();
         $quoteConfig = $this->quoteConfiguration();
+        $operations = $this->operationsConfiguration($quoteConfig['service_styles']);
         $prefill = $request->string('package');
         if ($old === [] && $prefill !== '') {
             foreach ($packages as $package) {
@@ -217,6 +218,12 @@ final class CateringController
             $old['event_type'] ??= $request->string('event_type');
             $old['menu_interest'] ??= $request->string('menu_interest');
         }
+        $initialPlan = null;
+        if (isset($old['guest_count'])) {
+            $initialPlan = (new MenuPlanner())->calculate($old, $items, $packages,
+                max(1, (int) $this->settings()->get('catering.minimum_guests', 20)));
+            $initialPlan['operations'] = (new EventOperations())->evaluate($old, $operations, $initialPlan['estimate_cents'], null, false);
+        }
         return $this->page($request, 'quote', [
             'csrf' => $this->ctx->service(Csrf::class), 'error' => $error,
             'sent' => $request->string('sent') === '1', 'old' => $old,
@@ -226,8 +233,9 @@ final class CateringController
             'serviceStyles' => $quoteConfig['service_styles'],
             'budgetRanges' => $quoteConfig['budget_ranges'],
             'quoteFields' => $quoteConfig['fields'],
+            'operations' => $operations,
             'minimumGuests' => max(1, (int) $this->settings()->get('catering.minimum_guests', 20)),
-            'initialPlan' => isset($old['guest_count']) ? (new MenuPlanner())->calculate($old, $items, $packages, max(1, (int) $this->settings()->get('catering.minimum_guests', 20))) : null,
+            'initialPlan' => $initialPlan,
             'estimateUrl' => $this->ctx->url($request->basePath, '/catering/estimate'),
         ], 'Plan Your Menu', 'Build your menu and request a personalized catering proposal.', true);
     }
@@ -241,6 +249,16 @@ final class CateringController
         [, $items, $packages] = $this->plannerCatalog();
         $plan = (new MenuPlanner())->calculate($request->post, $items, $packages,
             max(1, (int) $this->settings()->get('catering.minimum_guests', 20)));
+        $quoteConfig = $this->quoteConfiguration();
+        $operations = (new EventOperations())->evaluate(
+            $request->post,
+            $this->operationsConfiguration($quoteConfig['service_styles']),
+            $plan['estimate_cents'],
+            null,
+            false
+        );
+        $plan['operations'] = $operations;
+        $plan['errors'] = array_values(array_unique(array_merge($plan['errors'], $operations['errors'])));
         $response = Response::json($plan, $plan['errors'] === [] ? 200 : 422);
         $response->header('Cache-Control', 'private, no-store');
         return $response;
@@ -269,12 +287,19 @@ final class CateringController
         [, $items, $packages] = $this->plannerCatalog();
         $plan = (new MenuPlanner())->calculate($request->post, $items, $packages,
             max(1, (int) $this->settings()->get('catering.minimum_guests', 20)));
-        $errors = array_merge($errors, $plan['errors']);
+        $operations = (new EventOperations())->evaluate(
+            array_merge($request->post, $data),
+            $this->operationsConfiguration($quoteConfig['service_styles']),
+            $plan['estimate_cents']
+        );
+        $errors = array_merge($errors, $plan['errors'], $operations['errors']);
         if ($request->string('acknowledged') !== '1') $errors[] = 'Please acknowledge that this is a quote request, not a booking.';
         $data['menu_items'] = is_array($request->input('menu_items')) ? $request->input('menu_items') : [];
+        $data['extras'] = is_array($request->input('extras')) ? $request->input('extras') : [];
         $data['package_id'] = $request->string('package_id');
         $data['acknowledged'] = $request->string('acknowledged');
         $data['menu_plan'] = json_encode($plan, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+        $data['operations_plan'] = json_encode($operations, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
         if ($errors !== []) {
             return $this->quote($request, implode(' ', $errors), $data);
         }
@@ -549,6 +574,7 @@ final class CateringController
         }
         $settings = $this->settings();
         $quoteConfig = $this->quoteConfiguration();
+        $operations = $this->operationsConfiguration($quoteConfig['service_styles']);
         $postedFields = is_array($old['quote_fields'] ?? null) ? $old['quote_fields'] : null;
         $fieldValues = $quoteConfig['fields'];
         if ($postedFields !== null) {
@@ -568,6 +594,13 @@ final class CateringController
                 'event_types' => $old['event_types'] ?? implode("\n", $quoteConfig['event_types']),
                 'service_styles' => $old['service_styles'] ?? implode("\n", $quoteConfig['service_styles']),
                 'budget_ranges' => $old['budget_ranges'] ?? implode("\n", $quoteConfig['budget_ranges']),
+                'capacity_guests' => $old['capacity_guests'] ?? $operations['capacity_guests'],
+                'service_style_rules' => $old['service_style_rules'] ?? $this->formatServiceStyleRules($operations['styles']),
+                'optional_extras' => $old['optional_extras'] ?? $this->formatOptionalExtras($operations['extras']),
+                'blackout_dates' => $old['blackout_dates'] ?? implode("\n", $operations['blackout_dates']),
+                'pickup_windows' => $old['pickup_windows'] ?? implode("\n", $operations['windows']['pickup']),
+                'delivery_windows' => $old['delivery_windows'] ?? implode("\n", $operations['windows']['delivery']),
+                'delivery_zones' => $old['delivery_zones'] ?? $this->formatDeliveryZones($operations['zones']),
             ],
             'quoteFields' => $fieldValues,
             'quoteFieldLabels' => self::QUOTE_FIELDS,
@@ -589,6 +622,13 @@ final class CateringController
             $eventTypes = $this->parseSettingList($request->string('event_types'), 'event types');
             $serviceStyles = $this->parseSettingList($request->string('service_styles'), 'service styles');
             $budgetRanges = $this->parseSettingList($request->string('budget_ranges'), 'budget ranges');
+            $capacityGuests = $this->boundedInt($request->string('capacity_guests', '10000'), 1, 10000, 'Event capacity');
+            $serviceRules = $this->parseServiceStyleRules($request->string('service_style_rules'), $serviceStyles);
+            $optionalExtras = $this->parseOptionalExtras($request->string('optional_extras'));
+            $blackoutDates = $this->parseBlackoutDates($request->string('blackout_dates'));
+            $pickupWindows = $this->parseSettingList($request->string('pickup_windows'), 'pickup windows');
+            $deliveryWindows = $this->parseSettingList($request->string('delivery_windows'), 'delivery windows');
+            $deliveryZones = $this->parseDeliveryZones($request->string('delivery_zones'));
             $postedFields = $request->input('quote_fields');
             $postedFields = is_array($postedFields) ? $postedFields : [];
             $fieldConfig = [];
@@ -599,7 +639,9 @@ final class CateringController
                     'required' => $enabled && isset($postedFields[$key]['required']),
                 ];
             }
-            $this->db()->transaction(function () use ($settings, $request, $eventTypes, $serviceStyles, $budgetRanges, $fieldConfig): void {
+            $this->db()->transaction(function () use ($settings, $request, $eventTypes, $serviceStyles, $budgetRanges,
+                $capacityGuests, $serviceRules, $optionalExtras, $blackoutDates, $pickupWindows, $deliveryWindows,
+                $deliveryZones, $fieldConfig): void {
                 $settings->set('catering.travel_note', mb_substr($request->string('travel_note'), 0, 1000));
                 $settings->set('catering.minimum_guests', max(1, min(10000, (int) $request->string('minimum_guests', '20'))));
                 $settings->set('catering.lead_time', max(0, min(3650, (int) $request->string('lead_time', '14'))));
@@ -607,6 +649,12 @@ final class CateringController
                 $settings->set('catering.event_types', $eventTypes);
                 $settings->set('catering.service_styles', $serviceStyles);
                 $settings->set('catering.budget_ranges', $budgetRanges);
+                $settings->set('catering.capacity_guests', $capacityGuests);
+                $settings->set('catering.service_style_rules', $serviceRules);
+                $settings->set('catering.optional_extras', $optionalExtras);
+                $settings->set('catering.blackout_dates', $blackoutDates);
+                $settings->set('catering.fulfillment_windows', ['pickup' => $pickupWindows, 'delivery' => $deliveryWindows]);
+                $settings->set('catering.delivery_zones', $deliveryZones);
                 $settings->set('catering.quote_fields', $fieldConfig);
             });
             $this->audit('catering.settings.updated', 0);
@@ -686,6 +734,9 @@ final class CateringController
             'guest_count' => ($data['guest_count'] ?? '') !== '' ? (int) $data['guest_count'] : null,
             'venue' => $data['venue'] ?? '',
             'service_style' => $data['service_style'] ?? '',
+            'fulfillment_method' => $data['fulfillment_method'] ?? '',
+            'fulfillment_window' => $data['fulfillment_window'] ?? '',
+            'postal_code' => $data['postal_code'] ?? '',
             'menu_interest' => $data['menu_interest'] ?? '',
             'budget' => $data['budget'] ?? '',
             'dietary' => $data['dietary'] ?? '',
@@ -694,6 +745,7 @@ final class CateringController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => null,
             'menu_plan' => $data['menu_plan'] ?? null,
+            'operations_plan' => $data['operations_plan'] ?? null,
         ];
         $id = (int) $this->db()->insert('catering_inquiries', $record);
         $this->linkInquiryToCore($id, $record);
@@ -710,7 +762,11 @@ final class CateringController
                         $lines[] = 'Selected package: ' . ($plan['package_name'] ?? 'Custom menu');
                         $lines[] = 'Selected dishes: ' . implode(', ', array_column($plan['items'] ?? [], 'name'));
                         $lines[] = 'Preliminary food estimate: ' . (isset($plan['estimate_cents']) ? '$' . number_format($plan['estimate_cents'] / 100, 2) : 'Team confirmation required');
-                        $lines[] = 'Estimate excludes taxes, staffing, rentals, delivery and service charges.';
+                    } elseif ($key === 'operations_plan') {
+                        $operations = json_decode((string) $value, true) ?: [];
+                        $lines[] = 'Fulfillment: ' . trim(ucfirst((string) ($operations['fulfillment_method'] ?? '')) . ' ' . (string) ($operations['fulfillment_window'] ?? ''));
+                        $lines[] = 'Configured operations estimate: ' . (isset($operations['operations_cents']) ? '$' . number_format($operations['operations_cents'] / 100, 2) : 'Team confirmation required');
+                        $lines[] = 'Combined preliminary estimate: ' . (isset($operations['combined_estimate_cents']) ? '$' . number_format($operations['combined_estimate_cents'] / 100, 2) : 'Team confirmation required');
                     } else {
                         $lines[] = ucwords(str_replace('_', ' ', $key)) . ': ' . (string) $value;
                     }
@@ -805,6 +861,7 @@ final class CateringController
             'company' => 'Company', 'event_type' => 'Event type', 'event_date' => 'Event date',
             'event_time' => 'Start time', 'guest_count' => 'Estimated guests', 'venue' => 'Venue',
             'service_style' => 'Service style', 'menu_interest' => 'Menu interest', 'budget' => 'Budget',
+            'fulfillment_method' => 'Fulfillment', 'fulfillment_window' => 'Fulfillment window', 'postal_code' => 'Postal code',
             'dietary' => 'Dietary needs', 'message' => 'Customer message', 'created_at' => 'Originally received',
         ];
         $lines = [];
@@ -821,7 +878,13 @@ final class CateringController
             $lines[] = 'Selected dishes: ' . implode(', ', array_column($plan['items'] ?? [], 'name'));
             $lines[] = 'Preliminary food estimate: ' . (isset($plan['estimate_cents'])
                 ? '$' . number_format($plan['estimate_cents'] / 100, 2) : 'Team confirmation required');
-            $lines[] = 'Estimate excludes taxes, staffing, rentals, delivery and service charges.';
+        }
+        $operations = json_decode((string) ($record['operations_plan'] ?? ''), true);
+        if (is_array($operations)) {
+            $lines[] = 'Operations submission snapshot';
+            foreach ($operations['lines'] ?? [] as $line) $lines[] = (string) ($line['name'] ?? 'Service') . ': $' . number_format(((int) ($line['total_cents'] ?? 0)) / 100, 2);
+            $lines[] = 'Combined preliminary estimate: ' . (isset($operations['combined_estimate_cents'])
+                ? '$' . number_format($operations['combined_estimate_cents'] / 100, 2) : 'Team confirmation required');
         }
         return $lines !== [] ? implode("\n", $lines) : 'Catering inquiry submitted through the website.';
     }
@@ -872,6 +935,9 @@ final class CateringController
             'guest_count' => mb_substr($request->string('guest_count'), 0, 10),
             'venue' => mb_substr($request->string('venue'), 0, 255),
             'service_style' => mb_substr($request->string('service_style'), 0, 100),
+            'fulfillment_method' => mb_substr($request->string('fulfillment_method'), 0, 20),
+            'fulfillment_window' => mb_substr($request->string('fulfillment_window'), 0, 120),
+            'postal_code' => mb_substr(strtoupper($request->string('postal_code')), 0, 20),
             'menu_interest' => mb_substr($request->string('menu_interest'), 0, 190),
             'budget' => mb_substr($request->string('budget'), 0, 100),
             'dietary' => mb_substr($request->string('dietary'), 0, 3000),
@@ -880,6 +946,7 @@ final class CateringController
         foreach (self::QUOTE_FIELDS as $key => $_label) {
             if (empty($config['fields'][$key]['enabled'])) $data[$key] = '';
         }
+        if ($data['fulfillment_method'] !== 'delivery') $data['postal_code'] = '';
         return $data;
     }
 
@@ -1066,6 +1133,153 @@ final class CateringController
         if ($clean === []) throw new \InvalidArgumentException('Enter at least one ' . $label . ' entry.');
         if (count($clean) > 24) throw new \InvalidArgumentException('Enter no more than 24 ' . $label . ' entries.');
         return array_values($clean);
+    }
+
+    private function operationsConfiguration(array $serviceStyles): array
+    {
+        $leadDays = max(0, min(3650, (int) $this->settings()->get('catering.lead_time', 14)));
+        $storedRules = $this->settings()->get('catering.service_style_rules', []);
+        $storedRules = is_array($storedRules) ? $storedRules : [];
+        $rulesByName = [];
+        foreach ($storedRules as $rule) {
+            if (!is_array($rule) || !is_scalar($rule['name'] ?? null)) continue;
+            $rulesByName[(string) $rule['name']] = $rule;
+        }
+        $styles = [];
+        foreach ($serviceStyles as $name) {
+            $rule = $rulesByName[$name] ?? [];
+            $minimum = max(1, min(10000, (int) ($rule['minimum_guests'] ?? 1)));
+            $maximum = max($minimum, min(10000, (int) ($rule['maximum_guests'] ?? 10000)));
+            $styles[] = [
+                'name' => $name,
+                'minimum_guests' => $minimum,
+                'maximum_guests' => $maximum,
+                'lead_days' => max(0, min(3650, (int) ($rule['lead_days'] ?? $leadDays))),
+            ];
+        }
+        $extras = $this->settings()->get('catering.optional_extras', []);
+        $extras = is_array($extras) ? array_values(array_filter($extras, static fn ($extra): bool =>
+            is_array($extra) && is_string($extra['key'] ?? null) && is_string($extra['name'] ?? null)
+                && isset(EventOperations::EXTRA_PRICING[(string) ($extra['pricing_basis'] ?? '')])
+        )) : [];
+        $blackouts = $this->settings()->get('catering.blackout_dates', []);
+        $blackouts = is_array($blackouts) ? array_values(array_filter($blackouts, 'is_string')) : [];
+        $windows = $this->settings()->get('catering.fulfillment_windows', []);
+        $windows = is_array($windows) ? $windows : [];
+        $pickup = is_array($windows['pickup'] ?? null) && $windows['pickup'] !== [] ? array_values($windows['pickup']) : ['Pickup time confirmed with team'];
+        $delivery = is_array($windows['delivery'] ?? null) && $windows['delivery'] !== [] ? array_values($windows['delivery']) : ['Delivery time confirmed with team'];
+        $zones = $this->settings()->get('catering.delivery_zones', null);
+        $zones = is_array($zones) ? array_values($zones) : [[
+            'name' => 'Team-confirmed delivery area', 'postal_codes' => ['*'], 'fee_cents' => 0, 'minimum_order_cents' => 0,
+        ]];
+        return [
+            'lead_days' => $leadDays,
+            'capacity_guests' => max(1, min(10000, (int) $this->settings()->get('catering.capacity_guests', 10000))),
+            'styles' => $styles,
+            'extras' => $extras,
+            'blackout_dates' => $blackouts,
+            'windows' => ['pickup' => $pickup, 'delivery' => $delivery],
+            'zones' => $zones,
+        ];
+    }
+
+    private function parseServiceStyleRules(string $input, array $serviceStyles): array
+    {
+        $known = array_fill_keys($serviceStyles, true);
+        $rules = [];
+        foreach (preg_split('/\R/u', $input) ?: [] as $line) {
+            if (trim($line) === '') continue;
+            $parts = array_map('trim', explode('|', $line));
+            if (count($parts) !== 4 || !isset($known[$parts[0]])) {
+                throw new \InvalidArgumentException('Each service rule must use a configured style and the format Style|min guests|max guests|lead days.');
+            }
+            if (isset($rules[$parts[0]])) throw new \InvalidArgumentException('Each service style may have only one operations rule.');
+            $minimum = $this->boundedInt($parts[1], 1, 10000, 'Service minimum guests');
+            $maximum = $this->boundedInt($parts[2], $minimum, 10000, 'Service maximum guests');
+            $lead = $this->boundedInt($parts[3], 0, 3650, 'Service lead time');
+            $rules[$parts[0]] = ['name' => $parts[0], 'minimum_guests' => $minimum, 'maximum_guests' => $maximum, 'lead_days' => $lead];
+        }
+        foreach ($serviceStyles as $style) {
+            $rules[$style] ??= ['name' => $style, 'minimum_guests' => 1, 'maximum_guests' => 10000,
+                'lead_days' => max(0, min(3650, (int) $this->settings()->get('catering.lead_time', 14)))];
+        }
+        return array_values($rules);
+    }
+
+    private function formatServiceStyleRules(array $styles): string
+    {
+        return implode("\n", array_map(static fn (array $style): string => implode('|', [
+            $style['name'], $style['minimum_guests'], $style['maximum_guests'], $style['lead_days'],
+        ]), $styles));
+    }
+
+    private function parseOptionalExtras(string $input): array
+    {
+        $extras = [];
+        foreach (preg_split('/\R/u', $input) ?: [] as $line) {
+            if (trim($line) === '') continue;
+            $parts = array_map('trim', explode('|', $line));
+            if (count($parts) !== 4 || !preg_match('/^[a-z][a-z0-9-]{0,39}$/D', $parts[0])
+                || $parts[1] === '' || mb_strlen($parts[1]) > 100 || !isset(EventOperations::EXTRA_PRICING[$parts[3]])) {
+                throw new \InvalidArgumentException('Each optional extra must use key|name|price|fixed or per_guest.');
+            }
+            if (isset($extras[$parts[0]])) throw new \InvalidArgumentException('Each optional extra key must be unique.');
+            $extras[$parts[0]] = ['key' => $parts[0], 'name' => $parts[1], 'price_cents' => MenuPlanner::cents($parts[2]), 'pricing_basis' => $parts[3]];
+        }
+        if (count($extras) > 20) throw new \InvalidArgumentException('Configure no more than 20 optional extras.');
+        return array_values($extras);
+    }
+
+    private function formatOptionalExtras(array $extras): string
+    {
+        return implode("\n", array_map(static fn (array $extra): string => implode('|', [
+            $extra['key'], $extra['name'], number_format(((int) $extra['price_cents']) / 100, 2, '.', ''), $extra['pricing_basis'],
+        ]), $extras));
+    }
+
+    private function parseBlackoutDates(string $input): array
+    {
+        $dates = [];
+        foreach (preg_split('/\R/u', $input) ?: [] as $line) {
+            $line = trim($line);
+            if ($line === '') continue;
+            $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $line);
+            if ($date === false || $date->format('Y-m-d') !== $line) throw new \InvalidArgumentException('Blackout dates must use YYYY-MM-DD.');
+            $dates[$line] = true;
+        }
+        if (count($dates) > 366) throw new \InvalidArgumentException('Configure no more than 366 blackout dates.');
+        ksort($dates);
+        return array_keys($dates);
+    }
+
+    private function parseDeliveryZones(string $input): array
+    {
+        $zones = [];
+        foreach (preg_split('/\R/u', $input) ?: [] as $line) {
+            if (trim($line) === '') continue;
+            $parts = array_map('trim', explode('|', $line));
+            if (count($parts) !== 4 || $parts[0] === '' || mb_strlen($parts[0]) > 100) {
+                throw new \InvalidArgumentException('Each delivery zone must use Name|postal codes|fee|minimum food order.');
+            }
+            $postals = [];
+            foreach (explode(',', strtoupper($parts[1])) as $postal) {
+                $postal = trim($postal);
+                if ($postal === '' || !preg_match('/^(?:\*|[A-Z0-9][A-Z0-9 -]{1,19})$/D', $postal)) throw new \InvalidArgumentException('Delivery postal codes are invalid.');
+                $postals[$postal] = true;
+            }
+            $zones[] = ['name' => $parts[0], 'postal_codes' => array_keys($postals),
+                'fee_cents' => MenuPlanner::cents($parts[2]), 'minimum_order_cents' => MenuPlanner::cents($parts[3])];
+        }
+        if (count($zones) > 50) throw new \InvalidArgumentException('Configure no more than 50 delivery zones.');
+        return $zones;
+    }
+
+    private function formatDeliveryZones(array $zones): string
+    {
+        return implode("\n", array_map(static fn (array $zone): string => implode('|', [
+            $zone['name'], implode(',', $zone['postal_codes']), number_format(((int) $zone['fee_cents']) / 100, 2, '.', ''),
+            number_format(((int) $zone['minimum_order_cents']) / 100, 2, '.', ''),
+        ]), $zones));
     }
 
     private function availabilityInput(Request $request): array

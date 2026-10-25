@@ -1,7 +1,9 @@
 <?php
 declare(strict_types=1);
 require_once dirname(__DIR__) . '/src/MenuPlanner.php';
+require_once dirname(__DIR__) . '/src/EventOperations.php';
 use CajunWebPro\Catering\MenuPlanner;
+use CajunWebPro\Catering\EventOperations;
 $checks = 0;
 function check(bool $condition, string $message): void {
     global $checks;
@@ -76,4 +78,43 @@ $plan = $planner->calculate(['guest_count' => '50', 'menu_items' => ['1']], $ite
 check($plan['estimate_cents'] === 39200 && $plan['lines'][0]['unit_cents'] === 784, 'Five percent tier rounds the unit price to cents');
 $plan = $planner->calculate(['guest_count' => '100', 'menu_items' => ['1']], $items, []);
 check($plan['estimate_cents'] === 74300 && $plan['lines'][0]['discount_bps'] === 1000, 'Highest reached guest threshold applies to all billed units');
+$operations = new EventOperations();
+$operationsConfig = [
+    'lead_days' => 7, 'capacity_guests' => 250,
+    'styles' => [['name' => 'Buffet', 'minimum_guests' => 20, 'maximum_guests' => 200, 'lead_days' => 14]],
+    'extras' => [
+        ['key' => 'setup', 'name' => 'Setup service', 'price_cents' => 15000, 'pricing_basis' => 'fixed'],
+        ['key' => 'staff', 'name' => 'Service staff', 'price_cents' => 1200, 'pricing_basis' => 'per_guest'],
+    ],
+    'blackout_dates' => ['2027-06-20'],
+    'windows' => ['pickup' => ['11:00 AM'], 'delivery' => ['12:00 PM']],
+    'zones' => [['name' => 'Local', 'postal_codes' => ['70001'], 'fee_cents' => 5000, 'minimum_order_cents' => 50000]],
+];
+$operationPlan = $operations->evaluate([
+    'event_date' => '2027-06-15', 'guest_count' => '25', 'service_style' => 'Buffet',
+    'fulfillment_method' => 'delivery', 'fulfillment_window' => '12:00 PM', 'postal_code' => '70001',
+    'extras' => ['setup', 'staff'],
+], $operationsConfig, 97500, new DateTimeImmutable('2027-05-01'));
+check($operationPlan['errors'] === [], 'Valid fulfillment request passes operational screening');
+check($operationPlan['operations_cents'] === 50000 && $operationPlan['combined_estimate_cents'] === 147500,
+    'Delivery, fixed extras, and per-guest extras use exact cents');
+check($operationPlan['delivery_zone']['name'] === 'Local', 'Matched delivery zone is retained in the snapshot');
+check($operations->evaluate(['event_date' => '2027-05-10', 'guest_count' => '25', 'service_style' => 'Buffet',
+    'fulfillment_method' => 'pickup', 'fulfillment_window' => '11:00 AM'], $operationsConfig, 97500,
+    new DateTimeImmutable('2027-05-01'))['errors'] !== [], 'Service-specific lead time is enforced');
+check($operations->evaluate(['event_date' => '2027-06-20', 'guest_count' => '25', 'service_style' => 'Buffet',
+    'fulfillment_method' => 'pickup', 'fulfillment_window' => '11:00 AM'], $operationsConfig, 97500,
+    new DateTimeImmutable('2027-05-01'))['errors'] !== [], 'Blackout date is enforced');
+check($operations->evaluate(['event_date' => '2027-06-15', 'guest_count' => '251', 'service_style' => 'Buffet',
+    'fulfillment_method' => 'pickup', 'fulfillment_window' => '11:00 AM'], $operationsConfig, 97500,
+    new DateTimeImmutable('2027-05-01'))['errors'] !== [], 'Configured capacity and style guest range are enforced');
+check($operations->evaluate(['event_date' => '2027-06-15', 'guest_count' => '25', 'service_style' => 'Buffet',
+    'fulfillment_method' => 'delivery', 'fulfillment_window' => '12:00 PM', 'postal_code' => '99999'], $operationsConfig, 97500,
+    new DateTimeImmutable('2027-05-01'))['errors'] !== [], 'Unknown delivery postal code is rejected');
+check($operations->evaluate(['event_date' => '2027-06-15', 'guest_count' => '25', 'service_style' => 'Buffet',
+    'fulfillment_method' => 'delivery', 'fulfillment_window' => '12:00 PM', 'postal_code' => '70001'], $operationsConfig, 40000,
+    new DateTimeImmutable('2027-05-01'))['errors'] !== [], 'Delivery minimum food order is enforced');
+check($operations->evaluate(['event_date' => '2027-06-15', 'guest_count' => '25', 'service_style' => 'Buffet',
+    'fulfillment_method' => 'pickup', 'fulfillment_window' => '11:00 AM', 'extras' => ['unknown']], $operationsConfig, 97500,
+    new DateTimeImmutable('2027-05-01'))['errors'] !== [], 'Unknown optional service is rejected');
 echo "Menu planner: {$checks} checks passed.\n";

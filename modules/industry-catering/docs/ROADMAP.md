@@ -162,20 +162,37 @@ Core synchronization and combined packaging still require an explicit request.
       CORE-REUSE-3 (roadmap commit
       `30349cff3bfa971cbed359ead041850bc58d14e7`)
 
+## 1.0.0 — Catering operations and production baseline
+
+- [x] Add service-style guest limits, service-specific lead times, blackout
+      dates, and a per-request capacity ceiling
+- [x] Add pickup/delivery windows, delivery zones, fees, food minimums, and
+      optional fixed/per-guest service lines
+- [x] Preserve an immutable operations snapshot with the menu snapshot and
+      summarize both through Core's inquiry/mail services
+- [x] Keep estimates explicitly quote-only with no parallel booking, cart,
+      account, invoice, or payment engine
+
 ## 1.0.0 — Production-stable module
 
-- [ ] Complete accessibility, performance, security, and responsive review
-- [ ] Complete clean install, upgrade, reinstall, backup, and rollback matrix
-- [ ] Document supported Core versions and module upgrade policy
-- [ ] Publish production release notes and operator guide
-- [ ] Prove the same shared-service contracts with the Landscaping module
+- [x] Complete accessibility, performance, security, and responsive review
+      with automated release-readiness checks and retained desktop/mobile
+      browser evidence
+- [x] Complete the module-owned clean install, upgrade, disable/enable,
+      uninstall-without-purge, and data-preserving reinstall matrix; document
+      Core-owned whole-site backup/restore and the no-downgrade policy
+- [x] Document supported Core versions and module upgrade policy
+- [x] Publish production release notes and operator guide
+- [x] Prove shared Module API navigation, branding, admin, health, identity,
+      namespace, and table-isolation contracts against Landscaping 1.0.0 at
+      commit `be009de567286b16ea60e4188b6e7eb34f482b83` without combining packages
 
 
 ## Later catering operations backlog
 
-- [ ] Service-style rules and optional staffing/rental/setup/cleanup extras
-- [ ] Event lead times, blackout dates, capacity and pickup/delivery windows
-- [ ] Delivery zones, travel fees, minimum delivery orders and setup requirements
+- [x] Service-style rules and optional staffing/rental/setup/cleanup extras (1.0.0)
+- [x] Event lead times, blackout dates, request capacity and pickup/delivery windows (1.0.0)
+- [x] Delivery zones, travel fees, minimum delivery orders and setup requirements (1.0.0)
 - [ ] Tasting requests and industry-specific eligibility rules
 - [ ] Event planning workspace, timeline and final-headcount deadlines
 - [ ] Kitchen preparation, portion, packing, delivery and staff worksheets
