@@ -122,7 +122,7 @@ inquiry workspace.
 ## Shared Core dependencies — 2026-10-25
 
 See the [Core shared-service planning backlog](https://github.com/afterburn25/Website_Core/blob/devin/website-core/docs/ROADMAP.md)
-(`CORE-REUSE-1` through `CORE-REUSE-9`). Existing Core content, forms,
+(`CORE-REUSE-1` through `CORE-REUSE-10`). Existing Core content, forms,
 Media, branding, permissions and notification services must be reused first.
 Core 2.2 now supplies the business-profile, shared admin-rendering, inquiry,
 and quotation foundations adopted in 0.1.25. Remaining content/media, form,
@@ -274,6 +274,45 @@ account, invoice, signature or payment engines.
       inquiry follow-up through Core analytics, privacy and notification services
 - [ ] Publish service, menu, FAQ, review and service-area structured data through
       the future `CORE-REUSE-3` schema contribution contract
+
+## 1.6.0 — Ten-layout Catering theme collection
+
+Deliver ten complete Catering themes. These are distinct page compositions,
+not one template with ten CSS skins. Working theme identities are:
+
+1. Heritage Editorial — story-led split editorial composition
+2. Modern Culinary — asymmetric modular showcase
+3. Garden Celebration — layered organic event presentation
+4. Grand Wedding — cinematic, full-bleed celebration layout
+5. Corporate Table — precise information-first grid
+6. Rustic Gathering — warm collage and card composition
+7. Bayou Night — dark immersive hospitality layout
+8. Market Kitchen — menu-first storefront composition
+9. Social Feast — image-led masonry and event discovery
+10. Minimal Luxe — restrained typography and open-space composition
+
+- [ ] Give every theme a distinct header/navigation treatment, home-page
+      composition, inner-page layout, menu/package presentation, quote entry,
+      service-area treatment and footer hierarchy
+- [ ] Give every theme a distinct default hero and featured-image assignment;
+      expose all theme image slots through Core Media so administrators can
+      replace them without modifying the package
+- [ ] Provide at least four curated, contrast-checked color palettes per theme
+      and save palette choice independently for each theme
+- [ ] Use Core's visual theme chooser for desktop/mobile preview, draft,
+      publish and rollback without changing public content or navigation
+- [ ] Preserve per-theme palette/media selections while another theme is active;
+      upgrades must not overwrite administrator selections
+- [ ] Test all ten themes at supported responsive breakpoints with keyboard,
+      reduced-motion, contrast, image-performance and Core-attribution checks
+- [ ] Keep the installable module archive free of nested ZIPs and optimize the
+      distinct image assignments for shared-host upload and page performance
+
+Theme registration, preview/publish state, palette controls, contrast checks
+and media-slot persistence are shared Core responsibilities. Catering will
+adopt `CORE-REUSE-10`, recorded in Website Core roadmap commit
+`1ef7c5545e40bbd993be298fd1368519a2d0a216`; it must not add a second theme
+manager inside the module.
 
 ## 2.0.0 — Optional direct ordering
 
