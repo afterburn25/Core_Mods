@@ -102,7 +102,7 @@ final class CatalogResources
         );
         $offset = ($page - 1) * $perPage;
         $rows = $this->db->fetchAll(
-            'SELECT i.id, i.name, i.category_id, i.visible, i.featured, i.sort_order, c.name AS category FROM `'
+            'SELECT i.id, i.name, i.category_id, i.visible, i.featured, i.sort_order, i.available_from, i.available_until, c.name AS category FROM `'
             . $this->db->table('catering_menu_items') . '` i INNER JOIN `'
             . $this->db->table('catering_menu_categories') . '` c ON c.id = i.category_id' . $where
             . ' ORDER BY i.sort_order, i.name, i.id LIMIT ' . $perPage . ' OFFSET ' . $offset,
@@ -110,7 +110,7 @@ final class CatalogResources
         );
         foreach ($rows as &$row) {
             $row['status'] = ((int) $row['visible'] === 1 ? 'Visible' : 'Hidden')
-                . ((int) $row['featured'] === 1 ? ' · Featured' : '');
+                . ((int) $row['featured'] === 1 ? ' · Featured' : '') . $this->availabilityStatus($row);
             $row['order'] = (string) (int) $row['sort_order'];
         }
         unset($row);
@@ -160,14 +160,14 @@ final class CatalogResources
         );
         $offset = ($page - 1) * $perPage;
         $rows = $this->db->fetchAll(
-            'SELECT id, name, visible, featured, pricing_basis, sort_order FROM `'
+            'SELECT id, name, visible, featured, pricing_basis, sort_order, available_from, available_until FROM `'
             . $this->db->table('catering_packages') . '`' . $where
             . ' ORDER BY sort_order, name, id LIMIT ' . $perPage . ' OFFSET ' . $offset,
             $params
         );
         foreach ($rows as &$row) {
             $row['status'] = ((int) $row['visible'] === 1 ? 'Visible' : 'Hidden')
-                . ((int) $row['featured'] === 1 ? ' · Featured' : '');
+                . ((int) $row['featured'] === 1 ? ' · Featured' : '') . $this->availabilityStatus($row);
             $row['pricing'] = $row['pricing_basis'] === 'manual' ? 'Team confirmation' : str_replace('_', ' ', (string) $row['pricing_basis']);
             $row['order'] = (string) (int) $row['sort_order'];
         }
@@ -240,7 +240,12 @@ final class CatalogResources
     {
         if (!in_array($table, ['catering_menu_items', 'catering_packages'], true)) return 'Unsupported catalog resource.';
         if (!$this->exists($table, $id)) return 'Record not found.';
-        $this->db->run('DELETE FROM `' . $this->db->table($table) . '` WHERE id = ?', [$id]);
+        $this->db->transaction(function () use ($table, $id): void {
+            if ($table === 'catering_menu_items' && $this->db->tableExists('catering_menu_group_items')) {
+                $this->db->run('DELETE FROM `' . $this->db->table('catering_menu_group_items') . '` WHERE item_id = ?', [$id]);
+            }
+            $this->db->run('DELETE FROM `' . $this->db->table($table) . '` WHERE id = ?', [$id]);
+        });
         return true;
     }
 
@@ -275,5 +280,13 @@ final class CatalogResources
             'SELECT COUNT(*) FROM `' . $this->db->table($table) . '` WHERE slug = ?', [$candidate]
         ); $suffix++) $candidate = $slug . '-' . $suffix;
         return $candidate;
+    }
+
+    private function availabilityStatus(array $row): string
+    {
+        $today = date('Y-m-d');
+        if (!empty($row['available_from']) && (string) $row['available_from'] > $today) return ' · Scheduled';
+        if (!empty($row['available_until']) && (string) $row['available_until'] < $today) return ' · Expired';
+        return '';
     }
 }

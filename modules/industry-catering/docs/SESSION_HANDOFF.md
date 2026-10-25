@@ -1,6 +1,19 @@
 # Catering Module Session Handoff
 
-## Current 0.3.0 candidate — 2026-10-25
+## Current 0.4.0 candidate — 2026-10-25
+
+Migration `catering_0006_catalog_availability` adds optional availability
+windows plus reusable menu collections and their package relationship.
+Public queries and estimates exclude out-of-window records. Linked packages
+accept only current collection members, with JavaScript guidance backed by
+the same server validation. The protected collection workspace cleans up
+memberships and package links without changing inquiry snapshots. Structured
+data stays deferred to CORE-REUSE-3. The 0.4.0 ZIP and CI evidence are pending.
+The missing package-scoped schema contribution contract is recorded in the
+Core roadmap at documentation commit
+`30349cff3bfa971cbed359ead041850bc58d14e7`; no Core implementation changed.
+
+## 0.3.0 release — 2026-10-25
 
 Catering settings now owns only the event-specific questionnaire choices:
 event types, service styles, budget bands, and visibility/required flags for
@@ -8,7 +21,10 @@ optional planning questions. Public rendering and server validation read the
 same configuration; disabled inputs are discarded and historic questionnaires
 remain unchanged. Generic forms, exports, reminders, notification templates,
 spam operations, attachments and generated documents remain Core-owned. The
-0.3.0 module ZIP and CI evidence are pending.
+exact archive/tree is at commit `5a72464f046343291ad7a7b4b4b4d9466ce803db`.
+Module CI `40220230528` and Catering acceptance `40220230572` passed. The ZIP
+is 1,660,656 bytes with SHA-256
+`6a35828d89d377792277df4f59177c4019586dce1573957293452ac1cb79b565`.
 
 ## Current 0.2.1 release — 2026-10-25
 

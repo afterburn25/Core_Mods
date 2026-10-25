@@ -155,9 +155,12 @@ Core synchronization and combined packaging still require an explicit request.
 ## 0.4.0 — Catalog depth
 
 - [x] Add dietary, allergen, serving-size, and food-pricing options (0.2.0)
-- [ ] Add seasonal menus and limited-availability packages
-- [ ] Add package/menu relationships and reusable item groups
+- [x] Add seasonal menus and limited-availability packages
+- [x] Add package/menu relationships and reusable item groups
 - [ ] Add structured data for services, menus, FAQs, and local service areas
+      after Core exposes the module SEO/schema contribution contract in
+      CORE-REUSE-3 (roadmap commit
+      `30349cff3bfa971cbed359ead041850bc58d14e7`)
 
 ## 1.0.0 — Production-stable module
 

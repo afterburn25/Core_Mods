@@ -82,7 +82,7 @@ release with Core.
 4. Core services: routing, views, settings, business profile, navigation,
    permissions, database, CSRF, rate limiting, mail, leads, quotes, admin
    search, dashboard, shared admin rendering, and health checks.
-5. Compatibility: Catering 0.3.0 requires Core `>=2.3.0,<3.0.0` and Module
+5. Compatibility: Catering 0.4.0 requires Core `>=2.3.0,<3.0.0` and Module
    API 1; acceptance runs in the module branch. Combined Core bundle
    acceptance is deferred until the owner requests integration.
 

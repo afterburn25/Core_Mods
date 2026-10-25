@@ -9,7 +9,7 @@ adoption of [Cajun Web Pro Module Rules v1.1](../../MOD_RULES.md).
 
 ## Current release
 
-- Module version: `0.3.0`
+- Module version: `0.4.0`
 - Module ID: `cajunwebpro/catering`
 - Type: `industry`
 - Module API: `1`
@@ -71,6 +71,16 @@ This is a module-owned event questionnaire layer. Generic form schemas,
 notifications, exports, spam operations, attachments, and generated documents
 remain Core services and are not duplicated here.
 
+## Seasonal catalog and collections in 0.4.0
+
+Dishes and packages may have optional inclusive availability dates. Reusable
+menu collections group curated dishes and may be linked to multiple packages.
+A linked package accepts only current members of its collection in addition to
+its existing category choice limits. Public pages, JavaScript estimates, and
+no-JavaScript submissions all use the same server-authoritative availability
+and membership rules. Expired records and removed relationships do not rewrite
+historical inquiry snapshots.
+
 ## Included features
 
 - Catering home, about, services, menus, packages, gallery, FAQ, service-area,
@@ -103,7 +113,7 @@ remain Core services and are not duplicated here.
 
 ## Installation
 
-Install the single `industry-catering-0.3.0.zip` through Website Core’s
+Install the single `industry-catering-0.4.0.zip` through Website Core’s
 module/package manager. This delivery contains only the module; use an
 already-installed compatible Core. It contains no nested ZIP and does not
 include or update Core. Combined installers require an explicit owner request. The installable module ZIP keeps

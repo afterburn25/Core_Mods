@@ -24,7 +24,7 @@ $optional = static fn (string $key): string => $required($key) ? '' : ' <small>o
 </div><?php if ($enabled('venue')): ?><label>Venue or event location<?= $optional('venue') ?><input name="venue" maxlength="255" value="<?= e_attr($text('venue')) ?>" placeholder="Venue name, city, or undecided"<?= $required('venue') ? ' required' : '' ?>></label><?php endif; ?></fieldset>
 <fieldset data-quote-step><legend><span>Your menu</span>Find the food that fits your gathering.</legend>
 <label>Start with a package<select name="package_id" data-planner-package><option value="">Build my own menu / open to recommendations</option>
-<?php foreach ($packages as $package): ?><option value="<?= (int) $package['id'] ?>" data-rules="<?= e_attr($package['choice_rules'] ?: '{}') ?>"<?= $text('package_id') === (string) $package['id'] ? ' selected' : '' ?>><?= e($package['name']) ?> · <?= (int) $package['guest_min'] ?><?= $package['guest_max'] ? '–' . (int) $package['guest_max'] : '+' ?> guests</option><?php endforeach; ?>
+<?php foreach ($packages as $package): ?><option value="<?= (int) $package['id'] ?>" data-rules="<?= e_attr($package['choice_rules'] ?: '{}') ?>" data-group-items="<?= e_attr($package['menu_group_item_ids'] ?? '[]') ?>" data-group-name="<?= e_attr($package['menu_group_name'] ?? '') ?>"<?= $text('package_id') === (string) $package['id'] ? ' selected' : '' ?>><?= e($package['name']) ?> · <?= (int) $package['guest_min'] ?><?= $package['guest_max'] ? '–' . (int) $package['guest_max'] : '+' ?> guests</option><?php endforeach; ?>
 </select></label><p class="c-planner-rules" data-planner-rules>Choose individual dishes, or leave your menu open for recommendations.</p>
 <div class="c-planner-filter" data-filter-controls hidden><label>Show dietary options<select data-dietary-filter><option value="">All dishes</option><?php foreach ($dietaryLabels as $key => $label): ?><option value="<?= e_attr($key) ?>"><?= e($label) ?></option><?php endforeach; ?></select></label><p class="c-disclaimer">Filters show business-supplied labels. They do not establish allergy safety; selected dishes stay visible.</p></div>
 <?php foreach ($categories as $category): ?><section class="c-planner-category" data-planner-category><h2><?= e($category['name']) ?></h2><div class="c-planner-grid">
@@ -32,7 +32,7 @@ $optional = static fn (string $key): string => $required($key) ? '' : ' <small>o
 $tags = MenuPlanner::tags($item['dietary_tags'], $dietaryLabels);
 $allergens = MenuPlanner::tags($item['allergens'], $allergenLabels);
 ?>
-<label class="c-planner-item" data-dietary-tags="<?= e_attr(implode(' ', $tags)) ?>" data-category-id="<?= (int) $category['id'] ?>">
+<label class="c-planner-item" data-dietary-tags="<?= e_attr(implode(' ', $tags)) ?>" data-category-id="<?= (int) $category['id'] ?>" data-item-id="<?= (int) $item['id'] ?>">
 <input type="checkbox" name="menu_items[]" value="<?= (int) $item['id'] ?>"<?= in_array((string) $item['id'], $selectedIds, true) ? ' checked' : '' ?>>
 <?php if ($item['image']): ?><img src="<?= e_attr($assetBase . '/assets/images/menu/' . rawurlencode($item['image'])) ?>" alt="" loading="lazy" width="300" height="200"><?php endif; ?>
 <span class="c-planner-copy"><strong><?= e($item['name']) ?></strong><span><?= e($item['description']) ?></span>

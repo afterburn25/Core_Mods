@@ -1,6 +1,16 @@
 # Catering Module Testing
 
-## 0.3.0 configurable quote-planner candidate — 2026-10-25
+## 0.4.0 seasonal catalog candidate — 2026-10-25
+
+- Migration coverage repeats the availability/group migration and verifies
+  both reusable-collection tables.
+- Controller coverage creates a collection, validates membership, links a
+  package, rejects an out-of-collection dish, and excludes expired dishes and
+  packages from planning.
+- Planner unit coverage independently verifies linked-collection membership.
+- Exact ZIP lifecycle and PHP/native database acceptance are pending.
+
+## 0.3.0 configurable quote-planner release — 2026-10-25
 
 - Controller coverage configures event types, service styles, budget ranges,
   visibility and required flags through the protected Catering settings route.
@@ -8,7 +18,11 @@
   choices/required attributes appear.
 - Submission coverage proves required configured questions are enforced and
   disabled fields are not accepted into module inquiries.
-- Exact ZIP lifecycle and PHP/native database acceptance are pending.
+- Exact archive: 1,660,656 bytes; SHA-256
+  `6a35828d89d377792277df4f59177c4019586dce1573957293452ac1cb79b565`.
+- Module CI `40220230528` and all four Catering acceptance jobs in
+  `40220230572` passed, including PHP 8.4/8.5, SQLite, MySQL 8.4, MariaDB
+  11.4, clean install/reinstall, and packaged upgrades.
 
 ## 0.2.1 Core 2.3 catalog-management release — 2026-10-25
 

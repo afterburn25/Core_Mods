@@ -66,10 +66,12 @@ final class CateringController
 
     public function home(Request $request): Response
     {
+        [$availability, $availabilityParams] = $this->availabilityClause();
         return $this->page($request, 'home', [
             'featuredItems' => $this->db()->fetchAll(
                 'SELECT * FROM `' . $this->db()->table('catering_menu_items')
-                . '` WHERE visible = 1 AND featured = 1 ORDER BY sort_order, name LIMIT 3'
+                . '` WHERE visible = 1 AND featured = 1 AND ' . $availability . ' ORDER BY sort_order, name LIMIT 3',
+                $availabilityParams
             ),
             'packages' => $this->visiblePackages(3),
         ], 'Home', 'Thoughtful menus and polished service for memorable gatherings.');
@@ -109,10 +111,11 @@ final class CateringController
         if ($category === null) {
             return Response::notFound();
         }
+        [$availability, $availabilityParams] = $this->availabilityClause();
         $items = $this->db()->fetchAll(
             'SELECT * FROM `' . $this->db()->table('catering_menu_items')
-            . '` WHERE category_id = ? AND visible = 1 ORDER BY sort_order, name',
-            [(int) $category['id']]
+            . '` WHERE category_id = ? AND visible = 1 AND ' . $availability . ' ORDER BY sort_order, name',
+            array_merge([(int) $category['id']], $availabilityParams)
         );
         return $this->page($request, 'menu-detail', ['category' => $category, 'items' => $items],
             (string) $category['name'], (string) ($category['description'] ?? ''));
@@ -126,14 +129,17 @@ final class CateringController
 
     public function packageDetail(Request $request): Response
     {
+        [$availability, $availabilityParams] = $this->availabilityClause();
         $package = $this->db()->fetch(
-            'SELECT * FROM `' . $this->db()->table('catering_packages') . '` WHERE slug = ? AND visible = 1',
-            [(string) ($request->attributes['slug'] ?? '')]
+            'SELECT * FROM `' . $this->db()->table('catering_packages') . '` WHERE slug = ? AND visible = 1 AND ' . $availability,
+            array_merge([(string) ($request->attributes['slug'] ?? '')], $availabilityParams)
         );
         if ($package === null) {
             return Response::notFound();
         }
-        return $this->page($request, 'package-detail', ['package' => $package],
+        $group = !empty($package['menu_group_id']) ? $this->menuGroup((int) $package['menu_group_id'], true) : null;
+        if (!empty($package['menu_group_id']) && $group === null) return Response::notFound();
+        return $this->page($request, 'package-detail', ['package' => $package, 'menuGroup' => $group],
             (string) $package['name'], (string) ($package['description'] ?? ''));
     }
 
@@ -323,6 +329,7 @@ final class CateringController
                 $allergens = $this->validatedTags($request->input('allergens', []), MenuPlanner::ALLERGENS);
                 $image = $request->string('image');
                 if ($image !== '' && !array_key_exists($image, self::DISH_IMAGES)) throw new \InvalidArgumentException('Choose an available dish image.');
+                $availability = $this->availabilityInput($request);
                 $data = $this->pricingInput($request) + [
                     'category_id' => $categoryId, 'name' => $name,
                     'description' => mb_substr($request->string('description'), 0, 3000),
@@ -333,7 +340,7 @@ final class CateringController
                     'allergen_notes' => mb_substr($request->string('allergen_notes'), 0, 1000),
                     'image' => $image, 'featured' => $request->string('featured') === '1' ? 1 : 0,
                     'sort_order' => (int) $request->string('sort_order', '0'),
-                ];
+                ] + $availability;
                 $db->transaction(function () use ($db, $request, $action, $name, $data): void {
                     if ($action === 'update_item') {
                         $id = $this->existingId($request, 'catering_menu_items');
@@ -353,6 +360,9 @@ final class CateringController
                         $db->run('UPDATE `' . $db->table('catering_menu_items') . '` SET visible = CASE WHEN visible = 1 THEN 0 ELSE 1 END WHERE id = ?', [$id]);
                     } else {
                         if ($request->string('confirm_delete') !== '1') throw new \InvalidArgumentException('Confirm dish deletion.');
+                        if ($db->tableExists('catering_menu_group_items')) {
+                            $db->run('DELETE FROM `' . $db->table('catering_menu_group_items') . '` WHERE item_id = ?', [$id]);
+                        }
                         $db->run('DELETE FROM `' . $db->table('catering_menu_items') . '` WHERE id = ?', [$id]);
                     }
                     $this->audit('catering.menu.' . $action, $id);
@@ -376,6 +386,7 @@ final class CateringController
             'packages' => $packages, 'categories' => $categories,
             'saved' => $request->string('saved') === '1', 'error' => $error,
             'old' => $old, 'editing' => $editing, 'pricingLabels' => MenuPlanner::PRICING,
+            'menuGroups' => $this->menuGroups(false),
             'quickManagerUrl' => $this->resourceRoute('packages'),
         ], 'Catering Packages');
     }
@@ -392,6 +403,11 @@ final class CateringController
                 if ($name === '' || mb_strlen($name) > 190) throw new \InvalidArgumentException('Package name is required and must be at most 190 characters.');
                 $min = $this->boundedInt($request->string('guest_min'), 1, 10000, 'Minimum guests');
                 $max = $request->string('guest_max') === '' ? null : $this->boundedInt($request->string('guest_max'), $min, 10000, 'Maximum guests');
+                $menuGroupId = $request->string('menu_group_id') === '' ? null : (int) $request->string('menu_group_id');
+                if ($menuGroupId !== null && !(bool) $db->fetchColumn(
+                    'SELECT id FROM `' . $db->table('catering_menu_groups') . '` WHERE id = ?', [$menuGroupId]
+                )) throw new \InvalidArgumentException('Choose an existing menu collection.');
+                $availability = $this->availabilityInput($request);
                 $data = $this->pricingInput($request) + [
                     'name' => $name, 'eyebrow' => mb_substr($request->string('eyebrow'), 0, 120),
                     'description' => mb_substr($request->string('description'), 0, 3000),
@@ -399,9 +415,10 @@ final class CateringController
                     'guest_min' => $min, 'guest_max' => $max,
                     'inclusions' => mb_substr($request->string('inclusions'), 0, 5000),
                     'choice_rules' => json_encode($this->packageRules($request), JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
+                    'menu_group_id' => $menuGroupId,
                     'featured' => $request->string('featured') === '1' ? 1 : 0,
                     'sort_order' => (int) $request->string('sort_order', '0'),
-                ];
+                ] + $availability;
                 $db->transaction(function () use ($db, $request, $action, $name, $data): void {
                     if ($action === 'update_package') {
                         $id = $this->existingId($request, 'catering_packages');
@@ -430,6 +447,93 @@ final class CateringController
             return $this->adminPackages($request, $e->getMessage(), $request->post);
         }
         return Response::redirect($this->ctx->url($request->basePath, '/admin/catering/packages', ['saved' => 1]));
+    }
+
+    public function adminMenuGroups(Request $request, ?string $error = null, array $old = []): Response
+    {
+        if ($forbidden = $this->guard('catering.manage')) return $forbidden;
+        [, $items] = $this->menuData(false);
+        $groups = $this->menuGroups(false);
+        $editing = null;
+        $memberIds = [];
+        $editId = (int) ($old['id'] ?? $request->string('edit_group'));
+        foreach ($groups as $group) if ((int) $group['id'] === $editId) $editing = $group;
+        if (is_array($old['item_ids'] ?? null)) {
+            $memberIds = array_map('intval', $old['item_ids']);
+        } elseif ($editing !== null) {
+            $memberIds = array_map('intval', array_column($editing['items'], 'id'));
+        }
+        return $this->adminPage($request, 'admin-menu-groups', [
+            'groups' => $groups, 'items' => $items, 'editing' => $editing,
+            'memberIds' => $memberIds, 'old' => $old, 'error' => $error,
+            'saved' => $request->string('saved') === '1',
+        ], 'Catering Menu Collections');
+    }
+
+    public function adminMenuGroupsSave(Request $request): Response
+    {
+        if ($forbidden = $this->guard('catering.manage')) return $forbidden;
+        if (!$this->ctx->service(Csrf::class)->validate($request)) return Response::text('Invalid CSRF token.', 419);
+        $db = $this->db();
+        $action = $request->string('action');
+        try {
+            if (in_array($action, ['add_group', 'update_group'], true)) {
+                $name = $request->string('name');
+                if ($name === '' || mb_strlen($name) > 190) throw new \InvalidArgumentException('Collection name is required and must be at most 190 characters.');
+                $availability = $this->availabilityInput($request);
+                $submitted = $request->input('item_ids');
+                $submitted = is_array($submitted) ? $submitted : [];
+                if (count($submitted) > 100) throw new \InvalidArgumentException('Choose no more than 100 dishes.');
+                $itemIds = [];
+                foreach ($submitted as $value) {
+                    $id = filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+                    if ($id === false || isset($itemIds[(int) $id])) throw new \InvalidArgumentException('Choose unique existing dishes.');
+                    if (!(bool) $db->fetchColumn('SELECT id FROM `' . $db->table('catering_menu_items') . '` WHERE id = ?', [(int) $id])) {
+                        throw new \InvalidArgumentException('Choose unique existing dishes.');
+                    }
+                    $itemIds[(int) $id] = (int) $id;
+                }
+                $data = [
+                    'name' => $name,
+                    'description' => mb_substr($request->string('description'), 0, 3000),
+                    'sort_order' => (int) $request->string('sort_order', '0'),
+                ] + $availability;
+                $db->transaction(function () use ($db, $request, $action, $name, $data, $itemIds): void {
+                    if ($action === 'update_group') {
+                        $id = $this->existingId($request, 'catering_menu_groups');
+                        $db->update('catering_menu_groups', $data, 'id = ?', [$id]);
+                    } else {
+                        $id = (int) $db->insert('catering_menu_groups', $data + [
+                            'slug' => $this->uniqueSlug('catering_menu_groups', $name),
+                            'visible' => 1, 'created_at' => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                    $db->run('DELETE FROM `' . $db->table('catering_menu_group_items') . '` WHERE group_id = ?', [$id]);
+                    foreach (array_values($itemIds) as $order => $itemId) {
+                        $db->insert('catering_menu_group_items', [
+                            'group_id' => $id, 'item_id' => $itemId, 'sort_order' => ($order + 1) * 10,
+                        ]);
+                    }
+                    $this->audit('catering.menu_group.' . $action, $id);
+                });
+            } elseif (in_array($action, ['toggle_group', 'delete_group'], true)) {
+                $db->transaction(function () use ($db, $request, $action): void {
+                    $id = $this->existingId($request, 'catering_menu_groups');
+                    if ($action === 'toggle_group') {
+                        $db->run('UPDATE `' . $db->table('catering_menu_groups') . '` SET visible = CASE WHEN visible = 1 THEN 0 ELSE 1 END WHERE id = ?', [$id]);
+                    } else {
+                        if ($request->string('confirm_delete') !== '1') throw new \InvalidArgumentException('Confirm collection deletion.');
+                        $db->update('catering_packages', ['menu_group_id' => null], 'menu_group_id = ?', [$id]);
+                        $db->run('DELETE FROM `' . $db->table('catering_menu_group_items') . '` WHERE group_id = ?', [$id]);
+                        $db->run('DELETE FROM `' . $db->table('catering_menu_groups') . '` WHERE id = ?', [$id]);
+                    }
+                    $this->audit('catering.menu_group.' . $action, $id);
+                });
+            } else throw new \InvalidArgumentException('Unknown menu collection action.');
+        } catch (\InvalidArgumentException $e) {
+            return $this->adminMenuGroups($request, $e->getMessage(), $request->post);
+        }
+        return Response::redirect($this->ctx->url($request->basePath, '/admin/catering/menu-groups', ['saved' => 1]));
     }
 
     public function legacyInquiryRedirect(Request $request): Response
@@ -829,19 +933,74 @@ final class CateringController
 
     private function menuData(bool $visibleOnly = true): array
     {
-        $where = $visibleOnly ? ' WHERE visible = 1' : '';
+        if ($visibleOnly) {
+            [$availability, $params] = $this->availabilityClause('i');
+            return [
+                $this->db()->fetchAll('SELECT * FROM `' . $this->db()->table('catering_menu_categories') . '` WHERE visible = 1 ORDER BY sort_order, name'),
+                $this->db()->fetchAll('SELECT i.* FROM `' . $this->db()->table('catering_menu_items') . '` i INNER JOIN `'
+                    . $this->db()->table('catering_menu_categories') . '` c ON c.id = i.category_id'
+                    . ' WHERE i.visible = 1 AND c.visible = 1 AND ' . $availability
+                    . ' ORDER BY i.category_id, i.sort_order, i.name', $params),
+            ];
+        }
         return [
-            $this->db()->fetchAll('SELECT * FROM `' . $this->db()->table('catering_menu_categories') . '`' . $where . ' ORDER BY sort_order, name'),
-            $this->db()->fetchAll('SELECT * FROM `' . $this->db()->table('catering_menu_items') . '`' . $where . ' ORDER BY category_id, sort_order, name'),
+            $this->db()->fetchAll('SELECT * FROM `' . $this->db()->table('catering_menu_categories') . '` ORDER BY sort_order, name'),
+            $this->db()->fetchAll('SELECT * FROM `' . $this->db()->table('catering_menu_items') . '` ORDER BY category_id, sort_order, name'),
         ];
     }
 
     private function visiblePackages(?int $limit = null): array
     {
-        return $this->db()->fetchAll(
+        [$availability, $params] = $this->availabilityClause();
+        $packages = $this->db()->fetchAll(
             'SELECT * FROM `' . $this->db()->table('catering_packages')
-            . '` WHERE visible = 1 ORDER BY sort_order, name' . ($limit !== null ? ' LIMIT ' . $limit : '')
+            . '` WHERE visible = 1 AND ' . $availability . ' ORDER BY sort_order, name', $params
         );
+        $visible = [];
+        foreach ($packages as $package) {
+            $group = !empty($package['menu_group_id']) ? $this->menuGroup((int) $package['menu_group_id'], true) : null;
+            if (!empty($package['menu_group_id']) && $group === null) continue;
+            $package['menu_group_name'] = $group['name'] ?? '';
+            $package['menu_group_item_ids'] = json_encode(array_map('intval', array_column($group['items'] ?? [], 'id')), JSON_THROW_ON_ERROR);
+            $visible[] = $package;
+            if ($limit !== null && count($visible) >= $limit) break;
+        }
+        return $visible;
+    }
+
+    private function menuGroups(bool $availableOnly): array
+    {
+        $where = '';
+        $params = [];
+        if ($availableOnly) {
+            [$availability, $params] = $this->availabilityClause('g');
+            $where = ' WHERE g.visible = 1 AND ' . $availability;
+        }
+        $groups = $this->db()->fetchAll('SELECT g.* FROM `' . $this->db()->table('catering_menu_groups') . '` g'
+            . $where . ' ORDER BY g.sort_order, g.name', $params);
+        foreach ($groups as &$group) {
+            $itemWhere = $availableOnly ? ' AND i.visible = 1 AND c.visible = 1' : '';
+            $itemParams = [(int) $group['id']];
+            if ($availableOnly) {
+                [$itemAvailability, $dateParams] = $this->availabilityClause('i');
+                $itemWhere .= ' AND ' . $itemAvailability;
+                $itemParams = array_merge($itemParams, $dateParams);
+            }
+            $group['items'] = $this->db()->fetchAll('SELECT i.* FROM `' . $this->db()->table('catering_menu_group_items') . '` gi INNER JOIN `'
+                . $this->db()->table('catering_menu_items') . '` i ON i.id = gi.item_id INNER JOIN `'
+                . $this->db()->table('catering_menu_categories') . '` c ON c.id = i.category_id'
+                . ' WHERE gi.group_id = ?' . $itemWhere . ' ORDER BY gi.sort_order, i.name', $itemParams);
+        }
+        unset($group);
+        return $groups;
+    }
+
+    private function menuGroup(int $id, bool $availableOnly): ?array
+    {
+        foreach ($this->menuGroups($availableOnly) as $group) {
+            if ((int) $group['id'] === $id) return $group;
+        }
+        return null;
     }
 
     private function uniqueSlug(string $table, string $name): string
@@ -909,6 +1068,34 @@ final class CateringController
         return array_values($clean);
     }
 
+    private function availabilityInput(Request $request): array
+    {
+        $from = trim($request->string('available_from'));
+        $until = trim($request->string('available_until'));
+        foreach (['Available from' => $from, 'Available until' => $until] as $label => $value) {
+            if ($value === '') continue;
+            $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+            if ($date === false || $date->format('Y-m-d') !== $value) {
+                throw new \InvalidArgumentException($label . ' must be a valid date.');
+            }
+        }
+        if ($from !== '' && $until !== '' && $from > $until) {
+            throw new \InvalidArgumentException('Available until must be on or after available from.');
+        }
+        return ['available_from' => $from !== '' ? $from : null, 'available_until' => $until !== '' ? $until : null];
+    }
+
+    private function availabilityClause(string $alias = ''): array
+    {
+        $prefix = $alias !== '' ? $alias . '.' : '';
+        $today = date('Y-m-d');
+        return [
+            '((' . $prefix . 'available_from IS NULL OR ' . $prefix . "available_from = '' OR " . $prefix . 'available_from <= ?)'
+                . ' AND (' . $prefix . 'available_until IS NULL OR ' . $prefix . "available_until = '' OR " . $prefix . 'available_until >= ?))',
+            [$today, $today],
+        ];
+    }
+
     private function guard(string $capability): ?Response
     {
         $auth = $this->ctx->service(AuthService::class);
@@ -939,10 +1126,7 @@ final class CateringController
 
     private function plannerCatalog(): array
     {
-        $db = $this->db();
-        [$categories] = $this->menuData();
-        $items = $db->fetchAll('SELECT i.* FROM `' . $db->table('catering_menu_items') . '` i INNER JOIN `'
-            . $db->table('catering_menu_categories') . '` c ON c.id = i.category_id WHERE i.visible = 1 AND c.visible = 1 ORDER BY c.sort_order, i.sort_order, i.name');
+        [$categories, $items] = $this->menuData();
         return [$categories, $items, $this->visiblePackages()];
     }
 

@@ -48,6 +48,8 @@ final class Provider
         $ctx->adminRoute('POST', '/admin/catering/menus', fn ($r) => $ctl()->adminMenusSave($r));
         $ctx->adminRoute('GET', '/admin/catering/packages', fn ($r) => $ctl()->adminPackages($r));
         $ctx->adminRoute('POST', '/admin/catering/packages', fn ($r) => $ctl()->adminPackagesSave($r));
+        $ctx->adminRoute('GET', '/admin/catering/menu-groups', fn ($r) => $ctl()->adminMenuGroups($r));
+        $ctx->adminRoute('POST', '/admin/catering/menu-groups', fn ($r) => $ctl()->adminMenuGroupsSave($r));
         // Preserve old bookmarks while Core takes ownership of the shared
         // inquiry workspace.
         $ctx->adminRoute('GET', '/admin/catering/inquiries', fn ($r) => $ctl()->legacyInquiryRedirect($r));
@@ -58,6 +60,7 @@ final class Provider
         $ctx->permission('catering.manage', 'Manage catering menus, packages, and settings');
         $ctx->adminPage('Menu details & pricing', '/admin/catering/menus', 'catering.manage', 'Catering');
         $ctx->adminPage('Package details & pricing', '/admin/catering/packages', 'catering.manage', 'Catering');
+        $ctx->adminPage('Menu collections', '/admin/catering/menu-groups', 'catering.manage', 'Catering');
         $ctx->adminPage('Catering settings', '/admin/catering/settings', 'catering.manage', 'Catering');
         (new CatalogResources($ctx->service(Connection::class)))->register($ctx);
 

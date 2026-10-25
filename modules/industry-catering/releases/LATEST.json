@@ -1,12 +1,12 @@
 {
   "module_id": "cajunwebpro/catering",
-  "version": "0.3.0",
-  "file": "industry-catering-0.3.0.zip",
-  "sha256": "6a35828d89d377792277df4f59177c4019586dce1573957293452ac1cb79b565",
+  "version": "0.4.0",
+  "file": "industry-catering-0.4.0.zip",
+  "sha256": "00ba3bfc2e70286567b0ae198dd36f30587dc6b5202f76de9a5679080f8f67e0",
   "module_api": 1,
   "verified_core": null,
   "released_at": "2026-10-25",
-  "verification": "Catering 0.3.0 configurable quote-planner candidate; CI pending; no combined build",
+  "verification": "Catering 0.4.0 seasonal catalog candidate; CI pending; no combined build",
   "tested_core": "2.3.0",
   "tested_core_commit": "861d1b3e3c8def4ed4bb0b9e29614ad4290663a5",
   "ci": null

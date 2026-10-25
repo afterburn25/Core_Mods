@@ -1,5 +1,18 @@
 # Catering Module Changelog
 
+## 0.4.0 — 2026-10-25
+
+- Add inclusive availability windows to dishes, packages, and reusable menu
+  collections; out-of-window catalog records remain stored but are omitted
+  from public pages and server-authoritative quote planning.
+- Add reusable curated menu collections with validated dish membership and
+  package links. Linked packages accept only current collection members while
+  retaining their existing category choice limits.
+- Add a protected Menu Collections workspace, relationship cleanup, public
+  package details, planner guidance, and no-JavaScript-safe server validation.
+- Defer module-supplied structured data until Core documents a safe SEO/schema
+  contribution API under CORE-REUSE-3.
+
 ## 0.3.0 — 2026-10-25
 
 - Add administrator-managed event types, service styles, and budget ranges to

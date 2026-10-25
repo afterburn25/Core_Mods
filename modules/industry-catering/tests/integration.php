@@ -23,8 +23,12 @@ verify($items[0]['pricing_basis'] === 'per_guest', 'Legacy guest prices are infe
 $db->update('catering_menu_items', ['pricing_basis' => 'manual', 'name' => 'Administrator dish', 'dietary' => 'Custom dietary note'], 'id = ?', [(int) $items[0]['id']]);
 $migration = require $moduleRoot . '/migrations/0005_menu_planner.php';
 $migration->up($db); $migration->up($db);
+$availabilityMigration = require $moduleRoot . '/migrations/0006_catalog_availability.php';
+$availabilityMigration->up($db); $availabilityMigration->up($db);
 $custom = $db->fetch('SELECT * FROM `' . $db->table('catering_menu_items') . '` WHERE id = ?', [$items[0]['id']]);
 verify($custom['pricing_basis'] === 'manual' && $custom['dietary'] === 'Custom dietary note', 'Repeated upgrade preserves administrator pricing and content');
+verify($db->tableExists('catering_menu_groups') && $db->tableExists('catering_menu_group_items'),
+    'Seasonal catalog migration creates reusable menu collections idempotently');
 verify((new Core\Database\Migrator($db, $moduleRoot . '/migrations'))->pending() === [], 'Core migration journal records the module migrations');
 verify($router->dispatch(cateringRequest('POST', '/catering/estimate', ['guest_count' => '25']))->status() === 419, 'Estimate endpoint requires CSRF');
 verify($ctl->adminMenusSave(cateringRequest('POST', '/admin/catering/menus', ['_csrf' => $token, 'action' => 'delete_item', 'id' => $items[0]['id']]))->status() === 403, 'Direct admin action denies unauthenticated callers');
@@ -33,6 +37,16 @@ verify($ctl->adminPackagesSave(cateringRequest('POST', '/admin/catering/packages
 cateringTestIdentity($f, 'owner');
 verify($ctl->adminMenusSave(cateringRequest('POST', '/admin/catering/menus', ['action' => 'add_item']))->status() === 419, 'Direct admin action also requires CSRF');
 verify($ctl->adminSettingsSave(cateringRequest('POST', '/admin/catering/settings'))->status() === 419, 'Direct settings action requires CSRF');
+$groupInput = [
+    '_csrf' => $token, 'action' => 'add_group', 'name' => 'Wedding favorites',
+    'description' => 'A reusable menu for wedding packages.', 'sort_order' => '10',
+    'item_ids' => [(string) $items[0]['id'], (string) $items[1]['id']],
+];
+verify($router->dispatch(cateringRequest('POST', '/admin/catering/menu-groups', $groupInput))->status() === 302,
+    'Owner can create a reusable menu collection');
+$menuGroup = $db->fetch('SELECT * FROM `' . $db->table('catering_menu_groups') . '` WHERE name = ?', ['Wedding favorites']);
+verify($menuGroup !== null && (int) $db->fetchColumn('SELECT COUNT(*) FROM `' . $db->table('catering_menu_group_items') . '` WHERE group_id = ?', [(int) $menuGroup['id']]) === 2,
+    'Menu collection saves validated dish membership');
 $settingsInput = [
     '_csrf' => $token, 'travel_note' => 'Delivery depends on zone.', 'minimum_guests' => '15',
     'lead_time' => '10', 'quote_expiry' => '21',
@@ -106,8 +120,26 @@ verify(!str_contains($response->body(), '<script>alert(1)</script>'), 'Admin dis
 $package = $db->fetch('SELECT * FROM `' . $db->table('catering_packages') . '` ORDER BY id LIMIT 1');
 $packageInput = ['_csrf' => $token, 'action' => 'update_package', 'id' => (string) $package['id'], 'name' => $package['name'],
     'price' => '39.00', 'pricing_basis' => 'per_guest', 'minimum_quantity' => '1', 'guest_min' => '20', 'guest_max' => '100',
+    'menu_group_id' => (string) $menuGroup['id'],
     'choices' => [(string) $categories[0]['id'] => ['enabled' => '1', 'min' => '1', 'max' => '1']]];
 verify($router->dispatch(cateringRequest('POST', '/admin/catering/packages', $packageInput))->status() === 302, 'Owner can configure included category choices');
+verify((int) $db->fetchColumn('SELECT menu_group_id FROM `' . $db->table('catering_packages') . '` WHERE id = ?', [$package['id']]) === (int) $menuGroup['id'],
+    'Package links to the reusable menu collection');
+$db->update('catering_packages', ['available_until' => '2000-01-01'], 'id = ?', [$package['id']]);
+verify(!str_contains($router->dispatch(cateringRequest('GET', '/request-a-quote'))->body(), 'value="' . (int) $package['id'] . '" data-rules='),
+    'Expired packages are excluded from public quote planning');
+$db->update('catering_packages', ['available_until' => null], 'id = ?', [$package['id']]);
+$outsideGroup = ['_csrf' => $token, 'guest_count' => '25', 'package_id' => (string) $package['id'], 'menu_items' => [(string) $items[2]['id']]];
+$outsidePlan = json_decode($router->dispatch(cateringRequest('POST', '/catering/estimate', $outsideGroup))->body(), true);
+verify(in_array('A selected dish is outside this package’s menu collection.', $outsidePlan['errors'], true),
+    'Server rejects package dishes outside the linked collection');
+$db->update('catering_menu_items', ['available_until' => '2000-01-01'], 'id = ?', [$items[2]['id']]);
+$expiredPlan = json_decode($router->dispatch(cateringRequest('POST', '/catering/estimate', [
+    '_csrf' => $token, 'guest_count' => '25', 'menu_items' => [(string) $items[2]['id']],
+]))->body(), true);
+verify(in_array('A selected dish is no longer available. Please review your menu.', $expiredPlan['errors'], true),
+    'Expired seasonal dishes are excluded by server-authoritative planning');
+$db->update('catering_menu_items', ['available_until' => null], 'id = ?', [$items[2]['id']]);
 $tierInput = $input;
 $tierInput['guest_tiers'] = [['minimum_guests' => '50', 'discount_percent' => '5.00']];
 verify($router->dispatch(cateringRequest('POST', '/admin/catering/menus', $tierInput))->status() === 302, 'Guest-count tiers can be saved through admin');
@@ -159,7 +191,7 @@ $invalidQuote = $quote; $invalidQuote['event_date'] = '2027-02-30';
 verify(str_contains($router->dispatch(cateringRequest('POST', '/request-a-quote', $invalidQuote))->body(), 'valid event date'), 'Impossible calendar date rejected server-side');
 $invalidQuote = $quote; unset($invalidQuote['acknowledged']);
 verify(str_contains($router->dispatch(cateringRequest('POST', '/request-a-quote', $invalidQuote))->body(), 'acknowledge'), 'Booking acknowledgement enforced server-side');
-foreach (['/', '/menus', '/menus/' . $categories[0]['slug'], '/packages', '/packages/' . $package['slug'], '/request-a-quote', '/admin/catering/menus', '/admin/catering/packages'] as $path) {
+foreach (['/', '/menus', '/menus/' . $categories[0]['slug'], '/packages', '/packages/' . $package['slug'], '/request-a-quote', '/admin/catering/menus', '/admin/catering/packages', '/admin/catering/menu-groups'] as $path) {
     $response = $router->dispatch(cateringRequest('GET', $path));
     verify($response->status() === 200, 'Public/admin route renders: ' . $path);
 }

@@ -83,6 +83,19 @@ final class MenuPlanner
                 (!empty($package['guest_max']) && $guests > (int) $package['guest_max']))) {
                 $errors[] = 'Guest count is outside this package’s supported range.';
             }
+            if (!empty($package['menu_group_id'])) {
+                $groupIds = json_decode((string) ($package['menu_group_item_ids'] ?? '[]'), true);
+                $allowed = [];
+                foreach (is_array($groupIds) ? $groupIds : [] as $groupId) {
+                    $groupId = $this->positiveInt($groupId);
+                    if ($groupId !== null) $allowed[$groupId] = true;
+                }
+                foreach ($selected as $id => $_item) {
+                    if (!isset($allowed[$id])) {
+                        $errors[] = 'A selected dish is outside this package’s menu collection.';
+                    }
+                }
+            }
             $rules = json_decode((string) ($package['choice_rules'] ?? ''), true) ?: [];
             if ($rules !== []) {
                 $counts = [];

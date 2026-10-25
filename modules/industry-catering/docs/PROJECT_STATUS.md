@@ -1,7 +1,7 @@
 # Catering Module Project Status
 
-- Current version: `0.3.0`
-- State: Active development; configurable quote-planner candidate
+- Current version: `0.4.0`
+- State: Active development; seasonal catalog and menu-collection candidate
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
 - Module API: `1`
@@ -29,7 +29,7 @@
 - Detailed module editors retained for all industry-specific configuration.
 - Required Core inquiry-detail and note-attribution regression acceptance.
 
-## 0.3.0 candidate scope
+## 0.3.0 release scope
 
 - Administrator-managed event types, service styles, and budget ranges.
 - Show/hide/required controls for Catering-specific planning questions.
@@ -37,6 +37,15 @@
   rejection and preserved historical inquiry snapshots.
 - Shared reminders, export, notification templates, spam operations,
   attachments, and proposal documents remain deferred to Core services.
+
+## 0.4.0 candidate scope
+
+- Inclusive availability windows for dishes, packages, and menu collections.
+- Reusable curated dish collections linked to multiple packages.
+- Public and server-side enforcement of current availability and collection
+  membership, with package category limits retained.
+- Structured-data contribution remains blocked on CORE-REUSE-3 rather than
+  bypassing Core's SEO and schema editor.
 
 ## Completed
 

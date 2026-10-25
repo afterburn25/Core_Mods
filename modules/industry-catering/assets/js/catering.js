@@ -22,7 +22,9 @@
   const applyFilter = () => {
     cards.forEach((card) => {
       const selected = card.querySelector('input[type="checkbox"]')?.checked;
-      card.hidden = Boolean(filter?.value && !card.dataset.dietaryTags.split(' ').includes(filter.value) && !selected);
+      const dietaryHidden = Boolean(filter?.value && !card.dataset.dietaryTags.split(' ').includes(filter.value));
+      const packageHidden = card.dataset.packageVisible === 'false';
+      card.hidden = Boolean((dietaryHidden || packageHidden) && !selected);
     });
     document.querySelectorAll('[data-planner-category]').forEach((category) => {
       category.hidden = [...category.querySelectorAll('[data-dietary-tags]')].every((card) => card.hidden);
@@ -85,11 +87,19 @@
   };
   const updateRules = () => {
     let rules = {};
-    try { rules = JSON.parse(packageSelect.selectedOptions[0]?.dataset.rules || '{}'); } catch { /* Server still validates the catalog. */ }
+    let groupItems = [];
+    const option = packageSelect.selectedOptions[0];
+    try { rules = JSON.parse(option?.dataset.rules || '{}'); } catch { /* Server still validates the catalog. */ }
+    try { groupItems = JSON.parse(option?.dataset.groupItems || '[]'); } catch { /* Server still validates the catalog. */ }
+    const hasGroup = Boolean(option?.dataset.groupName);
+    const allowed = new Set(groupItems.map(String));
+    cards.forEach((card) => { card.dataset.packageVisible = !hasGroup || allowed.has(card.dataset.itemId) ? 'true' : 'false'; });
     const details = Object.values(rules).map((rule) => `${rule.label}: choose ${rule.min}–${rule.max}`);
-    rulesText.textContent = details.length ? 'Included in the package price — ' + details.join('; ') + '. Other categories are outside this package.' :
-      (packageSelect.value ? 'Dish allowances have not been configured for this package. The team will confirm your selected menu and price.' :
+    const collection = hasGroup ? ` Choose from the ${option.dataset.groupName} collection.` : '';
+    rulesText.textContent = details.length ? 'Included in the package price — ' + details.join('; ') + '. Other categories are outside this package.' + collection :
+      (packageSelect.value ? 'Dish allowances have not been configured for this package. The team will confirm your selected menu and price.' + collection :
         'Choose individual dishes, or leave your menu open for recommendations.');
+    applyFilter();
   };
   const refreshEstimate = async () => {
     clearTimeout(debounce);

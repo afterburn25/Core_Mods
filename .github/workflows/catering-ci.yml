@@ -25,7 +25,7 @@ jobs:
           path: .previous-module
       - uses: actions/checkout@v4
         with:
-          ref: f3d20fe26a794513956cb8e6b4a7bb67388a7906
+          ref: 5a72464f046343291ad7a7b4b4b4d9466ce803db
           path: .previous-release
       - uses: shivammathur/setup-php@v2
         with:
@@ -94,7 +94,7 @@ jobs:
           path: .previous-module
       - uses: actions/checkout@v4
         with:
-          ref: f3d20fe26a794513956cb8e6b4a7bb67388a7906
+          ref: 5a72464f046343291ad7a7b4b4b4d9466ce803db
           path: .previous-release
       - uses: shivammathur/setup-php@v2
         with:
