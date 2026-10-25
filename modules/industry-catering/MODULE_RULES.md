@@ -15,9 +15,17 @@ precedence over inherited requirements to synchronize or bundle every module
 release with Core.
 
 - Work only on `module/catering` in `modules/industry-catering/`.
-- Do not modify Website Core, refresh its catering snapshot, merge the latest
-  Core, or build a combined Core/module installer unless the owner explicitly
-  requests that integration.
+- Do not change Website Core implementation, refresh its catering snapshot,
+  merge the latest Core, or build a combined Core/module installer unless the
+  owner explicitly requests that integration. Core roadmap documentation is
+  the authorized exception described below.
+- When catering work requires a missing or changed Core capability, add or
+  update an actionable dependency in `afterburn25/Website_Core` on `main` at
+  `docs/ROADMAP.md`. Check existing entries first to avoid duplicates. Describe
+  the required shared API/service, the catering use case, and acceptance
+  criteria; link it from the module roadmap and handoff and mark dependent
+  module work blocked or deferred until Core supports it. Do not implement the
+  Core change in this module session or duplicate the shared service here.
 - Continue producing the installable module ZIP and matching `LATEST.json`
   when module behavior changes. Do not nest ZIPs inside a delivery ZIP.
 - Keep honest Core/API compatibility requirements and run available module
