@@ -1,5 +1,31 @@
 # Catering Module Testing
 
+## GitHub publication and CI — 2026-10-25
+
+The reconciled 0.2.0 candidate is published at
+`f3d20fe26a794513956cb8e6b4a7bb67388a7906` on `module/catering`.
+The original archive is unchanged: 1,650,842 bytes, SHA-256
+`d760e0e76f6996904bde04f9e94bd3b6763fc539c811219c9b5f2c6df4c2a26f`.
+It contains no nested ZIP; only this release ZIP remains in `releases/`.
+Source and archive Git tree matched the recovered local candidate exactly.
+Bounded connector transfers assembled the exact archive on GitHub; the
+connector completed the branch update after the Actions token could not
+change workflow files. Temporary transfer files and the publication workflow
+are absent from the published candidate.
+
+- [Module CI run 40216516473](https://github.com/afterburn25/Core_Mods/actions/runs/40216516473): passed repository/release validation and PHP lint.
+- [Catering acceptance run 40216516597](https://github.com/afterburn25/Core_Mods/actions/runs/40216516597): all four jobs passed (PHP 8.4, PHP 8.5, MySQL 8.4, MariaDB 11.4).
+- Each PHP job passed 44 pricing checks, 45 controller/database checks, and two 21-check packaged lifecycle runs (rebuilt historical 0.1.23 source and valid published 0.1.21).
+- Each native database job passed 45 controller/database checks and both 21-check lifecycle runs.
+- The separate, explicitly non-blocking Core diagnostic FAILED with `no such column: a.name`. Its job conclusion is green because the dependency diagnostic uses `continue-on-error`; this is not a passing Core detail/notes contract.
+
+Production acceptance remains blocked by CORE-REUSE-7A. No Core implementation,
+combined installer, synchronized Core bundle, or live-host deployment changed.
+The candidate archive retains its pre-CI documentation snapshot. This
+repository-only publication record and `releases/LATEST.json` record the later
+CI results without changing the exact tested archive. `verified_core` remains
+null until the blocked shared inquiry detail/notes acceptance passes.
+
 ## Reconciled 0.2.0 acceptance — 2026-10-25
 
 Read-only published Core 2.2.1 fixture:
@@ -17,7 +43,7 @@ Read-only published Core 2.2.1 fixture:
 - Chromium browser checks passed on the reconciled candidate: desktop menu
   estimate/submission, admin label edits, dietary filtering, 390px layout and
   no-JavaScript preview.
-- GitHub PHP 8.4/8.5 and native MySQL/MariaDB acceptance remains pending.
+- GitHub PHP 8.4/8.5 and native MySQL/MariaDB acceptance passed; see the publication record above.
 - Combined Core bundle and live-host deployment remain owner-deferred.
 
 ## Earlier unreconciled planner checks — 2026-10-25

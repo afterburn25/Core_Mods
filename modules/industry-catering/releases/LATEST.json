@@ -6,7 +6,15 @@
   "module_api": 1,
   "verified_core": null,
   "released_at": "2026-10-25",
-  "verification": "Module candidate; local checks pass; CI pending; Core detail blocked by CORE-REUSE-7A; no combined build",
+  "verification": "Module CI and PHP 8.4/8.5/MySQL 8.4/MariaDB 11.4 acceptance passed; Core detail blocked by CORE-REUSE-7A; no combined build",
   "tested_core": "2.2.1",
-  "tested_core_commit": "12f082936b0b2c9dae4f54f345e4d059c625f2e9"
+  "tested_core_commit": "12f082936b0b2c9dae4f54f345e4d059c625f2e9",
+  "ci": {
+    "commit": "f3d20fe26a794513956cb8e6b4a7bb67388a7906",
+    "module_run": 40216516473,
+    "catering_run": 40216516597,
+    "module_result": "success",
+    "catering_result": "success",
+    "core_detail_contract": "failed: CORE-REUSE-7A (non-blocking diagnostic)"
+  }
 }

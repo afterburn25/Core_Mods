@@ -1,5 +1,20 @@
 # Catering Module Session Handoff
 
+## Publication completed — 2026-10-25
+
+The recovered 0.2.0 candidate is now on GitHub at
+`f3d20fe26a794513956cb8e6b4a7bb67388a7906`. Module CI run `40216516473`
+and Catering acceptance run `40216516597` passed, including PHP 8.4/8.5 and
+native MySQL 8.4/MariaDB 11.4. See [Testing](TESTING.md#github-publication-and-ci--2026-10-25)
+for exact check counts and archive verification. The original candidate ZIP
+and checksum are preserved; these publication notes supplement its pre-CI
+documentation. Temporary publication files are absent from the branch.
+
+CORE-REUSE-7A still reproduces in the pinned Core fixture. Its diagnostic is
+non-blocking in module CI and must not be described as passed. Production
+acceptance and real shared-host upload/upgrade remain outstanding. Continue
+only module work; do not combine with Core without an explicit owner request.
+
 ## Authoritative locations
 
 - Repository: `afterburn25/Core_Mods`
@@ -161,7 +176,7 @@ its `verified_core` field remains intentionally null until acceptance passes.
 
 ## Next safe task
 
-Check module-specific GitHub CI for this reconciled candidate, then continue
+Module-specific GitHub CI for this reconciled candidate has passed. Continue
 module content/media work when the documented Core adapters are available
 (CORE-REUSE-3/4). Keep CORE-REUSE-7A visibly blocked until Core fixes its detail
 query. Run the core-dependencies.php diagnostic after the Core fix, then

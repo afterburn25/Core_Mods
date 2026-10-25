@@ -1,7 +1,7 @@
 # Catering Module Project Status
 
 - Current version: `0.2.0`
-- State: Active development; release candidate being verified
+- State: Active development; module candidate published and module CI passed
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
 - Module API: `1`
@@ -60,7 +60,7 @@
   when the owner explicitly requests integration (direction: 2026-10-25).
 - Defer combined Core bundle CI until that integration is requested; preserve
   honest compatibility requirements and continue module validation.
-- Verify the reconciled 0.2.0 module candidate, then continue content editing and
+- Preserve the published, CI-tested 0.2.0 module candidate, then continue content editing and
   media-management improvements without moving industry-specific behavior into
   Core.
 
@@ -70,7 +70,7 @@
   admins.name instead of username. Recorded on Core's active roadmap; no Core
   implementation change is made here. Production release remains blocked.
 - Local module checks cover persistence/linking, not the broken Core detail UI.
-- PHP 8.4/8.5 and MySQL/MariaDB module CI results are pending.
+- PHP 8.4/8.5 and MySQL 8.4/MariaDB 11.4 module CI passed (Catering run `40216516597`; Module CI `40216516473`). Core detail/notes diagnostic still fails.
 - No combined Core bundle or live-host installation was performed.
 - Shared content/media/forms integration remains on CORE-REUSE-3/4.
 - Historical 0.1.22/0.1.23 archives are truncated. Only the complete current

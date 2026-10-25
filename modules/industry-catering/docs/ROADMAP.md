@@ -16,8 +16,8 @@ for Core to fix detail/notes rendering; do not duplicate that workspace here.
 - [x] Edit dishes/packages and structured dietary/allergen information
 - [x] Show business-verified dietary filters and cross-contact guidance
 - [x] Retain authoritative inquiry snapshots and notify through Core mail
-- [ ] Finish reconciled-candidate acceptance and record GitHub CI evidence
-- [ ] Pass module-specific PHP 8.4/8.5 and native MySQL/MariaDB CI
+- [x] Finish module acceptance and record GitHub CI evidence (run `40216516597`; Core dependency remains blocked)
+- [x] Pass module-specific PHP 8.4/8.5 and native MySQL 8.4/MariaDB 11.4 CI
 - Core synchronization and combined-bundle testing remain owner-deferred.
 
 ## 0.1.25 — Core 2.2 shared-service adoption

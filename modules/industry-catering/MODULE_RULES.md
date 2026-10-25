@@ -66,7 +66,8 @@ release with Core.
       access, and escaped output.
 - [x] The README, changelog, status, roadmap, testing, and handoff records have
       been created before the first release.
-- [ ] Complete module CI verification for version 0.2.0. The release ZIP and
+- [x] Complete module CI verification for version 0.2.0 (Module CI `40216516473`,
+      Catering acceptance `40216516597`). The release ZIP and
       `LATEST.json` are complete; combined Core bundle verification remains
       deferred until the owner explicitly requests integration.
 
