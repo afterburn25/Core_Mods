@@ -30,13 +30,18 @@ claiming that a newer Core has been tested. See `../MODULE_RULES.md`.
 
 The owner also authorizes Core roadmap updates when catering work identifies
 required Core changes. Add or update the dependency in
-`afterburn25/Website_Core` → `main` → `docs/ROADMAP.md`, checking for an
+`afterburn25/Website_Core` → active implementation branch
+(`devin/website-core` as verified 2026-10-25) → `docs/ROADMAP.md`, checking for an
 existing entry first. Include the shared API/service needed, the catering use
 case, and acceptance criteria. Cross-link it in the module roadmap/handoff and
 mark dependent module work blocked or deferred until Core implements it.
 This documentation exception does not authorize Core implementation changes
-or a combined build. No new Core dependency was identified in this
-instruction-only update.
+or a combined build. The shared-service planning review is now recorded under CORE-REUSE-1
+through CORE-REUSE-8 in that roadmap; these are planning entries, not
+implemented dependencies. Use existing Core services first. Shared API,
+record editor, module content/media and forms integration gaps must be
+resolved before catering work relies on them. Core implementation remains
+separate and no combined installer has been built.
 
 ## Current baseline
 
