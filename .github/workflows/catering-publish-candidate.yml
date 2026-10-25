@@ -1,0 +1,43 @@
+name: Publish corrected Catering 1.0 candidate
+
+on:
+  push:
+    branches:
+      - module/catering
+    paths:
+      - .github/workflows/catering-publish-candidate.yml
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reconstruct and verify corrected archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          part_dir="modules/industry-catering/tools/.publication"
+          archive="modules/industry-catering/releases/industry-catering-1.0.0.zip"
+          test "$(find "$part_dir" -maxdepth 1 -type f -name 'part-*.b64' | wc -l)" -eq 38
+          cat "$part_dir"/part-*.b64 | base64 --decode > "$archive"
+          test "$(stat -c '%s' "$archive")" -eq 1679901
+          echo "c254d5966b0f6e1664e8297adbe5e6c17b851133d7d07526963aa0f45fd1c29d  $archive" | sha256sum --check
+          unzip -t "$archive"
+          test -z "$(unzip -Z1 "$archive" | grep -E '\\.zip$' || true)"
+      - name: Create exact corrected candidate commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -r modules/industry-catering/tools/.publication
+          git rm .github/workflows/catering-publish-candidate.yml
+          git add modules/industry-catering/releases/industry-catering-1.0.0.zip
+          test "$(git write-tree)" = "43baa1004482b8d909298f375972fb6a569bb85f"
+          git commit -m "Fix Catering 1.0.0 delivery-zone matching"
+          git push origin HEAD:module/catering
