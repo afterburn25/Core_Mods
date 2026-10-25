@@ -188,7 +188,8 @@ $missingDietary = $quote; unset($missingDietary['dietary']);
 verify(str_contains($router->dispatch(cateringRequest('POST', '/request-a-quote', $missingDietary))->body(), 'Dietary needs, allergies and handling requests is required.'),
     'Server enforces administrator-configured required quote fields');
 $response = $router->dispatch(cateringRequest('POST', '/request-a-quote', $quote));
-verify($response->status() === 302 && str_contains($response->headers()['Location'], '/catering/index.php?p=/request-a-quote&sent=1'), 'Quote redirects correctly under subfolder/query routing');
+verify($response->status() === 302 && str_contains($response->headers()['Location'] ?? '', '/catering/index.php?p=/request-a-quote&sent=1'),
+    'Quote redirects correctly under subfolder/query routing; status=' . $response->status() . '; body=' . trim(strip_tags($response->body())));
 $row = $db->fetch('SELECT * FROM `' . $db->table('catering_inquiries') . '` ORDER BY id DESC LIMIT 1');
 $snapshot = json_decode($row['menu_plan'], true);
 $operationsSnapshot = json_decode($row['operations_plan'], true);
