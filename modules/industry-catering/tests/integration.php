@@ -75,7 +75,8 @@ verify($router->dispatch(cateringRequest('POST', '/admin/catering/settings', $se
     'Owner can save Catering-specific quote choices through the protected settings route');
 verify($f['settings']->get('catering.event_types') === ['Wedding', 'Fundraiser']
     && $f['settings']->get('catering.quote_fields')['dietary']['required'] === true
-    && $f['settings']->get('catering.delivery_zones')[0]['fee_cents'] === 5000,
+    && $f['settings']->get('catering.delivery_zones')[0]['fee_cents'] === 5000
+    && $f['settings']->get('catering.delivery_zones')[0]['postal_codes'] === ['70001', '70002'],
     'Quote choices, field requirements, and operations rules persist in Core settings');
 $configuredQuote = $router->dispatch(cateringRequest('GET', '/request-a-quote'))->body();
 verify(str_contains($configuredQuote, 'Fundraiser') && !str_contains($configuredQuote, 'name="company"')

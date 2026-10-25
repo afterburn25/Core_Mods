@@ -1267,7 +1267,7 @@ final class CateringController
                 if ($postal === '' || !preg_match('/^(?:\*|[A-Z0-9][A-Z0-9 -]{1,19})$/D', $postal)) throw new \InvalidArgumentException('Delivery postal codes are invalid.');
                 $postals[$postal] = true;
             }
-            $zones[] = ['name' => $parts[0], 'postal_codes' => array_keys($postals),
+            $zones[] = ['name' => $parts[0], 'postal_codes' => array_map('strval', array_keys($postals)),
                 'fee_cents' => MenuPlanner::cents($parts[2]), 'minimum_order_cents' => MenuPlanner::cents($parts[3])];
         }
         if (count($zones) > 50) throw new \InvalidArgumentException('Configure no more than 50 delivery zones.');
