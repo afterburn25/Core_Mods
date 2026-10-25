@@ -1,0 +1,53 @@
+name: Publish exact Catering 0.3.0 candidate
+on:
+  push:
+    branches: ['module/catering']
+    paths: ['.github/workflows/catering-publish-candidate.yml']
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: c18aea5ea77cb715c1fc8a19698aa428b5951dba
+          fetch-depth: 1
+      - name: Assemble and verify the module-only archive
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, hashlib, json, zipfile
+          root = Path('modules/industry-catering')
+          parts = sorted((root / 'tools/.publication').glob('part-*.b64'))
+          assert len(parts) == 37, len(parts)
+          encoded = ''.join(p.read_text() for p in parts)
+          assert len(encoded) == 2214208, len(encoded)
+          data = base64.b64decode(encoded, validate=True)
+          assert len(data) == 1660656, len(data)
+          digest = hashlib.sha256(data).hexdigest()
+          assert digest == '6a35828d89d377792277df4f59177c4019586dce1573957293452ac1cb79b565', digest
+          latest = json.loads((root / 'releases/LATEST.json').read_text())
+          assert latest['version'] == '0.3.0' and latest['sha256'] == digest
+          archive = root / 'releases' / latest['file']
+          archive.write_bytes(data)
+          with zipfile.ZipFile(archive) as z:
+              assert z.testzip() is None
+              assert json.loads(z.read('addon.json'))['version'] == '0.3.0'
+              assert not any(n.lower().endswith('.zip') for n in z.namelist())
+          print(f'Verified {archive}: {len(data)} bytes, SHA-256 {digest}')
+          PY
+      - name: Create the exact candidate commit
+        env:
+          EVENT_COMMIT: ${{ github.sha }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin "$EVENT_COMMIT"
+          git rm -r modules/industry-catering/tools/.publication
+          git rm modules/industry-catering/releases/industry-catering-0.2.1.zip
+          git add modules/industry-catering/releases/industry-catering-0.3.0.zip
+          candidate_tree="$(git write-tree)"
+          test "$candidate_tree" = d469ab5dd85a536259fb454c7981bcf48a19ad6b
+          candidate_commit="$(git commit-tree "$candidate_tree" -p "$EVENT_COMMIT" -m 'Publish Catering 0.3.0 configurable quote planner candidate')"
+          git push origin "$candidate_commit:refs/heads/module/catering"
