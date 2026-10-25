@@ -4,13 +4,13 @@
   "file": "industry-catering-2.0.0.zip",
   "sha256": "98be7e2da035107c51ffbade8b4bfbedb7d5f9a23cac94a682c8ef74e6c70ed6",
   "module_api": 1,
-  "verified_core": "2.3.0",
+  "verified_core": "2.6.0",
   "released_at": "2026-10-25",
-  "verification": "Core 2.3 module-only production acceptance passed; no combined build or shared-host deployment",
-  "tested_core": "2.3.0",
-  "tested_core_commit": "861d1b3e3c8def4ed4bb0b9e29614ad4290663a5",
+  "verification": "Core 2.6 module-only production acceptance passed; no combined build or shared-host deployment",
+  "tested_core": "2.6.0",
+  "tested_core_commit": "f511e5f42ea82f62dcce0f5153609da3ca8d45aa",
   "ci": {
-    "module": "40238129164",
-    "acceptance": "40238129179"
+    "module": "40246534104",
+    "acceptance": "40246534087"
   }
 }

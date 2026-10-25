@@ -1,6 +1,6 @@
 # Catering Module Testing
 
-## 2.0.0 Core 2.6 integration candidate — 2026-10-25
+## 2.0.0 Core 2.6 integration release — 2026-10-25
 
 - Pinned read-only Core service fixture:
   `f511e5f42ea82f62dcce0f5153609da3ca8d45aa` (Core 2.6 publication source;
@@ -15,9 +15,18 @@
   registered layouts, four palettes each, draft/publish rendering of every
   layout, immutable quote
   documents/reminders, and structured data.
-- The exact 2.0.0 archive, packaged lifecycle matrix, GitHub publication, native
-  MySQL/MariaDB jobs, and module-branch CI are still pending in this snapshot
-  and must not be claimed until recorded below.
+- Exact archive: 1,746,734 bytes; SHA-256
+  `98be7e2da035107c51ffbade8b4bfbedb7d5f9a23cac94a682c8ef74e6c70ed6`;
+  83 files; no nested ZIP. Three packaged SQLite upgrade/lifecycle runs passed
+  27 checks each from rebuilt 0.1.23 source, valid 0.1.21, and exact 0.4.0.
+- Final remote source/archive commit:
+  `66b9c4605458833a2414fc5de47feae8daac4780`. Its Git tree matches the tested
+  local release tree exactly. The bounded transfer run `40246474010` passed;
+  all transfer chunks and its temporary workflow are absent from the final tree.
+- [Module CI run 40246534104](https://github.com/afterburn25/Core_Mods/actions/runs/40246534104)
+  passed. [Catering acceptance run 40246534087](https://github.com/afterburn25/Core_Mods/actions/runs/40246534087)
+  passed PHP 8.4/8.5, SQLite, native MySQL 8.4, and native MariaDB 11.4.
+- No combined Core installer or live-host deployment was built or performed.
 
 ## 1.5.0 commercial operations candidate — 2026-10-25
 

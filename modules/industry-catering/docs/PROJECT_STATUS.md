@@ -1,7 +1,7 @@
 # Catering Module Project Status
 
 - Current version: `2.0.0`
-- State: Core 2.6 integration candidate; local module acceptance passed, publication CI pending
+- State: Core 2.6 integration release; module-only CI passed
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
 - Module API: `1`
@@ -137,6 +137,11 @@
   them here.
 
 ## Known issues and release gates
+
+- Catering 2.0.0 is published at final branch commit
+  `66b9c4605458833a2414fc5de47feae8daac4780`. Module CI `40246534104` and
+  all four Catering acceptance jobs in `40246534087` passed on PHP 8.4/8.5,
+  SQLite, MySQL 8.4, and MariaDB 11.4.
 
 - Catering 1.5.0 is published at final branch commit
   `ffeab7cbd0908f5501fd01b123f9f0986431f60a`. Its prior module acceptance

@@ -1,6 +1,6 @@
 # Catering Module Session Handoff
 
-## 2.0.0 Core 2.6 integration candidate — 2026-10-25
+## 2.0.0 Core 2.6 integration release — 2026-10-25
 
 The module now requires Website Core `>=2.6.0,<3.0.0` and adopts the published
 Core service-area, module-theme-collection, Media-field, structured-data,
@@ -31,9 +31,13 @@ accounts, orders, payments, and immutable validation evidence.
 
 Core-backed proposal/BEO snapshots, final-headcount reminders, tasting capacity
 and lead-time rules, Core Media fields for public proof, and package-scoped
-structured data are wired. Local acceptance against Core source commit
-`f511e5f42ea82f62dcce0f5153609da3ca8d45aa` has begun; do not claim the
-2.0.0 ZIP, GitHub commit, or CI until the exact archive is built and published.
+structured data are wired. The exact 83-file ZIP is 1,746,734 bytes with
+SHA-256 `98be7e2da035107c51ffbade8b4bfbedb7d5f9a23cac94a682c8ef74e6c70ed6`
+and no nested ZIP. It is published at final commit
+`66b9c4605458833a2414fc5de47feae8daac4780`; Module CI `40246534104` and all
+four jobs in Catering acceptance `40246534087` passed against Core source
+`f511e5f42ea82f62dcce0f5153609da3ca8d45aa`. No combined installer or
+live-host deployment was produced.
 
 ## 1.5.0 commercial operations candidate — 2026-10-25
 
