@@ -205,11 +205,21 @@ Core synchronization and combined packaging still require an explicit request.
 - [ ] Keep postal delivery zones authoritative for quote validation; the radius
       map is customer guidance and must not silently promise service at every
       address inside the circle
+- [ ] Collect a structured event/delivery address when the selected fulfillment
+      method requires one and validate it through Core on both preview and final
+      submission; never trust a browser-only distance result
+- [ ] Show an accessible field error when Core confirms that the address is
+      outside the configured radius: “This address is currently outside our
+      service area.” Preserve the form values and offer the business contact
+      path for a manually approved exception
+- [ ] Treat ambiguous addresses and unavailable geocoding as unverified/manual
+      review instead of incorrectly telling a customer that they are out of area
 
 The shared geocoder, provider configuration, coordinate cache, privacy rules
 and map renderer belong to Website Core because multiple industries need them.
-The Core roadmap dependency was recorded as `CORE-REUSE-9` at commit
-`130994dc28305ad0353fe2273b7fe1f2dc109737`. Catering must not ship a private
+The Core roadmap dependency was recorded as `CORE-REUSE-9` and its address
+validation contract was completed in roadmap commit
+`da86fc19551d191d4dc55572d42fef4cb92aa7a8`. Catering must not ship a private
 map-provider integration while that contract is unavailable.
 
 ## 1.2.0 — Production and fulfillment
