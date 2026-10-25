@@ -9,10 +9,13 @@ $check = static function (bool $condition, string $message) use (&$checks): void
     $checks++;
 };
 $manifest = json_decode((string) file_get_contents($root . '/addon.json'), true, 512, JSON_THROW_ON_ERROR);
-$check($manifest['version'] === '1.5.0', 'Release-readiness suite targets Catering 1.5.0');
-$check($manifest['requires']['core'] === '>=2.3.0,<3.0.0' && (int) $manifest['requires']['api'] === 1,
+$check($manifest['version'] === '2.0.0', 'Release-readiness suite targets Catering 2.0.0');
+$check($manifest['requires']['core'] === '>=2.6.0,<3.0.0' && (int) $manifest['requires']['api'] === 1,
     'Supported Core and Module API ranges are explicit');
-foreach (['README.md', 'CHANGELOG.md', 'docs/OPERATOR_GUIDE.md', 'docs/RELEASE_NOTES_1.0.md', 'docs/RELEASE_NOTES_1.5.md', 'docs/TESTING.md'] as $file) {
+foreach (['business.service_area','appearance.collections','commerce.checkout_validation','leads.quotes'] as $service) {
+    $check(isset($manifest['requires']['services'][$service]), 'Manifest pins Core service ' . $service);
+}
+foreach (['README.md', 'CHANGELOG.md', 'docs/OPERATOR_GUIDE.md', 'docs/RELEASE_NOTES_1.0.md', 'docs/RELEASE_NOTES_1.5.md', 'docs/RELEASE_NOTES_2.0.md', 'docs/TESTING.md'] as $file) {
     $check(is_file($root . '/' . $file), $file . ' is packaged');
 }
 
@@ -46,8 +49,13 @@ $check(str_contains($workspace, 'synchronizeAcceptedQuotes') && str_contains($wo
     && str_contains($workspace, 'purchasingPlan'), 'Confirmed-event, production, and purchasing services are packaged');
 $check(str_contains($provider, "contentType('catering_venue'") && str_contains($provider, "contentType('catering_case_study'")
     && str_contains($provider, "contentType('catering_review'"), 'Commercial proof content uses Core content types');
-$check(!str_contains($provider, '->commerce(') && !str_contains($provider, '->customerAccounts('),
-    'Direct ordering stays disabled until Core supplies catering checkout validation hooks');
+$check(str_contains($provider, '->commerce(') && str_contains($provider, '->customerAccounts(')
+    && str_contains($provider, '->checkoutValidator('), 'Optional direct ordering uses Core commerce, accounts, and atomic validation');
+$themeFiles=glob($root.'/views/themes/*.php')?:[];
+$check(count($themeFiles)===10,'Exactly ten distinct Catering layout templates are packaged');
+$themeSource=implode("\n",array_map(static fn(string $file):string=>(string)file_get_contents($file),$themeFiles));
+$check(count(array_unique(array_map(static fn(string $file):string=>hash_file('sha256',$file),$themeFiles)))===10&&str_contains($themeSource,'theme-heritage-editorial')
+    &&str_contains($themeSource,'theme-minimal-luxe'),'All ten theme templates are structurally distinct');
 
 $migrationFiles = array_map('basename', glob($root . '/migrations/*.php') ?: []);
 $check($migrationFiles === [

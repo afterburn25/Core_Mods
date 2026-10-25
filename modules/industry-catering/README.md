@@ -9,12 +9,49 @@ adoption of [Cajun Web Pro Module Rules v1.1](../../MOD_RULES.md).
 
 ## Current release
 
-- Module version: `1.5.0`
+- Module version: `2.0.0`
 - Module ID: `cajunwebpro/catering`
 - Type: `industry`
 - Module API: `1`
-- Required Core: `>=2.3.0,<3.0.0`
+- Required Core: `>=2.6.0,<3.0.0`
 - Development branch: `module/catering`
+
+## Core 2.6 integration in 2.0.0
+
+Catering 2.0 adopts the reusable Core services delivered for service areas,
+module layout collections, schema contributions, quote documents/reminders,
+and atomic checkout validation. Administrators set a city/state center and
+mileage radius once in Core Business Profile. Core geocodes and caches the
+center, renders the accessible public radius map, and performs server-side
+address checks for both quote planning and eligible online orders. A confirmed
+outside address keeps the customer's form values and shows: “This address is
+currently outside our service area.” Ambiguous or unavailable lookups remain
+manual-review cases. Configured postal delivery zones continue to be an
+additional authoritative operating rule.
+
+Core Appearance now receives ten complete Catering layouts—Heritage
+Editorial, Modern Culinary, Garden Celebration, Grand Wedding, Corporate
+Table, Rustic Gathering, Bayou Night, Market Kitchen, Social Feast, and
+Minimal Luxe. They use different compositions and default imagery rather than
+one recolored template. Each declares four contrast-checked palettes plus
+replaceable hero, feature, and accent images through Core Media. Authenticated
+administrators can preview a saved draft before Core publishes or rolls it
+back; content and navigation stay unchanged.
+
+Ordering remains quote-only by default. An administrator may explicitly
+select direct-order or mixed mode and choose eligible, visible, per-guest
+packages. Catering synchronizes only those packages into Core Commerce and
+revalidates guest range, date, lead time, blackout dates, capacity,
+fulfillment, delivery zone, minimum order, service radius, and manual-price
+conditions inside Core checkout. Complex events return to the quotation
+workflow. Core continues to own the cart, customer accounts, orders, invoices,
+payments, and audit evidence.
+
+Core Media fields now support venue images, event-story galleries, and review
+images. Catering also contributes validated Caterer, service, menu, FAQ,
+review, and service-area structured data. Staff can create immutable proposal
+and Banquet Event Order snapshots and schedule final-headcount reminders from
+the linked event while Core owns storage, sanitization, delivery, and audit.
 
 ## Menu planning in 0.2.0
 
@@ -149,7 +186,7 @@ selection remain Core-owned.
 
 ## Installation
 
-Install the single `industry-catering-1.5.0.zip` through Website Core’s
+Install the single `industry-catering-2.0.0.zip` through Website Core’s
 module/package manager. This delivery contains only the module; use an
 already-installed compatible Core. It contains no nested ZIP and does not
 include or update Core. Combined installers require an explicit owner request. The installable module ZIP keeps
@@ -170,5 +207,6 @@ use the new validated package. Upgrade coverage includes the valid published
 - [Operator guide](docs/OPERATOR_GUIDE.md)
 - [1.0 release notes](docs/RELEASE_NOTES_1.0.md)
 - [1.5 release notes](docs/RELEASE_NOTES_1.5.md)
+- [2.0 release notes](docs/RELEASE_NOTES_2.0.md)
 - [Changelog](CHANGELOG.md)
 

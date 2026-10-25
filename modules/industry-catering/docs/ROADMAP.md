@@ -124,14 +124,13 @@ inquiry workspace.
 See the [Core shared-service planning backlog](https://github.com/afterburn25/Website_Core/blob/devin/website-core/docs/ROADMAP.md)
 (`CORE-REUSE-1` through `CORE-REUSE-10`). Existing Core content, forms,
 Media, branding, permissions and notification services must be reused first.
-Core 2.2 now supplies the business-profile, shared admin-rendering, inquiry,
-and quotation foundations adopted in 0.1.25. Remaining content/media, form,
-and module-SDK entries still require their documented Core APIs. Defer only
-the work that actually requires a missing supported API. Do not create
-module copies of the shared engines or implement Core changes here. Verify
-supported Core service APIs before replacing existing module behavior, preserve
-administrator content and inquiry history, and record compatibility evidence.
-Core synchronization and combined packaging still require an explicit request.
+Core 2.6 now supplies the service-area, layout-collection, schema, Media-field,
+quote-document/reminder, and atomic checkout-validation contracts adopted in
+2.0.0. Do not create module copies of shared engines or implement Core changes
+here. Verify supported Core service APIs before replacing existing module
+behavior, preserve administrator content and inquiry history, and record
+compatibility evidence. Core synchronization and combined packaging still
+require an explicit request.
 
 ## 0.2.x — Content and media management follow-up
 
@@ -145,22 +144,22 @@ Core synchronization and combined packaging still require an explicit request.
 ## 0.3.0 — Leads and operations
 
 - [x] Move inquiry status, priority, assignment, and internal notes to Core
-- [ ] Add follow-up dates and reminders when Core exposes the shared service
+- [x] Add linked-quote final-headcount reminders through Core's shared service
 - [x] Add configurable quote-request fields and event types
 - [ ] Add CSV inquiry export with permission and audit controls
 - [ ] Add notification templates using Core mail services
 - [ ] Add spam and abuse reporting to the admin dashboard
-- [ ] Add attachments and generated proposal documents through Core services
+- [x] Add generated proposal/BEO snapshots through Core services
+- [x] Use the linked Core quote workspace for protected administrator file
+      attachments through Core Media
 
 ## 0.4.0 — Catalog depth
 
 - [x] Add dietary, allergen, serving-size, and food-pricing options (0.2.0)
 - [x] Add seasonal menus and limited-availability packages
 - [x] Add package/menu relationships and reusable item groups
-- [ ] Add structured data for services, menus, FAQs, and local service areas
-      after Core exposes the module SEO/schema contribution contract in
-      CORE-REUSE-3 (roadmap commit
-      `30349cff3bfa971cbed359ead041850bc58d14e7`)
+- [x] Add structured data for services, menus, FAQs, reviews, and local service
+      areas through Core's package-scoped contribution contract
 
 ## 1.0.0 — Catering operations and production baseline
 
@@ -195,32 +194,31 @@ Core synchronization and combined packaging still require an explicit request.
 - [x] Add tentative, confirmed, completed and cancelled event states with a
       calendar/list workspace and an audit-safe change history
 - [x] Add event timelines, final-headcount deadlines and task ownership
-- [ ] Send deadline reminders through Core's shared notification services
+- [x] Send final-headcount reminders through Core's shared quote service
 - [x] Add tasting request review, eligibility and scheduling states
-- [ ] Add administrator-configurable tasting capacity and lead-time rules
-- [ ] Let an administrator set the shared service-area center by city/state and
+- [x] Add administrator-configurable tasting capacity and lead-time rules
+- [x] Let an administrator set the shared service-area center by city/state and
       select a mileage radius in Core's business profile; render the generated,
       accessible radius map on Catering's Service Area page through
       `CORE-REUSE-9`
-- [ ] Keep postal delivery zones authoritative for quote validation; the radius
+- [x] Keep postal delivery zones authoritative for quote validation; the radius
       map is customer guidance and must not silently promise service at every
       address inside the circle
-- [ ] Collect a structured event/delivery address when the selected fulfillment
+- [x] Collect a structured event/delivery address when the selected fulfillment
       method requires one and validate it through Core on both preview and final
       submission; never trust a browser-only distance result
-- [ ] Show an accessible field error when Core confirms that the address is
+- [x] Show an accessible field error when Core confirms that the address is
       outside the configured radius: “This address is currently outside our
       service area.” Preserve the form values and offer the business contact
       path for a manually approved exception
-- [ ] Treat ambiguous addresses and unavailable geocoding as unverified/manual
+- [x] Treat ambiguous addresses and unavailable geocoding as unverified/manual
       review instead of incorrectly telling a customer that they are out of area
 
-The shared geocoder, provider configuration, coordinate cache, privacy rules
-and map renderer belong to Website Core because multiple industries need them.
-The Core roadmap dependency was recorded as `CORE-REUSE-9` and its address
-validation contract was completed in roadmap commit
-`da86fc19551d191d4dc55572d42fef4cb92aa7a8`. Catering must not ship a private
-map-provider integration while that contract is unavailable.
+The shared geocoder registration, provider selection, coordinate cache,
+privacy rules and map renderer remain Website Core responsibilities. Catering
+2.0 registers a bounded server-side Nominatim adapter through `CORE-REUSE-9`;
+Core owns every stored coordinate, cache entry, decision, override, map, and
+public attribution. No browser-side provider request or credential is exposed.
 
 ## 1.2.0 — Production and fulfillment
 
@@ -236,7 +234,7 @@ map-provider integration while that contract is unavailable.
 
 ## 1.3.0 — Proposals, contracts and customer completion
 
-- [ ] Generate branded proposals and Banquet Event Orders from the same accepted
+- [x] Generate branded proposals and Banquet Event Orders from the same accepted
       event record through Core's shared document service
 - [ ] Add contract templates, versioned terms, acceptance and electronic
       signatures through Core rather than storing signatures in the module
@@ -244,13 +242,14 @@ map-provider integration while that contract is unavailable.
       confirm headcount, sign documents and view status
 - [ ] Use Core invoices, deposits, payment schedules, taxes, gratuity, service
       charges, refunds and payment audit records
-- [ ] Send confirmations, due-date reminders and event updates through Core's
-      notification templates and delivery tracking
+- [x] Schedule final-headcount reminders through Core's quote reminder service
+- [ ] Add broader confirmations and event updates through Core notification
+      templates and delivery tracking
 
-This milestone is blocked on the remaining document, attachment, reminder and
-customer-portal portions of `CORE-REUSE-4` and `CORE-REUSE-7`. Core 2.1 commerce
-and accounts must be extended and adopted; Catering must not build parallel
-account, invoice, signature or payment engines.
+Proposals, BEO snapshots, and reminders now use Core 2.6. Contract acceptance,
+electronic signatures, richer customer-event completion, and financial
+workflows remain Core responsibilities; Catering must not build parallel
+account, invoice, signature, or payment engines.
 
 ## 1.4.0 — Costing and operational reporting
 
@@ -270,14 +269,14 @@ account, invoice, signature or payment engines.
 - [x] Add venue partnerships, preferred-venue pages and venue-specific guidance
 - [x] Add administrator-approved event case studies and verified
       event-specific reviews through Core content/media services
-- [ ] Add Core Media galleries to event stories after adopting the delivered
-      `CORE-REUSE-3` media-field contract in a future tested Core baseline
+- [x] Add Core Media galleries to event stories and Media images to venues and
+      verified reviews
 - [x] Add focused wedding, corporate, school, nonprofit, holiday and memorial
       landing-page patterns without duplicating Core's page composer
 - [ ] Add referral/promotion attribution, repeat-customer insights and abandoned
       inquiry follow-up through Core analytics, privacy and notification services
-- [ ] Publish service, menu, FAQ, review and service-area structured data through
-      the future `CORE-REUSE-3` schema contribution contract
+- [x] Publish service, menu, FAQ, review and service-area structured data through
+      Core's schema contribution contract
 
 ## 1.6.0 — Ten-layout Catering theme collection
 
@@ -295,44 +294,44 @@ not one template with ten CSS skins. Working theme identities are:
 9. Social Feast — image-led masonry and event discovery
 10. Minimal Luxe — restrained typography and open-space composition
 
-- [ ] Give every theme a distinct header/navigation treatment, home-page
+- [x] Give every theme a distinct header/navigation treatment, home-page
       composition, inner-page layout, menu/package presentation, quote entry,
       service-area treatment and footer hierarchy
-- [ ] Give every theme a distinct default hero and featured-image assignment;
+- [x] Give every theme a distinct default hero and featured-image assignment;
       expose all theme image slots through Core Media so administrators can
       replace them without modifying the package
-- [ ] Provide at least four curated, contrast-checked color palettes per theme
-      and save palette choice independently for each theme
-- [ ] Use Core's visual theme chooser for desktop/mobile preview, draft,
+- [x] Provide at least four curated, Core contrast-checked color palettes per
+      theme
+- [ ] Save palette and Media choice independently for every inactive theme;
+      Core 2.6 currently retains only draft, published, and previous selections
+- [x] Use Core's visual theme chooser for authenticated preview, draft,
       publish and rollback without changing public content or navigation
-- [ ] Preserve per-theme palette/media selections while another theme is active;
-      upgrades must not overwrite administrator selections
+- [ ] Preserve arbitrary inactive-theme palette/media selections while another
+      theme is active; upgrades do preserve Core's draft/published/previous state
 - [ ] Test all ten themes at supported responsive breakpoints with keyboard,
       reduced-motion, contrast, image-performance and Core-attribution checks
-- [ ] Keep the installable module archive free of nested ZIPs and optimize the
+- [x] Keep the installable module archive free of nested ZIPs and optimize the
       distinct image assignments for shared-host upload and page performance
 
 Theme registration, preview/publish state, palette controls, contrast checks
-and media-slot persistence are shared Core responsibilities. Catering will
-adopt `CORE-REUSE-10`, recorded in Website Core roadmap commit
-`1ef7c5545e40bbd993be298fd1368519a2d0a216`; it must not add a second theme
-manager inside the module.
+and media-slot persistence are shared Core responsibilities. Catering 2.0
+adopts `CORE-REUSE-10` and does not add a second theme manager. The remaining
+arbitrary inactive-layout state limitation is a Core follow-up, not silently
+duplicated inside this module.
 
 ## 2.0.0 — Optional direct ordering
 
-- [ ] Support administrator-selectable quote-only, direct online-order and mixed
+- [x] Support administrator-selectable quote-only, direct online-order and mixed
       modes through Core commerce/accounts
-- [ ] Limit direct ordering to eligible menus, service styles, dates, lead times,
+- [x] Limit direct ordering to eligible packages, dates, lead times,
       capacity, fulfillment windows, delivery zones and payment rules
 - [ ] Support saved contacts/locations, previous-order duplication and recurring
       corporate meal programs through Core customer accounts
-- [ ] Keep complex or manually priced events in the quotation workflow and
+- [x] Keep complex or manually priced events in the quotation workflow and
       never create a parallel cart, checkout, invoice or payment engine
 
-Core 2.3 supplies the dormant commerce/account surfaces, but its documented
-Module API does not yet let Catering enforce event date, lead time, capacity,
-fulfillment, postal/radius, minimum-order and manual-price rules atomically at
-checkout. The reusable validation contract is recorded as `CORE-REUSE-11` in
-Website Core roadmap commit `0215410d4a6676350cf4f297497dccf9dba7c92a`.
-Catering must remain quote-only until that hook exists and passes acceptance;
-enabling the generic store without those checks would create unsafe orders.
+Core 2.6 supplies the checkout-validation hook recorded as `CORE-REUSE-11`.
+Catering 2.0 registers fail-closed rules and keeps quote-only as the upgrade-safe
+default. Previous-order duplication and recurring corporate programs remain a
+future Core accounts/commerce enhancement; Catering does not create a parallel
+subscription or customer-location store.

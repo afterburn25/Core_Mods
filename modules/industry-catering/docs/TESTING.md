@@ -1,5 +1,24 @@
 # Catering Module Testing
 
+## 2.0.0 Core 2.6 integration candidate — 2026-10-25
+
+- Pinned read-only Core service fixture:
+  `f511e5f42ea82f62dcce0f5153609da3ca8d45aa` (Core 2.6 publication source;
+  the equivalent local release/evidence checkout is `e7efa507f4e8692b041bc7fa5f4d58d88fcc37c5`).
+- PHP syntax passed for all 61 module PHP files.
+- Menu planner passed 55 checks; controller/database integration passed 113;
+  Core dependency contracts passed; Core 2.6 platform integration passed 35;
+  cross-module isolation passed 18; release readiness passed 28.
+- Platform coverage includes shared city/state/radius configuration, generated
+  public map, exact outside-address error, manual-review-safe address behavior,
+  eligible package synchronization, preliminary/final checkout validation, ten
+  registered layouts, four palettes each, draft/publish rendering of every
+  layout, immutable quote
+  documents/reminders, and structured data.
+- The exact 2.0.0 archive, packaged lifecycle matrix, GitHub publication, native
+  MySQL/MariaDB jobs, and module-branch CI are still pending in this snapshot
+  and must not be claimed until recorded below.
+
 ## 1.5.0 commercial operations candidate — 2026-10-25
 
 - Pinned local Core 2.3 fixture:

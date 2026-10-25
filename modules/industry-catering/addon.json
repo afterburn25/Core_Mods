@@ -3,11 +3,19 @@
   "id": "cajunwebpro/catering",
   "type": "industry",
   "name": "Catering Website",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "license": "PROPRIETARY",
   "requires": {
-    "core": ">=2.3.0,<3.0.0",
-    "api": 1
+    "core": ">=2.6.0,<3.0.0",
+    "api": 1,
+    "services": {
+      "content.presentation": "^1.0",
+      "forms.starter": "^1.0",
+      "leads.quotes": "^2.0",
+      "business.service_area": "^1.0",
+      "appearance.collections": "^1.0",
+      "commerce.checkout_validation": "^1.0"
+    }
   },
   "provider": "CajunWebPro\\Catering\\Provider",
   "psr4": {
@@ -16,7 +24,8 @@
   "migrations": "migrations",
   "assets": {
     "css": [
-      "assets/css/catering.css"
+      "assets/css/catering.css",
+      "assets/css/themes.css"
     ],
     "js": [
       "assets/js/catering.js"

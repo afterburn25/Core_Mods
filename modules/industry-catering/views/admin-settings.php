@@ -3,6 +3,9 @@
  * @var array $values
  * @var array $quoteFields
  * @var array $quoteFieldLabels
+ * @var array $packages
+ * @var array $directOrderPackageIds
+ * @var string $themePreviewUrl
  * @var bool $saved
  * @var ?string $error
  * @var \Core\Security\Csrf $csrf
@@ -14,8 +17,15 @@
 
 <div class="card">
     <div class="card-heading">
-        <div><p class="section-kicker">Core-managed identity</p><h2>Business contact details</h2><p class="muted">Name, email, phone, address, hours, and service area are maintained once and shared across the website.</p></div>
+        <div><p class="section-kicker">Core-managed identity</p><h2>Business contact details and service radius</h2><p class="muted">Name, email, phone, address, hours, service-area city/state, mileage radius, geocoding, and the public map are maintained once and shared across the website.</p></div>
         <a class="btn secondary" href="<?= e_attr($basePath) ?>/admin/business">Open business profile</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-heading">
+        <div><p class="section-kicker">Core-managed appearance</p><h2>Catering layout collection</h2><p class="muted">Choose among ten structurally distinct layouts, four accessible palettes per layout, and replaceable hero/feature/accent images in Core Appearance. Save a draft, preview it here, then publish or roll back in Core.</p></div>
+        <div class="action-bar"><a class="btn secondary" href="<?= e_attr($basePath) ?>/admin/appearance">Open appearance</a><a class="btn secondary" href="<?= e_attr($themePreviewUrl) ?>" target="_blank" rel="noopener">Preview saved draft ↗</a></div>
     </div>
 </div>
 
@@ -29,6 +39,24 @@
             <label>Default lead time in days<input type="number" name="lead_time" min="0" max="3650" value="<?= (int) $values['lead_time'] ?>"></label>
             <label>Default quote expiration in days<input type="number" name="quote_expiry" min="1" max="365" value="<?= (int) $values['quote_expiry'] ?>"></label>
         </div>
+    </div>
+
+    <div class="card">
+        <div class="card-heading"><div><p class="section-kicker">Tastings</p><h2>Capacity and notice</h2><p class="muted">These rules guide staff review of tasting requests; a request is not an automatic reservation.</p></div></div>
+        <div class="form-grid">
+            <label>Weekly tasting capacity<input type="number" name="tasting_capacity" min="1" max="100" value="<?= (int) $values['tasting_capacity'] ?>"></label>
+            <label>Minimum tasting lead days<input type="number" name="tasting_lead_days" min="0" max="365" value="<?= (int) $values['tasting_lead_days'] ?>"></label>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-heading"><div><p class="section-kicker">Core commerce</p><h2>Optional direct ordering</h2><p class="muted">Quote-only is the safe default. Core owns products, cart, customer accounts, checkout, orders, and payment records. Catering revalidates date, lead time, capacity, package range, delivery zone, radius, minimum, and manual-pricing rules inside the order transaction.</p></div></div>
+        <label>Ordering mode<select name="ordering_mode"><option value="quote_only"<?= $values['ordering_mode']==='quote_only'?' selected':'' ?>>Quote requests only</option><option value="direct_order"<?= $values['ordering_mode']==='direct_order'?' selected':'' ?>>Direct ordering for eligible packages</option><option value="mixed"<?= $values['ordering_mode']==='mixed'?' selected':'' ?>>Mixed direct ordering and quotes</option></select></label>
+        <fieldset><legend>Packages eligible for direct ordering</legend><p class="muted">Only visible packages with a positive per-guest price can be selected. Quantity in Core cart is the guest count.</p><div class="check-grid">
+        <?php foreach ($packages as $package): $eligible=(int)$package['price_cents']>0&&str_contains(mb_strtolower((string)$package['price_note']),'per guest'); ?>
+            <label><input type="checkbox" name="direct_order_package_ids[]" value="<?= (int)$package['id'] ?>"<?= in_array((int)$package['id'],$directOrderPackageIds,true)?' checked':'' ?><?= !$eligible?' disabled':'' ?>> <?= e($package['name']) ?><?= !$eligible?' — configure a per-guest price':'' ?></label>
+        <?php endforeach; ?>
+        </div></fieldset>
     </div>
 
     <div class="card">

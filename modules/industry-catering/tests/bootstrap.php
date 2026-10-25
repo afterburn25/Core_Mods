@@ -12,6 +12,12 @@ $bootstrapSource = (string) file_get_contents(WC_ROOT . '/includes/bootstrap.php
 preg_match("/define\\('WC_VERSION',\\s*'([^']+)'\\)/", $bootstrapSource, $coreVersion);
 define('WC_VERSION', $coreVersion[1] ?? '2.0.5');
 define('WC_API_VERSION', 1);
+$vendorAutoload = dirname(WC_ROOT) . '/vendor/autoload.php';
+if (is_file($vendorAutoload) && PHP_VERSION_ID >= 80400) {
+    require $vendorAutoload;
+} elseif (is_file(dirname(WC_ROOT) . '/vendor/ezyang/htmlpurifier/library/HTMLPurifier.auto.php')) {
+    require dirname(WC_ROOT) . '/vendor/ezyang/htmlpurifier/library/HTMLPurifier.auto.php';
+}
 require WC_ROOT . '/includes/autoload.php';
 require WC_ROOT . '/includes/helpers.php';
 $moduleRoot = getenv('CATERING_MODULE_ROOT') ?: dirname(__DIR__);
@@ -61,6 +67,8 @@ function cateringFixture(?string $sqlitePath = null, bool $withModule = true): a
         Core\Audit\AuditLog::class => $audit, Core\Admin\Nav::class => new Core\Admin\Nav(null, $auth),
         Core\Mail\SystemMail::class => new Core\Mail\SystemMail($db, $settings),
         Core\Branding\BrandAssets::class => new Core\Branding\BrandAssets($db, $settings, $media),
+        Core\Media\MediaService::class => $media,
+        Core\Config::class => $config,
     ];
     $container = new Core\Container();
     foreach ($services as $id => $service) $container->instance($id, $service);
@@ -69,6 +77,10 @@ function cateringFixture(?string $sqlitePath = null, bool $withModule = true): a
     $services[Core\Business\BusinessProfile::class] = new Core\Business\BusinessProfile($settings);
     $services[Core\Leads\InquiryService::class] = new Core\Leads\InquiryService($db);
     $services[Core\Leads\QuoteService::class] = new Core\Leads\QuoteService($db);
+    $services[Core\Business\ServiceAreaService::class] = new Core\Business\ServiceAreaService($db, $settings, $audit);
+    $services[Core\Appearance\ModuleThemeCollections::class] = new Core\Appearance\ModuleThemeCollections($db, $audit);
+    $services[Core\Commerce\CheckoutValidation::class] = new Core\Commerce\CheckoutValidation($db);
+    $services[Core\Commerce\ProductRepository::class] = new Core\Commerce\ProductRepository($db);
     $services[Core\Content\ContentItems::class] = new Core\Content\ContentItems($db, $registry);
     $services[Core\System\Version::class] = new Core\System\Version($registry);
     $services[Core\Admin\NoticeCenter::class] = new Core\Admin\NoticeCenter($db);

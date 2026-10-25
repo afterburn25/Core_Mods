@@ -1,5 +1,40 @@
 # Catering Module Session Handoff
 
+## 2.0.0 Core 2.6 integration candidate — 2026-10-25
+
+The module now requires Website Core `>=2.6.0,<3.0.0` and adopts the published
+Core service-area, module-theme-collection, Media-field, structured-data,
+quote-document/reminder, and atomic checkout-validation contracts. No Core
+implementation or combined installer is included here.
+
+Catering registers a bounded server-side Nominatim adapter while Core owns
+provider selection, normalized caching, stored service-area coordinates,
+audited address overrides, and accessible map output. Quote preview/submission
+and eligible Core checkout use the same inside/outside/unknown decision. The
+required confirmed-outside field error is exact; unknown results remain manual
+review. Postal zones continue to be an additional authoritative module rule.
+
+Ten unique layout templates, forty Core contrast-checked palettes, and three
+Core Media slots per layout are registered. Public pages follow Core's
+published choice; authenticated `?theme_preview=1` follows the saved draft.
+Core handles draft/publish/rollback and Media usage. Core 2.6 retains only the
+draft, published, and previous selections—not arbitrary saved state for every
+inactive layout—so the corresponding roadmap item remains honestly open and
+the module does not create a duplicate theme-state store.
+
+Quote-only remains the default. Mixed/direct modes synchronize only explicitly
+eligible visible per-guest packages to Core Commerce. The final validator
+checks package, quantity/guest range, date, lead time, blackout, capacity,
+time, fulfillment, postal zone, minimum order, service radius, and pricing
+complexity. Manual/variable cases return to quote or review; Core owns cart,
+accounts, orders, payments, and immutable validation evidence.
+
+Core-backed proposal/BEO snapshots, final-headcount reminders, tasting capacity
+and lead-time rules, Core Media fields for public proof, and package-scoped
+structured data are wired. Local acceptance against Core source commit
+`f511e5f42ea82f62dcce0f5153609da3ca8d45aa` has begun; do not claim the
+2.0.0 ZIP, GitHub commit, or CI until the exact archive is built and published.
+
 ## 1.5.0 commercial operations candidate — 2026-10-25
 
 The module now contains the module-owned work from the 1.1, 1.2, 1.4 and 1.5
@@ -151,7 +186,7 @@ request.
 - Repository: `afterburn25/Core_Mods`
 - Branch: `module/catering`
 - Folder: `modules/industry-catering/`
-- Current version: `1.0.0`
+- Current version: `2.0.0`
 - Manifest ID: `cajunwebpro/catering`
 
 Do not develop the catering module directly on `main`, and do not create a

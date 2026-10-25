@@ -1,12 +1,28 @@
 # Catering Module Project Status
 
-- Current version: `1.5.0`
-- State: Commercial operations release; module-only CI passed
+- Current version: `2.0.0`
+- State: Core 2.6 integration candidate; local module acceptance passed, publication CI pending
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
 - Module API: `1`
-- Required Core: Website Core `>=2.3.0,<3.0.0`
+- Required Core: Website Core `>=2.6.0,<3.0.0`
 - Last updated: 2026-10-25
+
+## 2.0.0 integration scope
+
+- Core-owned city/state + mileage-radius configuration, cached server geocoding,
+  accessible public map, staff overrides, and inside/outside/unknown address
+  decisions used by quote preview, final submission, and eligible checkout.
+- Ten unique Catering layout templates, forty accessible palette choices, and
+  three Core Media image slots per layout, following Core's draft/publish/
+  rollback state with authenticated saved-draft preview.
+- Safe quote-only default plus explicit direct-order/mixed modes. Only selected
+  per-guest packages synchronize to Core products; Catering's event, date,
+  capacity, fulfillment, zone, minimum, and radius rules revalidate atomically.
+- Core-backed proposal/BEO snapshots and reminders, configurable tasting
+  capacity/lead time, Core Media fields for public proof, and package-scoped
+  structured data.
+- No combined installer and no Core source bundled with the module.
 
 ## 1.5.0 commercial operations scope
 
@@ -115,17 +131,16 @@
   when the owner explicitly requests integration (direction: 2026-10-25).
 - Defer combined Core bundle CI until that integration is requested; preserve
   honest compatibility requirements and continue module validation.
-- Publish and verify the exact 1.5.0 module archive. Keep shared radius maps,
-  ten-theme collection management, documents/signatures, portal workflows,
-  checkout validation, accounts, invoices, and payments on their Core
-  dependencies instead of duplicating them here.
+- Build, publish, and verify the exact 2.0.0 module archive against the pinned
+  Core 2.6 source. Keep signatures, contract acceptance, recurring ordering,
+  invoices, and payments on their Core dependencies instead of duplicating
+  them here.
 
 ## Known issues and release gates
 
-- Catering 1.5.0 is published at branch commit
-  `c97bfb17d7bc19448f70d9e3b2e431223dde5085`. Module CI `40238129164`
-  and all four Catering acceptance jobs in `40238129179` passed on PHP
-  8.4/8.5, SQLite, MySQL 8.4, and MariaDB 11.4.
+- Catering 1.5.0 is published at final branch commit
+  `ffeab7cbd0908f5501fd01b123f9f0986431f60a`. Its prior module acceptance
+  remains historical evidence; 2.0.0 publication and CI are not yet claimed.
 
 - CORE-REUSE-7A was repaired in Core 2.2.2; 0.2.1 makes its detail/notes
   diagnostic blocking against the Core 2.3 fixture, and that diagnostic passes.
@@ -140,8 +155,10 @@
 - Shared content/media/forms integration remains on CORE-REUSE-3/4.
 - Historical 0.1.22/0.1.23 archives are truncated. Only the complete current
   ZIP remains in releases; legacy-source fixtures are explicitly test-only.
-- Radius maps/address-distance validation remain blocked on CORE-REUSE-9.
-- Ten structurally distinct theme layouts and palette/media state remain
-  blocked on CORE-REUSE-10.
-- Safe optional direct ordering remains blocked on CORE-REUSE-11 because Core
-  checkout cannot yet call module-owned event eligibility rules atomically.
+- CORE-REUSE-9 and CORE-REUSE-11 are implemented in Core 2.6 and their Catering
+  integrations pass local contract acceptance.
+- CORE-REUSE-10 is implemented for registration, contrast checks, Media slots,
+  draft/public selection and rollback. Core currently retains only draft,
+  published and previous selections, so arbitrary inactive-layout palette and
+  Media choices are not independently retained. Catering does not add a second
+  state store; this remaining Core behavior is documented rather than hidden.

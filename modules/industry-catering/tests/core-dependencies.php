@@ -16,4 +16,29 @@ if ($service->addNote($id, 'cajunwebpro/catering', $adminId, 'Acceptance note') 
 $detail = $service->find($id, 'cajunwebpro/catering');
 if (($detail['notes'][0]['admin_name'] ?? '') === '') throw new RuntimeException('Core note author is missing.');
 if ($service->find($id, 'other/package') !== null) throw new RuntimeException('Core inquiry ownership leaked.');
-echo "Core inquiry detail and notes contract passed.\n";
+
+foreach (['content.presentation','forms.starter','leads.quotes','business.service_area','appearance.collections','commerce.checkout_validation'] as $contract) {
+    if ($f['ctx']->coreServiceVersion($contract) === null) throw new RuntimeException('Missing Core service contract: ' . $contract);
+}
+$themes = $f['ctx']->service(Core\Appearance\ModuleThemeCollections::class)->collections()['cajunwebpro/catering']['variants'] ?? [];
+if (count($themes) !== 10) throw new RuntimeException('Catering must register ten Core-owned theme choices.');
+$layouts=[]; $heroes=[];
+foreach ($themes as $theme) {
+    $layouts[]=$theme['layout'];
+    $heroes[]=$theme['media_slots']['hero']['default']??'';
+    if (count($theme['palettes']??[]) < 4) throw new RuntimeException('Every Catering theme requires four palettes.');
+}
+if (count(array_unique($layouts))!==10 || count(array_unique($heroes))!==10) throw new RuntimeException('Theme layouts and default heroes must be distinct.');
+
+$f['ctx']->geocodingProvider('acceptance-geocoder', static function(string $query): array {
+    $far=str_contains($query,'New Orleans');
+    return ['status'=>'ok','latitude'=>$far?29.9511:30.4515,'longitude'=>$far?-90.0715:-91.1871,
+        'normalized'=>$query,'precision'=>str_contains($query,'Acceptance')?'rooftop':'locality','provider'=>'acceptance-geocoder'];
+}, 'Acceptance geocoder');
+[$configured,$areaError]=$f['ctx']->configureServiceArea(['city'=>'Baton Rouge','region'=>'LA','country'=>'US','radius_miles'=>'20'],'acceptance-geocoder');
+if(!$configured || $areaError!==null || !str_contains($f['ctx']->serviceAreaMap(),'20-mile service radius')) throw new RuntimeException('Shared service area could not be configured.');
+$outside=$f['ctx']->checkServiceAddress(['line1'=>'1 Acceptance St','city'=>'New Orleans','region'=>'LA','postal_code'=>'70112'],'acceptance-geocoder');
+if(($outside['status']??'')!=='outside' || ($outside['message']??'')!=='This address is currently outside the service area.') throw new RuntimeException('Outside-radius contract failed.');
+if(!$f['ctx']->service(Core\Commerce\CheckoutValidation::class)->registered('cajunwebpro/catering')) throw new RuntimeException('Checkout validator was not registered.');
+
+echo "Core 2.6 inquiry, theme, service-area, quote-workflow, and checkout contracts passed.\n";

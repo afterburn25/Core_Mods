@@ -1,5 +1,28 @@
 # Catering Module Changelog
 
+## 2.0.0 — 2026-10-25
+
+- Adopted Core 2.6's shared service-area profile, server-side geocoding cache,
+  accessible radius map, audited decisions, and checkout-safe address result.
+- Added the exact accessible outside-address error to quote preview, quote
+  submission, and direct-order checkout while routing unknown results to
+  manual review and retaining postal delivery zones as an additional rule.
+- Registered ten structurally distinct Catering layouts with unique default
+  imagery, four contrast-checked palettes each, and Core Media slots for hero,
+  feature, and accent images; public rendering follows Core's draft/published
+  selection without adding a module theme manager.
+- Added administrator-selectable quote-only, direct-order, and mixed modes.
+  Explicitly eligible per-guest packages synchronize into Core Commerce, where
+  Catering rules are atomically revalidated before order creation.
+- Added Core Media fields for venue, event-story, and verified-review content,
+  plus package-scoped Caterer, service, menu, FAQ, review, and service-area
+  structured data.
+- Added immutable Core-backed catering proposals and Banquet Event Orders,
+  final-headcount reminders, and configurable tasting capacity/lead time.
+- Raised the platform requirement to Website Core 2.6 and added contract tests
+  for every newly adopted shared service. The archive remains Catering-only
+  and contains no nested ZIP.
+
 ## 1.5.0 — 2026-10-25
 
 - Added a confirmed-event workspace that synchronizes accepted Core quotes and

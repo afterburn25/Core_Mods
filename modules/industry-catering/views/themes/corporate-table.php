@@ -1,0 +1,7 @@
+<?php $v=get_defined_vars(); $t=\CajunWebPro\Catering\ThemeSupport::class; ?>
+<!doctype html><html lang="en"><head><?= $t::head($v) ?></head><body class="theme-shell theme-corporate-table">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="tc-header"><div><?= $t::brand($v) ?><span>Event catering, organized.</span></div><?= $t::action($v,'Build a request','c-button') ?><button class="c-nav-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" data-nav-toggle><span></span><span></span><span></span><span class="sr-only">Open navigation</span></button></header>
+<div class="tc-grid"><aside><nav id="primary-navigation" class="tc-nav c-nav" aria-label="Primary" data-nav><?= $t::navigation($navigation,$v) ?></nav><dl><dt>Call</dt><dd><?= e($phone) ?></dd><dt>Email</dt><dd><?= e($contactEmail) ?></dd></dl></aside><div><section class="tc-banner"><img src="<?= $t::media($v,'hero') ?>" alt="Corporate catering presentation"><div><span>On time. On brief.</span><strong>Hospitality that works.</strong></div></section><main id="main-content" class="tc-content"><?= $content ?></main></div></div>
+<footer class="tc-footer"><p><?= e($copyrightNotice) ?></p><nav aria-label="Footer"><?= $t::navigation($footerNavigation??[],$v,'c-footer-nav') ?></nav><?= $t::social($footerSocialLinks??[],'c-footer-social','Social media') ?></footer>
+<?= $t::scripts($v) ?></body></html>

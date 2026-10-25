@@ -1,8 +1,8 @@
 {
   "module_id": "cajunwebpro/catering",
-  "version": "1.5.0",
-  "file": "industry-catering-1.5.0.zip",
-  "sha256": "e99f9a6c753600260d853b434209ad75b7cfeeaef8d78e94287b069fb1d6c3f0",
+  "version": "2.0.0",
+  "file": "industry-catering-2.0.0.zip",
+  "sha256": "98be7e2da035107c51ffbade8b4bfbedb7d5f9a23cac94a682c8ef74e6c70ed6",
   "module_api": 1,
   "verified_core": "2.3.0",
   "released_at": "2026-10-25",

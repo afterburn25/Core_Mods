@@ -13,6 +13,7 @@ use Core\Http\Response;
 use Core\Mail\SystemMail;
 use Core\Leads\InquiryService;
 use Core\Leads\QuoteService;
+use Core\Media\MediaService;
 use Core\Modules\ModuleContext;
 use Core\Security\Csrf;
 use Core\Security\RateLimiter;
@@ -156,15 +157,15 @@ final class CateringController
     public function venues(Request $request): Response
     {
         return $this->page($request, 'venues', [
-            'venues' => $this->ctx->service(ContentItems::class)->items($this->ctx->packageId(), 'catering_venue', true),
+            'venues' => $this->contentWithMedia($request, 'catering_venue', ['hero_image']),
         ], 'Venue Partners', 'Preferred venues and location guidance for catered events.');
     }
 
     public function eventStories(Request $request): Response
     {
         return $this->page($request, 'event-stories', [
-            'stories' => $this->ctx->service(ContentItems::class)->items($this->ctx->packageId(), 'catering_case_study', true),
-            'reviews' => $this->ctx->service(ContentItems::class)->items($this->ctx->packageId(), 'catering_review', true),
+            'stories' => $this->contentWithMedia($request, 'catering_case_study', ['gallery']),
+            'reviews' => $this->contentWithMedia($request, 'catering_review', ['portrait']),
         ], 'Event Stories', 'Real catering events, results, and verified client feedback.');
     }
 
@@ -183,6 +184,7 @@ final class CateringController
                 ? $profile['service_area']
                 : 'Your city and surrounding communities',
             'travelNote' => $settings->get('catering.travel_note', 'Travel and delivery fees may apply outside our primary service area.'),
+            'serviceAreaMap' => $this->ctx->serviceAreaMap('Our service area'),
         ], 'Service Area', 'Delivery, pickup, venue, and travel information.');
     }
 
@@ -242,6 +244,7 @@ final class CateringController
             $initialPlan = (new MenuPlanner())->calculate($old, $items, $packages,
                 max(1, (int) $this->settings()->get('catering.minimum_guests', 20)));
             $initialPlan['operations'] = (new EventOperations())->evaluate($old, $operations, $initialPlan['estimate_cents'], null, false);
+            $this->applyServiceAreaDecision($initialPlan['operations'], $old);
         }
         return $this->page($request, 'quote', [
             'csrf' => $this->ctx->service(Csrf::class), 'error' => $error,
@@ -276,6 +279,7 @@ final class CateringController
             null,
             false
         );
+        $this->applyServiceAreaDecision($operations, $request->post);
         $plan['operations'] = $operations;
         $plan['errors'] = array_values(array_unique(array_merge($plan['errors'], $operations['errors'])));
         $response = Response::json($plan, $plan['errors'] === [] ? 200 : 422);
@@ -311,6 +315,7 @@ final class CateringController
             $this->operationsConfiguration($quoteConfig['service_styles']),
             $plan['estimate_cents']
         );
+        $this->applyServiceAreaDecision($operations, $data);
         $errors = array_merge($errors, $plan['errors'], $operations['errors']);
         if ($request->string('acknowledged') !== '1') $errors[] = 'Please acknowledge that this is a quote request, not a booking.';
         $data['menu_items'] = is_array($request->input('menu_items')) ? $request->input('menu_items') : [];
@@ -490,6 +495,11 @@ final class CateringController
         } catch (\InvalidArgumentException $e) {
             return $this->adminPackages($request, $e->getMessage(), $request->post);
         }
+        try {
+            (new CommerceIntegration($this->ctx, $this->db(), $this->settings()))->syncProducts();
+        } catch (\RuntimeException $e) {
+            return $this->adminPackages($request, $e->getMessage(), $request->post);
+        }
         return Response::redirect($this->ctx->url($request->basePath, '/admin/catering/packages', ['saved' => 1]));
     }
 
@@ -603,7 +613,7 @@ final class CateringController
             ? $this->ctx->service(QuoteService::class)->find((int)$event['core_quote_id'], $this->ctx->packageId())
             : null;
         return $this->adminPage($request, 'admin-event', [
-            'event' => $event, 'production' => $workspace->productionPlan($event, $quote),
+            'event' => $event, 'quote' => $quote, 'production' => $workspace->productionPlan($event, $quote),
             'states' => EventWorkspace::STATES, 'taskStatuses' => EventWorkspace::TASK_STATUSES,
             'staffStatuses' => EventWorkspace::STAFF_STATUSES, 'equipmentStatuses' => EventWorkspace::EQUIPMENT_STATUSES,
             'costCategories' => EventWorkspace::COST_CATEGORIES,
@@ -715,6 +725,25 @@ final class CateringController
                     $id=$this->childId($request,'catering_event_revisions',$eventId);
                     $this->db()->update('catering_event_revisions',['acknowledged_at'=>date('Y-m-d H:i:s')],'id=?',[$id]);
                     $this->audit('catering.event.revision_acknowledged',$eventId);
+                } elseif (in_array($action, ['generate_proposal','generate_beo'], true)) {
+                    if(empty($event['core_quote_id'])) throw new \InvalidArgumentException('Link an accepted Core quote before generating event documents.');
+                    $quote=$this->ctx->service(QuoteService::class)->find((int)$event['core_quote_id'],$this->ctx->packageId());
+                    if($quote===null) throw new \InvalidArgumentException('The linked Core quote is unavailable.');
+                    $business=$this->ctx->service(BusinessProfile::class)->get();
+                    $name=(string)($business['name']?:'Catering business');
+                    $kind=$action==='generate_proposal'?'proposal':'summary';
+                    $title=$action==='generate_proposal'?'Catering Proposal — '.$event['title']:'Banquet Event Order — '.$event['title'].' — Revision '.(int)$event['revision'];
+                    $html=$action==='generate_proposal'?EventDocuments::proposal($event,$quote,$name):EventDocuments::beo($event,$quote,$name);
+                    [, $documentError]=$this->ctx->quoteDocument((int)$quote['id'],$kind,$title,$html,$this->ctx->service(AuthService::class)->user()?->id);
+                    if($documentError!==null) throw new \InvalidArgumentException((string)$documentError);
+                    $this->audit('catering.event.document_generated',$eventId);
+                } elseif ($action === 'schedule_headcount_reminder') {
+                    if(empty($event['core_quote_id'])) throw new \InvalidArgumentException('Link an accepted Core quote before scheduling reminders.');
+                    $due=trim($request->string('reminder_due'));
+                    $message=mb_substr($request->string('reminder_message'),0,5000);
+                    [, $reminderError]=$this->ctx->quoteReminder((int)$event['core_quote_id'],$due,(string)$event['customer_email'],$message,'email');
+                    if($reminderError!==null) throw new \InvalidArgumentException((string)$reminderError);
+                    $this->audit('catering.event.reminder_scheduled',$eventId);
                 } else throw new \InvalidArgumentException('Unknown event action.');
             }
         } catch (\InvalidArgumentException $e) {
@@ -732,7 +761,20 @@ final class CateringController
             if(!in_array($status,EventWorkspace::TASTING_STATUSES,true)) throw new \InvalidArgumentException('Choose a valid tasting status.');
             $eligibility=$request->string('eligibility');
             if(!in_array($eligibility,['review','eligible','ineligible'],true)) throw new \InvalidArgumentException('Choose a valid eligibility state.');
-            $this->db()->update('catering_tastings',['status'=>$status,'eligibility'=>$eligibility,'preferred_date'=>$this->optionalDate($request->string('preferred_date'),'Tasting date'),'notes'=>mb_substr($request->string('notes'),0,5000)?:null,'updated_at'=>date('Y-m-d H:i:s')],'id=?',[$id]);
+            $preferredDate=$this->optionalDate($request->string('preferred_date'),'Tasting date');
+            if($status==='scheduled') {
+                if($eligibility!=='eligible') throw new \InvalidArgumentException('Mark the tasting eligible before scheduling it.');
+                if($preferredDate===null) throw new \InvalidArgumentException('Choose a tasting date before scheduling.');
+                $lead=max(0,min(365,(int)$this->settings()->get('catering.tasting_lead_days',14)));
+                $date=new \DateTimeImmutable($preferredDate);
+                if($date < (new \DateTimeImmutable('today'))->modify('+'.$lead.' days')) throw new \InvalidArgumentException('Scheduled tastings require at least '.$lead.' days of lead time.');
+                $start=$date->modify('monday this week')->format('Y-m-d');
+                $end=$date->modify('sunday this week')->format('Y-m-d');
+                $capacity=max(1,min(100,(int)$this->settings()->get('catering.tasting_capacity',8)));
+                $scheduled=(int)$this->db()->fetchColumn('SELECT COUNT(*) FROM `'.$this->db()->table('catering_tastings').'` WHERE status=? AND preferred_date>=? AND preferred_date<=? AND id<>?',['scheduled',$start,$end,$id]);
+                if($scheduled >= $capacity) throw new \InvalidArgumentException('That week has reached the configured tasting capacity of '.$capacity.'.');
+            }
+            $this->db()->update('catering_tastings',['status'=>$status,'eligibility'=>$eligibility,'preferred_date'=>$preferredDate,'notes'=>mb_substr($request->string('notes'),0,5000)?:null,'updated_at'=>date('Y-m-d H:i:s')],'id=?',[$id]);
             $this->audit('catering.tasting.updated',$id);
         } catch(\InvalidArgumentException $e) { return $this->adminEvents($request,$e->getMessage()); }
         return Response::redirect($request->routeUrl('/admin/catering/events',['saved'=>1]));
@@ -842,9 +884,17 @@ final class CateringController
                 'pickup_windows' => $old['pickup_windows'] ?? implode("\n", $operations['windows']['pickup']),
                 'delivery_windows' => $old['delivery_windows'] ?? implode("\n", $operations['windows']['delivery']),
                 'delivery_zones' => $old['delivery_zones'] ?? $this->formatDeliveryZones($operations['zones']),
+                'tasting_capacity' => $old['tasting_capacity'] ?? $settings->get('catering.tasting_capacity', '8'),
+                'tasting_lead_days' => $old['tasting_lead_days'] ?? $settings->get('catering.tasting_lead_days', '14'),
+                'ordering_mode' => $old['ordering_mode'] ?? $settings->get('catering.ordering_mode', 'quote_only'),
             ],
             'quoteFields' => $fieldValues,
             'quoteFieldLabels' => self::QUOTE_FIELDS,
+            'packages' => $this->db()->fetchAll('SELECT id,name,price_cents,price_note,visible FROM `' . $this->db()->table('catering_packages') . '` ORDER BY sort_order,name'),
+            'directOrderPackageIds' => is_array($old['direct_order_package_ids'] ?? null)
+                ? array_map('intval', $old['direct_order_package_ids'])
+                : (new CommerceIntegration($this->ctx, $this->db(), $settings))->eligiblePackageIds(),
+            'themePreviewUrl' => $this->ctx->url($request->basePath, '/', ['theme_preview' => 1]),
             'saved' => $request->string('saved') === '1',
             'error' => $error,
         ], 'Catering Settings');
@@ -870,6 +920,22 @@ final class CateringController
             $pickupWindows = $this->parseSettingList($request->string('pickup_windows'), 'pickup windows');
             $deliveryWindows = $this->parseSettingList($request->string('delivery_windows'), 'delivery windows');
             $deliveryZones = $this->parseDeliveryZones($request->string('delivery_zones'));
+            $tastingCapacity = $this->boundedInt($request->string('tasting_capacity', '8'), 1, 100, 'Weekly tasting capacity');
+            $tastingLeadDays = $this->boundedInt($request->string('tasting_lead_days', '14'), 0, 365, 'Tasting lead time');
+            $orderingMode = $request->string('ordering_mode', 'quote_only');
+            if (!in_array($orderingMode, CommerceIntegration::MODES, true)) throw new \InvalidArgumentException('Choose a valid ordering mode.');
+            $eligibleInput = $request->input('direct_order_package_ids', []);
+            $eligibleInput = is_array($eligibleInput) ? $eligibleInput : [];
+            $directPackageIds = [];
+            foreach ($eligibleInput as $value) {
+                $id = filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+                if ($id === false || isset($directPackageIds[(int) $id])) throw new \InvalidArgumentException('Choose unique direct-order packages.');
+                $package = $this->db()->fetch('SELECT id,price_cents,price_note FROM `' . $this->db()->table('catering_packages') . '` WHERE id=?', [(int) $id]);
+                if (!$package || (int) $package['price_cents'] < 1 || !str_contains(mb_strtolower((string) $package['price_note']), 'per guest')) {
+                    throw new \InvalidArgumentException('Direct-order packages require a configured per-guest price.');
+                }
+                $directPackageIds[(int) $id] = (int) $id;
+            }
             $postedFields = $request->input('quote_fields');
             $postedFields = is_array($postedFields) ? $postedFields : [];
             $fieldConfig = [];
@@ -882,7 +948,7 @@ final class CateringController
             }
             $this->db()->transaction(function () use ($settings, $request, $eventTypes, $serviceStyles, $budgetRanges,
                 $capacityGuests, $serviceRules, $optionalExtras, $blackoutDates, $pickupWindows, $deliveryWindows,
-                $deliveryZones, $fieldConfig): void {
+                $deliveryZones, $fieldConfig, $tastingCapacity, $tastingLeadDays, $orderingMode, $directPackageIds): void {
                 $settings->set('catering.travel_note', mb_substr($request->string('travel_note'), 0, 1000));
                 $settings->set('catering.minimum_guests', max(1, min(10000, (int) $request->string('minimum_guests', '20'))));
                 $settings->set('catering.lead_time', max(0, min(3650, (int) $request->string('lead_time', '14'))));
@@ -897,9 +963,14 @@ final class CateringController
                 $settings->set('catering.fulfillment_windows', ['pickup' => $pickupWindows, 'delivery' => $deliveryWindows]);
                 $settings->set('catering.delivery_zones', $deliveryZones);
                 $settings->set('catering.quote_fields', $fieldConfig);
+                $settings->set('catering.tasting_capacity', $tastingCapacity);
+                $settings->set('catering.tasting_lead_days', $tastingLeadDays);
+                $settings->set('catering.ordering_mode', $orderingMode);
+                $settings->set('catering.direct_order_package_ids', array_values($directPackageIds));
             });
+            (new CommerceIntegration($this->ctx, $this->db(), $settings))->syncProducts();
             $this->audit('catering.settings.updated', 0);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\Throwable $e) {
             return $this->adminSettings($request, $e->getMessage(), $request->post);
         }
         return Response::redirect($request->routeUrl('/admin/catering/settings', ['saved' => 1]));
@@ -917,6 +988,24 @@ final class CateringController
         $settings = $this->settings();
         $profile = $this->ctx->service(BusinessProfile::class)->get();
         $siteName = $profile['name'] !== '' ? $profile['name'] : (string) $settings->get('site.name', 'Catering Co.');
+        $preview = false;
+        if ($request->string('theme_preview') === '1') {
+            $auth = $this->ctx->service(AuthService::class);
+            $user = $auth->user();
+            $preview = $user !== null && $auth->has($user, 'appearance.manage');
+        }
+        $theme = $this->ctx->activeModuleTheme($preview);
+        $themeMedia = [];
+        if ($theme !== null) {
+            foreach ($theme['variant']['media_slots'] ?? [] as $slot => $definition) {
+                $mediaId = (int) ($theme['media'][$slot] ?? 0);
+                $media = $mediaId > 0 ? $this->ctx->service(MediaService::class)->find($mediaId) : null;
+                $themeMedia[(string) $slot] = $media && !(int) ($media['is_private'] ?? 1)
+                    ? rtrim($request->basePath, '/') . '/media/' . $mediaId . '/w/1800/' . rawurlencode((string) $media['original_name'])
+                    : $this->ctx->assetBase($request->basePath) . '/' . (string) ($definition['default'] ?? 'assets/images/hero.webp');
+            }
+        }
+        $ordering = new CommerceIntegration($this->ctx, $this->db(), $settings);
         $shared = [
             'basePath' => $this->ctx->routeBase($request->basePath),
             'assetBase' => $this->ctx->assetBase($request->basePath),
@@ -935,6 +1024,12 @@ final class CateringController
             'footerSocialLinks' => $this->ctx->socialLinks('footer'),
             'dietaryLabels' => MenuPlanner::DIETARY,
             'allergenLabels' => MenuPlanner::ALLERGENS,
+            'themeId' => (string) ($theme['variant_id'] ?? 'heritage-editorial'),
+            'themeTokens' => is_array($theme['palette']['tokens'] ?? null) ? $theme['palette']['tokens'] : [],
+            'themeMedia' => $themeMedia,
+            'themePreview' => $preview,
+            'orderingMode' => $ordering->mode(),
+            'storeUrl' => $this->ctx->url($request->basePath, '/store'),
             'page' => [
                 'title' => $title,
                 'meta_title' => $title,
@@ -946,13 +1041,42 @@ final class CateringController
             $view->share($key, $value);
         }
         $body = $view->render($this->ns . ':' . $template, array_merge($shared, $data));
-        return Response::html($view->render($this->ns . ':layout', array_merge($shared, ['content' => $body])));
+        $layout = 'layout';
+        $registered = (string) ($theme['variant']['layout'] ?? '');
+        if (str_starts_with($registered, 'views/') && str_ends_with($registered, '.php')) {
+            $layout = substr($registered, 6, -4);
+        }
+        return Response::html($view->render($this->ns . ':' . $layout, array_merge($shared, ['content' => $body])));
     }
 
     /** @return list<array> */
     private function navigation(): array
     {
         return $this->ctx->navigationTree();
+    }
+
+    /** @return list<array<string,mixed>> */
+    private function contentWithMedia(Request $request, string $type, array $fields): array
+    {
+        $items = $this->ctx->service(ContentItems::class)->items($this->ctx->packageId(), $type, true);
+        $mediaService = $this->ctx->service(MediaService::class);
+        foreach ($items as &$item) {
+            $values = is_array($item['fields'] ?? null) ? $item['fields'] : [];
+            foreach ($fields as $field) {
+                $item['media'][$field] = [];
+                foreach (array_filter(array_map('trim', explode(',', (string) ($values[$field] ?? '')))) as $rawId) {
+                    $id = ctype_digit($rawId) ? (int) $rawId : 0;
+                    $media = $id > 0 ? $mediaService->find($id) : null;
+                    if (!$media || (int) ($media['is_private'] ?? 1) !== 0 || !str_starts_with((string) ($media['mime'] ?? ''), 'image/')) continue;
+                    $item['media'][$field][] = [
+                        'url' => rtrim($request->basePath, '/') . '/media/' . $id . '/w/1400/' . rawurlencode((string) $media['original_name']),
+                        'alt' => trim((string) ($media['alt_text'] ?? '')) ?: (string) $media['original_name'],
+                    ];
+                }
+            }
+        }
+        unset($item);
+        return $items;
     }
 
     private function adminPage(Request $request, string $template, array $data, string $title): Response
@@ -1268,6 +1392,35 @@ final class CateringController
             }
         }
         return $errors;
+    }
+
+    /** Add Core's authoritative radius result without replacing postal-zone rules. */
+    private function applyServiceAreaDecision(array &$operations, array $input): void
+    {
+        if (($input['fulfillment_method'] ?? '') !== 'delivery') return;
+        $address = [
+            'line1' => $input['address_line_1'] ?? '',
+            'line2' => $input['address_line_2'] ?? '',
+            'city' => $input['city'] ?? '',
+            'region' => $input['region'] ?? '',
+            'postal_code' => $input['postal_code'] ?? '',
+            'country' => $input['country'] ?? '',
+        ];
+        if (trim((string) $address['line1']) === '' || trim((string) $address['city']) === ''
+            || trim((string) $address['region']) === '') return;
+        $decision = $this->ctx->checkServiceAddress($address);
+        $operations['service_area'] = $decision;
+        $operations['errors'] = is_array($operations['errors'] ?? null) ? $operations['errors'] : [];
+        $operations['notes'] = is_array($operations['notes'] ?? null) ? $operations['notes'] : [];
+        if (($decision['status'] ?? '') === 'outside') {
+            $operations['errors'][] = 'This address is currently outside our service area.';
+        } elseif (($decision['status'] ?? '') === 'unknown') {
+            $operations['notes'][] = (string) ($decision['message'] ?? 'This address requires manual review.');
+        } elseif (($decision['status'] ?? '') === 'inside') {
+            $operations['notes'][] = 'Core verified this address inside the configured radius; postal delivery-zone rules still apply.';
+        }
+        $operations['errors'] = array_values(array_unique($operations['errors']));
+        $operations['notes'] = array_values(array_unique($operations['notes']));
     }
 
     private function menuData(bool $visibleOnly = true): array
@@ -1741,6 +1894,11 @@ final class CateringController
 
     private function serviceData(): array
     {
+        return self::publicServices();
+    }
+
+    public static function publicServices(): array
+    {
         return [
             'weddings' => [
                 'title' => 'Wedding Catering', 'short' => 'Weddings',
@@ -1814,6 +1972,11 @@ final class CateringController
     }
 
     private function faqData(): array
+    {
+        return self::publicFaqs();
+    }
+
+    public static function publicFaqs(): array
     {
         return [
             ['How far in advance should we book?', 'For full-service events, begin the conversation as early as possible. Smaller drop-off orders may require less lead time, depending on the date and menu.'],

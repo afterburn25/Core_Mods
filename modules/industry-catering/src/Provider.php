@@ -25,6 +25,26 @@ final class Provider
             'service_area' => (string) $settings->get('catering.service_area', ''),
         ]);
         $ctx->leadManagement(['quotes' => true, 'label' => 'Catering sales']);
+        $ctx->serviceArea();
+        $profile = $ctx->service(\Core\Business\BusinessProfile::class)->get();
+        $ctx->geocodingProvider(
+            'openstreetmap-nominatim',
+            new Geocoder((string) ($profile['email'] ?? '')),
+            'OpenStreetMap contributors',
+        );
+        $ctx->themeCollection('Catering Layout Collection', ThemeCollection::variants());
+        $ctx->structuredData('catering-public', fn ($request): array => (new StructuredData($ctx))->forRequest($request));
+
+        $commerce = new CommerceIntegration($ctx, $ctx->service(Connection::class), $settings);
+        if ($commerce->commerceEnabled()) {
+            $ctx->commerce([
+                'store_name' => ($profile['name'] ?: 'Catering Co.') . ' Online Ordering',
+                'currency' => 'USD',
+                'fulfillment' => ['pickup', 'delivery'],
+            ]);
+            $ctx->customerAccounts(['registration' => true, 'account_label' => 'My catering account']);
+        }
+        $ctx->checkoutValidator(fn (array $checkout): array => $commerce->validate($checkout), ['timeout_seconds' => 5.0]);
 
         $ctx->route('GET', '/', fn ($r) => $ctl()->home($r));
         $ctx->route('GET', '/services', fn ($r) => $ctl()->services($r));
@@ -73,6 +93,7 @@ final class Provider
             ['name'=>'website','label'=>'Venue website','type'=>'url'],
             ['name'=>'description','label'=>'Description','type'=>'textarea','required'=>true],
             ['name'=>'service_notes','label'=>'Catering and access notes','type'=>'textarea'],
+            ['name'=>'hero_image','label'=>'Venue image','type'=>'media'],
         ]);
         $ctx->contentType('catering_case_study', 'Catering Event Case Studies', [
             ['name'=>'event_name','label'=>'Event name','type'=>'text','required'=>true],
@@ -80,6 +101,7 @@ final class Provider
             ['name'=>'summary','label'=>'Event summary','type'=>'textarea','required'=>true],
             ['name'=>'menu','label'=>'Menu highlights','type'=>'textarea'],
             ['name'=>'result','label'=>'Outcome','type'=>'textarea'],
+            ['name'=>'gallery','label'=>'Event gallery','type'=>'media_list'],
         ]);
         $ctx->contentType('catering_review', 'Verified Catering Reviews', [
             ['name'=>'customer_name','label'=>'Customer display name','type'=>'text','required'=>true],
@@ -87,6 +109,7 @@ final class Provider
             ['name'=>'rating','label'=>'Rating (1–5)','type'=>'number','required'=>true],
             ['name'=>'review','label'=>'Review','type'=>'textarea','required'=>true],
             ['name'=>'verified','label'=>'Verified event','type'=>'checkbox'],
+            ['name'=>'portrait','label'=>'Customer or event image','type'=>'media'],
         ]);
         $ctx->adminPage('Menu details & pricing', '/admin/catering/menus', 'catering.manage', 'Catering');
         $ctx->adminPage('Package details & pricing', '/admin/catering/packages', 'catering.manage', 'Catering');
