@@ -9,7 +9,7 @@ adoption of [Cajun Web Pro Module Rules v1.1](../../MOD_RULES.md).
 
 ## Current release
 
-- Module version: `0.2.1`
+- Module version: `0.3.0`
 - Module ID: `cajunwebpro/catering`
 - Type: `industry`
 - Module API: `1`
@@ -56,6 +56,21 @@ records use manual pricing until those details are completed.
 The Core 2.2 inquiry-detail schema defect is fixed and the 0.2.1 acceptance
 suite treats the shared detail/notes contract as a required check.
 
+## Quote configuration in 0.3.0
+
+Catering settings now controls the public event-type, service-style, and
+budget choices. The administrator may also show, hide, or require the
+Catering-specific company, phone, event time, venue, service style, budget,
+menu-interest, dietary, and additional-notes questions. The server uses the
+same saved configuration for validation, rejects unsupported choices, and
+does not retain values submitted for disabled questions. Existing inquiry
+records and immutable menu snapshots are unaffected by later configuration
+changes.
+
+This is a module-owned event questionnaire layer. Generic form schemas,
+notifications, exports, spam operations, attachments, and generated documents
+remain Core services and are not duplicated here.
+
 ## Included features
 
 - Catering home, about, services, menus, packages, gallery, FAQ, service-area,
@@ -88,7 +103,7 @@ suite treats the shared detail/notes contract as a required check.
 
 ## Installation
 
-Install the single `industry-catering-0.2.1.zip` through Website Core’s
+Install the single `industry-catering-0.3.0.zip` through Website Core’s
 module/package manager. This delivery contains only the module; use an
 already-installed compatible Core. It contains no nested ZIP and does not
 include or update Core. Combined installers require an explicit owner request. The installable module ZIP keeps

@@ -1,5 +1,15 @@
 # Catering Module Session Handoff
 
+## Current 0.3.0 candidate — 2026-10-25
+
+Catering settings now owns only the event-specific questionnaire choices:
+event types, service styles, budget bands, and visibility/required flags for
+optional planning questions. Public rendering and server validation read the
+same configuration; disabled inputs are discarded and historic questionnaires
+remain unchanged. Generic forms, exports, reminders, notification templates,
+spam operations, attachments and generated documents remain Core-owned. The
+0.3.0 module ZIP and CI evidence are pending.
+
 ## Current 0.2.1 release — 2026-10-25
 
 Catering now requires Core 2.3 and adopts its shared resource workspace for

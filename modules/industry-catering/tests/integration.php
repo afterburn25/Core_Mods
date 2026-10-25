@@ -32,6 +32,26 @@ cateringTestIdentity($f, 'editor');
 verify($ctl->adminPackagesSave(cateringRequest('POST', '/admin/catering/packages', ['_csrf' => $token, 'action' => 'add_package']))->status() === 403, 'Core editor cannot modify catering packages');
 cateringTestIdentity($f, 'owner');
 verify($ctl->adminMenusSave(cateringRequest('POST', '/admin/catering/menus', ['action' => 'add_item']))->status() === 419, 'Direct admin action also requires CSRF');
+verify($ctl->adminSettingsSave(cateringRequest('POST', '/admin/catering/settings'))->status() === 419, 'Direct settings action requires CSRF');
+$settingsInput = [
+    '_csrf' => $token, 'travel_note' => 'Delivery depends on zone.', 'minimum_guests' => '15',
+    'lead_time' => '10', 'quote_expiry' => '21',
+    'event_types' => "Wedding\nFundraiser", 'service_styles' => "Buffet\nChef stations",
+    'budget_ranges' => "Under \$5,000\n\$5,000+",
+    'quote_fields' => [
+        'dietary' => ['enabled' => '1', 'required' => '1'],
+        'service_style' => ['enabled' => '1'], 'budget' => ['enabled' => '1'],
+    ],
+];
+verify($router->dispatch(cateringRequest('POST', '/admin/catering/settings', $settingsInput))->status() === 302,
+    'Owner can save Catering-specific quote choices through the protected settings route');
+verify($f['settings']->get('catering.event_types') === ['Wedding', 'Fundraiser']
+    && $f['settings']->get('catering.quote_fields')['dietary']['required'] === true,
+    'Quote choices and field requirements persist in Core settings');
+$configuredQuote = $router->dispatch(cateringRequest('GET', '/request-a-quote'))->body();
+verify(str_contains($configuredQuote, 'Fundraiser') && !str_contains($configuredQuote, 'name="company"')
+    && str_contains($configuredQuote, 'name="dietary"') && str_contains($configuredQuote, 'name="dietary" rows="4" maxlength="3000" required'),
+    'Quote form renders configured event choices and optional-field visibility/requirements');
 $resources = [];
 foreach ($f['ctx']->adminResources() as $resource) $resources[(string) $resource['key']] = $resource;
 verify(isset($resources['menu-items'], $resources['packages']), 'Core shared menu and package resources are registered');
@@ -113,13 +133,17 @@ $preview = $router->dispatch(cateringRequest('POST', '/request-a-quote', $estima
 verify($preview->status() === 200 && str_contains($preview->body(), '375.75'), 'No-JavaScript preview calculates the server estimate');
 verify((int) $db->fetchColumn('SELECT COUNT(*) FROM `' . $db->table('catering_inquiries') . '`') === $before, 'Preview does not create an inquiry');
 $quote = $estimateInput + ['event_type' => 'Wedding', 'event_date' => '2027-06-15', 'name' => 'Menu Planner Test', 'email' => 'guest@example.test',
-    'dietary' => 'Please discuss milk allergy', 'acknowledged' => '1', 'package_id' => (string) $package['id']];
+    'company' => 'Ignored disabled value', 'dietary' => 'Please discuss milk allergy', 'acknowledged' => '1', 'package_id' => (string) $package['id']];
+$missingDietary = $quote; unset($missingDietary['dietary']);
+verify(str_contains($router->dispatch(cateringRequest('POST', '/request-a-quote', $missingDietary))->body(), 'Dietary needs, allergies and handling requests is required.'),
+    'Server enforces administrator-configured required quote fields');
 $response = $router->dispatch(cateringRequest('POST', '/request-a-quote', $quote));
 verify($response->status() === 302 && str_contains($response->headers()['Location'], '/catering/index.php?p=/request-a-quote&sent=1'), 'Quote redirects correctly under subfolder/query routing');
 $row = $db->fetch('SELECT * FROM `' . $db->table('catering_inquiries') . '` ORDER BY id DESC LIMIT 1');
 $snapshot = json_decode($row['menu_plan'], true);
 verify($snapshot['estimate_cents'] === 97500 && $snapshot['items'][0]['name'] === $input['name'], 'Inquiry stores authoritative package/menu/price snapshot');
 verify($row['dietary'] === 'Please discuss milk allergy', 'Customer allergy requests remain separate from catalog labels');
+verify($row['company'] === '', 'Disabled quote fields are discarded even when submitted directly');
 $mail = $db->fetch('SELECT * FROM `' . $db->table('system_messages') . '` ORDER BY id DESC LIMIT 1');
 verify(str_contains($mail['body'], 'Selected dishes:') && str_contains($mail['body'], '$975.00'), 'Core queued email includes the selected menu and estimate');
 $db->update('catering_menu_items', ['name' => 'Renamed later'], 'id = ?', [$items[0]['id']]);

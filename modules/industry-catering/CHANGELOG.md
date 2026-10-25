@@ -1,5 +1,20 @@
 # Catering Module Changelog
 
+## 0.3.0 — 2026-10-25
+
+- Add administrator-managed event types, service styles, and budget ranges to
+  the quote planner without introducing a parallel generic form engine.
+- Allow each Catering-specific planning question to be shown, hidden, or
+  required while keeping identity, event, menu, consent, and contact essentials
+  mandatory.
+- Enforce the saved configuration server-side, discard disabled-field input,
+  reject unsupported select values, preserve existing inquiry snapshots, and
+  audit settings changes.
+- Correct service-page quote links so their preselected event type matches the
+  validated quote option.
+- Keep generic form notifications, CSV export, reminders, attachments, spam
+  reporting, and proposal documents on the existing Core reuse backlog.
+
 ## 0.2.1 — 2026-10-25
 
 - Require Website Core 2.3 and adopt its shared `adminResource()` workspace

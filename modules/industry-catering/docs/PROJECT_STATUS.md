@@ -1,7 +1,7 @@
 # Catering Module Project Status
 
-- Current version: `0.2.1`
-- State: 0.2.1 module release verified; 0.3.0 development next
+- Current version: `0.3.0`
+- State: Active development; configurable quote-planner candidate
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
 - Module API: `1`
@@ -28,6 +28,15 @@
 - Bulk show, hide, feature and unfeature actions limited to module records.
 - Detailed module editors retained for all industry-specific configuration.
 - Required Core inquiry-detail and note-attribution regression acceptance.
+
+## 0.3.0 candidate scope
+
+- Administrator-managed event types, service styles, and budget ranges.
+- Show/hide/required controls for Catering-specific planning questions.
+- Matching public rendering and server-side validation with disabled-input
+  rejection and preserved historical inquiry snapshots.
+- Shared reminders, export, notification templates, spam operations,
+  attachments, and proposal documents remain deferred to Core services.
 
 ## Completed
 

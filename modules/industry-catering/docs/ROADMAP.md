@@ -146,7 +146,7 @@ Core synchronization and combined packaging still require an explicit request.
 
 - [x] Move inquiry status, priority, assignment, and internal notes to Core
 - [ ] Add follow-up dates and reminders when Core exposes the shared service
-- [ ] Add configurable quote-request fields and event types
+- [x] Add configurable quote-request fields and event types
 - [ ] Add CSV inquiry export with permission and audit controls
 - [ ] Add notification templates using Core mail services
 - [ ] Add spam and abuse reporting to the admin dashboard

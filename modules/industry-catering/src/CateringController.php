@@ -32,6 +32,33 @@ final class CateringController
         'bananas-foster-bread-pudding.webp' => 'Bananas Foster Bread Pudding',
     ];
 
+    private const EVENT_TYPES = [
+        'Wedding', 'Corporate Event', 'Private Celebration',
+        'Drop-Off Catering', 'Holiday Event', 'Other',
+    ];
+
+    private const SERVICE_STYLES = [
+        'Plated dinner', 'Buffet', 'Food stations', 'Cocktail reception',
+        'Family style', 'Drop-off or pickup',
+    ];
+
+    private const BUDGET_RANGES = [
+        'Under $2,500', '$2,500–$5,000', '$5,000–$10,000',
+        '$10,000–$20,000', '$20,000+',
+    ];
+
+    private const QUOTE_FIELDS = [
+        'company' => 'Company',
+        'phone' => 'Phone number',
+        'event_time' => 'Start time',
+        'venue' => 'Venue or event location',
+        'service_style' => 'Service style',
+        'budget' => 'Estimated food and service budget',
+        'menu_interest' => 'Menu preferences or other interests',
+        'dietary' => 'Dietary needs, allergies and handling requests',
+        'message' => 'Additional planning notes',
+    ];
+
     public function __construct(
         private ModuleContext $ctx,
         private string $ns,
@@ -173,6 +200,7 @@ final class CateringController
     public function quote(Request $request, ?string $error = null, array $old = []): Response
     {
         [$categories, $items, $packages] = $this->plannerCatalog();
+        $quoteConfig = $this->quoteConfiguration();
         $prefill = $request->string('package');
         if ($old === [] && $prefill !== '') {
             foreach ($packages as $package) {
@@ -188,6 +216,10 @@ final class CateringController
             'sent' => $request->string('sent') === '1', 'old' => $old,
             'categories' => $categories, 'items' => $items, 'packages' => $packages,
             'dietaryLabels' => MenuPlanner::DIETARY, 'allergenLabels' => MenuPlanner::ALLERGENS,
+            'eventTypes' => $quoteConfig['event_types'],
+            'serviceStyles' => $quoteConfig['service_styles'],
+            'budgetRanges' => $quoteConfig['budget_ranges'],
+            'quoteFields' => $quoteConfig['fields'],
             'minimumGuests' => max(1, (int) $this->settings()->get('catering.minimum_guests', 20)),
             'initialPlan' => isset($old['guest_count']) ? (new MenuPlanner())->calculate($old, $items, $packages, max(1, (int) $this->settings()->get('catering.minimum_guests', 20))) : null,
             'estimateUrl' => $this->ctx->url($request->basePath, '/catering/estimate'),
@@ -225,8 +257,9 @@ final class CateringController
         if (!$this->ctx->service(RateLimiter::class)->attempt('catering-quote:' . $request->ip(), 4, 900)) {
             return $this->quote($request, 'Too many submissions. Please wait and try again.', $request->post);
         }
-        $data = $this->quoteInput($request);
-        $errors = $this->quoteErrors($data);
+        $quoteConfig = $this->quoteConfiguration();
+        $data = $this->quoteInput($request, $quoteConfig);
+        $errors = $this->quoteErrors($data, $quoteConfig);
         [, $items, $packages] = $this->plannerCatalog();
         $plan = (new MenuPlanner())->calculate($request->post, $items, $packages,
             max(1, (int) $this->settings()->get('catering.minimum_guests', 20)));
@@ -405,20 +438,37 @@ final class CateringController
         return Response::redirect($request->routeUrl('/admin/inquiries'));
     }
 
-    public function adminSettings(Request $request): Response
+    public function adminSettings(Request $request, ?string $error = null, array $old = []): Response
     {
         if ($forbidden = $this->guard('catering.manage')) {
             return $forbidden;
         }
         $settings = $this->settings();
+        $quoteConfig = $this->quoteConfiguration();
+        $postedFields = is_array($old['quote_fields'] ?? null) ? $old['quote_fields'] : null;
+        $fieldValues = $quoteConfig['fields'];
+        if ($postedFields !== null) {
+            foreach (self::QUOTE_FIELDS as $key => $_label) {
+                $fieldValues[$key] = [
+                    'enabled' => isset($postedFields[$key]['enabled']),
+                    'required' => isset($postedFields[$key]['required']),
+                ];
+            }
+        }
         return $this->adminPage($request, 'admin-settings', [
             'values' => [
-                'travel_note' => $settings->get('catering.travel_note', 'Travel and delivery fees may apply outside our primary service area.'),
-                'minimum_guests' => $settings->get('catering.minimum_guests', '20'),
-                'lead_time' => $settings->get('catering.lead_time', '14'),
-                'quote_expiry' => $settings->get('catering.quote_expiry', '14'),
+                'travel_note' => $old['travel_note'] ?? $settings->get('catering.travel_note', 'Travel and delivery fees may apply outside our primary service area.'),
+                'minimum_guests' => $old['minimum_guests'] ?? $settings->get('catering.minimum_guests', '20'),
+                'lead_time' => $old['lead_time'] ?? $settings->get('catering.lead_time', '14'),
+                'quote_expiry' => $old['quote_expiry'] ?? $settings->get('catering.quote_expiry', '14'),
+                'event_types' => $old['event_types'] ?? implode("\n", $quoteConfig['event_types']),
+                'service_styles' => $old['service_styles'] ?? implode("\n", $quoteConfig['service_styles']),
+                'budget_ranges' => $old['budget_ranges'] ?? implode("\n", $quoteConfig['budget_ranges']),
             ],
+            'quoteFields' => $fieldValues,
+            'quoteFieldLabels' => self::QUOTE_FIELDS,
             'saved' => $request->string('saved') === '1',
+            'error' => $error,
         ], 'Catering Settings');
     }
 
@@ -427,11 +477,38 @@ final class CateringController
         if ($forbidden = $this->guard('catering.manage')) {
             return $forbidden;
         }
+        if (!$this->ctx->service(Csrf::class)->validate($request)) {
+            return Response::text('Invalid CSRF token.', 419);
+        }
         $settings = $this->settings();
-        $settings->set('catering.travel_note', mb_substr($request->string('travel_note'), 0, 1000));
-        $settings->set('catering.minimum_guests', max(1, (int) $request->string('minimum_guests', '20')));
-        $settings->set('catering.lead_time', max(0, (int) $request->string('lead_time', '14')));
-        $settings->set('catering.quote_expiry', max(1, (int) $request->string('quote_expiry', '14')));
+        try {
+            $eventTypes = $this->parseSettingList($request->string('event_types'), 'event types');
+            $serviceStyles = $this->parseSettingList($request->string('service_styles'), 'service styles');
+            $budgetRanges = $this->parseSettingList($request->string('budget_ranges'), 'budget ranges');
+            $postedFields = $request->input('quote_fields');
+            $postedFields = is_array($postedFields) ? $postedFields : [];
+            $fieldConfig = [];
+            foreach (self::QUOTE_FIELDS as $key => $_label) {
+                $enabled = isset($postedFields[$key]['enabled']);
+                $fieldConfig[$key] = [
+                    'enabled' => $enabled,
+                    'required' => $enabled && isset($postedFields[$key]['required']),
+                ];
+            }
+            $this->db()->transaction(function () use ($settings, $request, $eventTypes, $serviceStyles, $budgetRanges, $fieldConfig): void {
+                $settings->set('catering.travel_note', mb_substr($request->string('travel_note'), 0, 1000));
+                $settings->set('catering.minimum_guests', max(1, min(10000, (int) $request->string('minimum_guests', '20'))));
+                $settings->set('catering.lead_time', max(0, min(3650, (int) $request->string('lead_time', '14'))));
+                $settings->set('catering.quote_expiry', max(1, min(365, (int) $request->string('quote_expiry', '14'))));
+                $settings->set('catering.event_types', $eventTypes);
+                $settings->set('catering.service_styles', $serviceStyles);
+                $settings->set('catering.budget_ranges', $budgetRanges);
+                $settings->set('catering.quote_fields', $fieldConfig);
+            });
+            $this->audit('catering.settings.updated', 0);
+        } catch (\InvalidArgumentException $e) {
+            return $this->adminSettings($request, $e->getMessage(), $request->post);
+        }
         return Response::redirect($request->routeUrl('/admin/catering/settings', ['saved' => 1]));
     }
 
@@ -678,9 +755,9 @@ final class CateringController
         ];
     }
 
-    private function quoteInput(Request $request): array
+    private function quoteInput(Request $request, array $config): array
     {
-        return [
+        $data = [
             'name' => mb_substr($request->string('name'), 0, 190),
             'email' => mb_substr($request->string('email'), 0, 190),
             'phone' => mb_substr($request->string('phone'), 0, 80),
@@ -696,6 +773,10 @@ final class CateringController
             'dietary' => mb_substr($request->string('dietary'), 0, 3000),
             'message' => mb_substr($request->string('message'), 0, 5000),
         ];
+        foreach (self::QUOTE_FIELDS as $key => $_label) {
+            if (empty($config['fields'][$key]['enabled'])) $data[$key] = '';
+        }
+        return $data;
     }
 
     private function contactErrors(array $data): array
@@ -713,13 +794,12 @@ final class CateringController
         return $errors;
     }
 
-    private function quoteErrors(array $data): array
+    private function quoteErrors(array $data, array $config): array
     {
-        $errors = $this->contactErrors([
-            'name' => $data['name'], 'email' => $data['email'],
-            'message' => $data['message'] !== '' ? $data['message'] : 'Event details supplied',
-        ]);
-        if (!in_array($data['event_type'], ['Wedding', 'Corporate Event', 'Private Celebration', 'Drop-Off Catering', 'Holiday Event', 'Other'], true)) {
+        $errors = [];
+        if ($data['name'] === '') $errors[] = 'Your name is required.';
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) $errors[] = 'A valid email address is required.';
+        if (!in_array($data['event_type'], $config['event_types'], true)) {
             $errors[] = 'Please choose a supported event type.';
         }
         $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $data['event_date']);
@@ -729,11 +809,20 @@ final class CateringController
         if ($data['event_time'] !== '' && !preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/D', $data['event_time'])) {
             $errors[] = 'Please provide a valid event time.';
         }
-        if (!in_array($data['service_style'], ['', 'Plated dinner', 'Buffet', 'Food stations', 'Cocktail reception', 'Family style', 'Drop-off or pickup'], true)) {
+        if ($data['service_style'] !== '' && !in_array($data['service_style'], $config['service_styles'], true)) {
             $errors[] = 'Please choose a supported service style.';
+        }
+        if ($data['budget'] !== '' && !in_array($data['budget'], $config['budget_ranges'], true)) {
+            $errors[] = 'Please choose a supported budget range.';
         }
         if ((int) $data['guest_count'] < 1 || (int) $data['guest_count'] > 10000) {
             $errors[] = 'Guest count must be between 1 and 10,000.';
+        }
+        foreach (self::QUOTE_FIELDS as $key => $label) {
+            if (!empty($config['fields'][$key]['enabled']) && !empty($config['fields'][$key]['required'])
+                && trim((string) ($data[$key] ?? '')) === '') {
+                $errors[] = $label . ' is required.';
+            }
         }
         return $errors;
     }
@@ -767,6 +856,57 @@ final class CateringController
             $candidate = $slug . '-' . $suffix++;
         }
         return $candidate;
+    }
+
+    private function quoteConfiguration(): array
+    {
+        $fields = [];
+        $stored = $this->settings()->get('catering.quote_fields', []);
+        $stored = is_array($stored) ? $stored : [];
+        foreach (self::QUOTE_FIELDS as $key => $_label) {
+            $value = is_array($stored[$key] ?? null) ? $stored[$key] : [];
+            $enabled = array_key_exists('enabled', $value) ? (bool) $value['enabled'] : true;
+            $fields[$key] = [
+                'enabled' => $enabled,
+                'required' => $enabled && (bool) ($value['required'] ?? false),
+            ];
+        }
+        return [
+            'event_types' => $this->storedSettingList('catering.event_types', self::EVENT_TYPES),
+            'service_styles' => $this->storedSettingList('catering.service_styles', self::SERVICE_STYLES),
+            'budget_ranges' => $this->storedSettingList('catering.budget_ranges', self::BUDGET_RANGES),
+            'fields' => $fields,
+        ];
+    }
+
+    private function storedSettingList(string $key, array $default): array
+    {
+        $stored = $this->settings()->get($key, $default);
+        if (!is_array($stored)) return $default;
+        $clean = [];
+        foreach ($stored as $value) {
+            if (!is_scalar($value)) continue;
+            $value = trim(mb_substr((string) $value, 0, 100));
+            $normalized = mb_strtolower($value);
+            if ($value !== '' && !isset($clean[$normalized])) $clean[$normalized] = $value;
+        }
+        return $clean !== [] ? array_values($clean) : $default;
+    }
+
+    private function parseSettingList(string $input, string $label): array
+    {
+        $lines = preg_split('/\R/u', $input) ?: [];
+        $clean = [];
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '') continue;
+            if (mb_strlen($line) > 100) throw new \InvalidArgumentException('Each ' . $label . ' entry must be at most 100 characters.');
+            $normalized = mb_strtolower($line);
+            if (!isset($clean[$normalized])) $clean[$normalized] = $line;
+        }
+        if ($clean === []) throw new \InvalidArgumentException('Enter at least one ' . $label . ' entry.');
+        if (count($clean) > 24) throw new \InvalidArgumentException('Enter no more than 24 ' . $label . ' entries.');
+        return array_values($clean);
     }
 
     private function guard(string $capability): ?Response
@@ -895,6 +1035,7 @@ final class CateringController
         return [
             'weddings' => [
                 'title' => 'Wedding Catering', 'short' => 'Weddings',
+                'event_type' => 'Wedding',
                 'summary' => 'A celebration designed around your story, from the first toast to the final sweet bite.',
                 'kicker' => 'Your table, your story', 'image' => 'wedding-table.webp',
                 'intro' => 'We shape the menu, service rhythm, and finishing details around the way you want your wedding to feel—warm, polished, and entirely personal.',
@@ -903,6 +1044,7 @@ final class CateringController
             ],
             'corporate-events' => [
                 'title' => 'Corporate Catering', 'short' => 'Corporate Events',
+                'event_type' => 'Corporate Event',
                 'summary' => 'Reliable, polished food service for meetings, conferences, launches, and company celebrations.',
                 'kicker' => 'Business, beautifully hosted', 'image' => 'corporate-service.webp',
                 'intro' => 'From an executive breakfast to a multi-day conference, our corporate menus are designed for timely service, clear planning, and an excellent guest experience.',
@@ -911,6 +1053,7 @@ final class CateringController
             ],
             'private-celebrations' => [
                 'title' => 'Private Celebrations', 'short' => 'Private Celebrations',
+                'event_type' => 'Private Celebration',
                 'summary' => 'Birthdays, anniversaries, showers, graduations, and gatherings made effortless.',
                 'kicker' => 'Make the moment yours', 'image' => 'hero.webp',
                 'intro' => 'Whether the guest list is intimate or expansive, we create a relaxed hospitality experience with food that fits the people and the occasion.',
@@ -919,6 +1062,7 @@ final class CateringController
             ],
             'drop-off-catering' => [
                 'title' => 'Drop-Off Catering', 'short' => 'Drop-Off Catering',
+                'event_type' => 'Drop-Off Catering',
                 'summary' => 'Freshly prepared, ready-to-serve catering for offices, family gatherings, and casual events.',
                 'kicker' => 'Easy to serve, hard to forget', 'image' => 'plated-dinner.webp',
                 'intro' => 'Choose your menu and delivery window, and we will arrive with labeled dishes, serving guidance, and everything arranged for a smooth meal.',

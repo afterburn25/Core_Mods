@@ -1,5 +1,15 @@
 # Catering Module Testing
 
+## 0.3.0 configurable quote-planner candidate — 2026-10-25
+
+- Controller coverage configures event types, service styles, budget ranges,
+  visibility and required flags through the protected Catering settings route.
+- Public rendering checks prove hidden questions are absent and configured
+  choices/required attributes appear.
+- Submission coverage proves required configured questions are enforced and
+  disabled fields are not accepted into module inquiries.
+- Exact ZIP lifecycle and PHP/native database acceptance are pending.
+
 ## 0.2.1 Core 2.3 catalog-management release — 2026-10-25
 
 Pinned Core fixture: `861d1b3e3c8def4ed4bb0b9e29614ad4290663a5`
