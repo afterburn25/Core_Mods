@@ -1,7 +1,7 @@
 # Catering Module Project Status
 
 - Current version: `1.0.0`
-- State: Production-baseline candidate; CI pending
+- State: Production baseline; module-only CI passed
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
 - Module API: `1`
@@ -113,6 +113,10 @@
 - The final 0.2.1 tree passed Module CI run `40219209542` and Catering
   acceptance run `40219209508`, including PHP 8.4/8.5, SQLite, MySQL 8.4,
   MariaDB 11.4, direct 0.2.0 upgrade, and clean-install registration.
+- Catering 1.0.0 passed Module CI `40223586738` and all four acceptance jobs
+  in `40223586850`, including PHP 8.4/8.5, SQLite, MySQL 8.4, MariaDB 11.4,
+  cross-module contract isolation, release-readiness, and three packaged
+  lifecycle baselines.
 - No combined Core bundle or live-host installation was performed.
 - Shared content/media/forms integration remains on CORE-REUSE-3/4.
 - Historical 0.1.22/0.1.23 archives are truncated. Only the complete current

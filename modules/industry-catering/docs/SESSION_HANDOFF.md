@@ -14,8 +14,12 @@ The candidate adds an operator guide, release notes, a release-readiness suite,
 expanded lifecycle data-preservation checks, and a pinned read-only shared
 Module API/isolation check against Landscaping 1.0.0 commit
 `be009de567286b16ea60e4188b6e7eb34f482b83`. No Landscaping source, Website
-Core source, synchronized snapshot, or combined installer changed. Exact ZIP
-publication and CI evidence are pending and must not be claimed until green.
+Core source, synchronized snapshot, or combined installer changed. The exact
+archive is 1,679,901 bytes with SHA-256
+`c254d5966b0f6e1664e8297adbe5e6c17b851133d7d07526963aa0f45fd1c29d`;
+it contains 57 files and no nested ZIP. The exact tested tree is published at
+`bf68f07df24289de791ef9e6076eace20b583d11`. Module CI `40223586738` and all
+four jobs in Catering acceptance `40223586850` passed.
 
 ## 0.4.0 release — 2026-10-25
 

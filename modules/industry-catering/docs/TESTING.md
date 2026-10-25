@@ -12,8 +12,21 @@
   catalog/inquiry data after uninstall-without-purge and reinstall.
 - Added a release-readiness static suite and a pinned, read-only Landscaping
   1.0.0 Module API contract/isolation suite.
-- JavaScript syntax and whitespace checks pass locally. Exact ZIP, PHP 8.4/8.5,
-  SQLite, MySQL 8.4, MariaDB 11.4, lifecycle, and GitHub CI evidence are pending.
+- Exact archive: 1,679,901 bytes; SHA-256
+  `c254d5966b0f6e1664e8297adbe5e6c17b851133d7d07526963aa0f45fd1c29d`;
+  57 files; no nested ZIP. JavaScript syntax and whitespace checks passed.
+- Module CI `40223586738` passed.
+- Catering acceptance `40223586850` passed all four jobs on PHP 8.4/8.5,
+  SQLite, MySQL 8.4, and MariaDB 11.4. Each PHP job passed 55 planner,
+  78 controller/database, 18 cross-module contract, 17 release-readiness,
+  and three 25-check packaged lifecycle runs. Each native job passed 78
+  controller/database and three 25-check packaged lifecycle runs.
+- Lifecycle baselines were rebuilt 0.1.23 source, valid published 0.1.21, and
+  exact published 0.4.0. The first 1.0 acceptance exposed numeric postal-code
+  key coercion; preserving configured postal codes as strings fixed the valid
+  delivery-zone match before the final passing run.
+- No Core source, combined installer, synchronized Core snapshot, or
+  shared-host deployment was changed or performed.
 
 ## 0.4.0 seasonal catalog candidate — 2026-10-25
 
