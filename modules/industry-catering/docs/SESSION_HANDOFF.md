@@ -20,13 +20,23 @@ sessions must apply those shared rules before module-specific roadmap choices.
 ## Owner direction — 2026-10-25
 
 Catering work is module-only while the owner develops Website Core separately.
-Do not change Website Core, synchronize its catering snapshot, merge the latest
-Core, or build a combined installer until the owner explicitly asks to combine
+Do not change Website Core implementation, synchronize its catering snapshot,
+merge the latest Core, or build a combined installer until the owner explicitly asks to combine
 this module with the latest Core. This direction supersedes inherited automatic
 Core synchronization and combined-bundle CI requirements for catering work.
 Continue module ZIP packaging, honest compatibility declarations, module
 validation, and documentation. Record deferred integration tests without
 claiming that a newer Core has been tested. See `../MODULE_RULES.md`.
+
+The owner also authorizes Core roadmap updates when catering work identifies
+required Core changes. Add or update the dependency in
+`afterburn25/Website_Core` → `main` → `docs/ROADMAP.md`, checking for an
+existing entry first. Include the shared API/service needed, the catering use
+case, and acceptance criteria. Cross-link it in the module roadmap/handoff and
+mark dependent module work blocked or deferred until Core implements it.
+This documentation exception does not authorize Core implementation changes
+or a combined build. No new Core dependency was identified in this
+instruction-only update.
 
 ## Current baseline
 
