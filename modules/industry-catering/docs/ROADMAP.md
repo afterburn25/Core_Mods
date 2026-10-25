@@ -70,6 +70,18 @@
 - [x] Verify Website Core 2.0.0 keyless testing bundle
 - [x] Establish dedicated branch, module folder, documentation, and release ZIP
 
+## Shared Core dependencies — 2026-10-25
+
+See the [Core shared-service planning backlog](https://github.com/afterburn25/Website_Core/blob/devin/website-core/docs/ROADMAP.md)
+(`CORE-REUSE-1` through `CORE-REUSE-8`). Existing Core content, forms,
+Media, branding, permissions and notification services must be reused first.
+These planning items do not mean that every module task is blocked: defer
+only the work that actually requires a missing supported API. Do not create
+module copies of the shared engines or implement Core changes here. Verify
+supported Core service APIs before replacing existing module behavior, preserve
+administrator content and inquiry history, and record compatibility evidence.
+Core synchronization and combined packaging still require an explicit request.
+
 ## 0.2.0 — Content and media management
 
 - [ ] Add first-class editing for public catering page copy and calls to action
