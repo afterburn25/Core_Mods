@@ -53,7 +53,7 @@ jobs:
           php modules/industry-catering/tests/integration.php
           php modules/industry-catering/tests/package.php
           CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-module/modules/industry-catering/releases/industry-catering-0.1.21.zip" php modules/industry-catering/tests/package.php
-          CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-release/modules/industry-catering/releases/industry-catering-0.2.0.zip" php modules/industry-catering/tests/package.php
+          CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-release/modules/industry-catering/releases/industry-catering-0.3.0.zip" php modules/industry-catering/tests/package.php
       - name: Verify fixed Core inquiry detail and notes contract
         env:
           CATERING_CORE_ROOT: ${{ github.workspace }}/.core-test-fixture
@@ -113,4 +113,4 @@ jobs:
           php modules/industry-catering/tests/integration.php
           php modules/industry-catering/tests/package.php
           CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-module/modules/industry-catering/releases/industry-catering-0.1.21.zip" php modules/industry-catering/tests/package.php
-          CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-release/modules/industry-catering/releases/industry-catering-0.2.0.zip" php modules/industry-catering/tests/package.php
+          CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-release/modules/industry-catering/releases/industry-catering-0.3.0.zip" php modules/industry-catering/tests/package.php
