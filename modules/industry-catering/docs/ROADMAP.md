@@ -13,9 +13,9 @@ inquiry workspace.
 - [x] Add searchable quick edits while preserving advanced Catering fields
 - [x] Add accessible partial ordering and bulk visibility/featured actions
 - [x] Reject unknown, duplicate and cross-resource record IDs in callbacks
-- [ ] Pass PHP 8.4/8.5, SQLite, MySQL 8.4 and MariaDB 11.4 acceptance
-- [ ] Verify direct packaged upgrade from 0.2.0
-- [ ] Verify the fixed Core inquiry detail and notes contract
+- [x] Pass PHP 8.4/8.5, SQLite, MySQL 8.4 and MariaDB 11.4 acceptance
+- [x] Verify direct packaged upgrade from 0.2.0
+- [x] Verify the fixed Core inquiry detail and notes contract
 
 ## 0.2.0 — Catering menu planning
 

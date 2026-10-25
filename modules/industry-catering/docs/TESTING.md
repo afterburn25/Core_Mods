@@ -1,9 +1,9 @@
 # Catering Module Testing
 
-## 0.2.1 Core 2.3 catalog-management candidate — 2026-10-25
+## 0.2.1 Core 2.3 catalog-management release — 2026-10-25
 
 Pinned Core fixture: `861d1b3e3c8def4ed4bb0b9e29614ad4290663a5`
-(Core 2.3.0). Acceptance is pending publication.
+(Core 2.3.0).
 
 - Direct callback coverage exercises search, pagination-ready lists, partial
   ordering, bulk visibility/featured actions, record ownership validation,
@@ -12,6 +12,19 @@ Pinned Core fixture: `861d1b3e3c8def4ed4bb0b9e29614ad4290663a5`
   addition to the historical 0.1.21 and rebuilt 0.1.23 baselines.
 - `core-dependencies.php` is now blocking and must pass inquiry detail, note
   attribution and package-isolation checks against the repaired Core service.
+- The first published candidate exposed a clean-install lifecycle bug:
+  resource registration queried Catering categories before migrations.
+  Acceptance run `40218665693` failed and is retained as diagnostic evidence.
+- Registration now defers category-option loading until the table exists while
+  still registering both resources before migration.
+- Final archive: 1,656,882 bytes; SHA-256
+  `1155bf0ca31487375295248555b3c12dad8494f1a679996b190a52cba98a196f`;
+  51 files; no nested ZIP.
+- Module CI run `40219209542` passed.
+- Catering acceptance run `40219209508` passed on PHP 8.4/8.5, SQLite,
+  MySQL 8.4 and MariaDB 11.4, including direct 0.2.0 upgrade, clean
+  install/reinstall and the blocking Core inquiry detail/notes contract.
+- No combined Core bundle or shared-host deployment was performed.
 
 ## GitHub publication and CI — 2026-10-25
 

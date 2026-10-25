@@ -1,7 +1,7 @@
 # Catering Module Project Status
 
 - Current version: `0.2.1`
-- State: Active development; Core 2.3 shared catalog-management candidate
+- State: 0.2.1 module release verified; 0.3.0 development next
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
 - Module API: `1`
@@ -21,7 +21,7 @@
 - Local pricing, integration, packaged install/upgrade/lifecycle and browser
   acceptance; the current ZIP is complete and below the upload-size ceiling.
 
-## 0.2.1 candidate scope
+## 0.2.1 release scope
 
 - Core-owned searchable resource workspaces for dish and package quick edits.
 - Keyboard-reachable visible-row ordering with safe partial-order persistence.
@@ -68,15 +68,17 @@
   when the owner explicitly requests integration (direction: 2026-10-25).
 - Defer combined Core bundle CI until that integration is requested; preserve
   honest compatibility requirements and continue module validation.
-- Verify and publish 0.2.1 against Core 2.3, then continue content editing and
-  media-management improvements without moving industry-specific behavior into
-  Core.
+- Continue with module-owned 0.3.0 lead configuration and operations work.
+  Keep shared follow-up, export, notification-template, attachment, content,
+  media and form engines deferred to their documented Core dependencies.
 
 ## Known issues and release gates
 
 - CORE-REUSE-7A was repaired in Core 2.2.2; 0.2.1 makes its detail/notes
-  diagnostic blocking against the Core 2.3 fixture.
-- PHP 8.4/8.5 and MySQL 8.4/MariaDB 11.4 module CI passed (Catering run `40216516597`; Module CI `40216516473`). Core detail/notes diagnostic still fails.
+  diagnostic blocking against the Core 2.3 fixture, and that diagnostic passes.
+- The final 0.2.1 tree passed Module CI run `40219209542` and Catering
+  acceptance run `40219209508`, including PHP 8.4/8.5, SQLite, MySQL 8.4,
+  MariaDB 11.4, direct 0.2.0 upgrade, and clean-install registration.
 - No combined Core bundle or live-host installation was performed.
 - Shared content/media/forms integration remains on CORE-REUSE-3/4.
 - Historical 0.1.22/0.1.23 archives are truncated. Only the complete current

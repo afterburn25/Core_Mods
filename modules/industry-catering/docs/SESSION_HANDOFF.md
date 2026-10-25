@@ -1,6 +1,6 @@
 # Catering Module Session Handoff
 
-## Current 0.2.1 candidate — 2026-10-25
+## Current 0.2.1 release — 2026-10-25
 
 Catering now requires Core 2.3 and adopts its shared resource workspace for
 dish/package quick edits, search, pagination, keyboard-accessible visible-row
@@ -9,6 +9,14 @@ own every advanced catering field. The acceptance workflow pins Core 2.3.0
 commit `861d1b3e3c8def4ed4bb0b9e29614ad4290663a5`, tests direct upgrade from
 the exact published 0.2.0 candidate, and makes the repaired inquiry detail and
 notes contract blocking. No Core source or combined installer is changed.
+
+The final source/archive tree is published at branch commit
+`291379d1af53e50623809cec989d15f790c4e7f4`. Module CI run `40219209542`
+and Catering acceptance run `40219209508` passed. Acceptance covers PHP
+8.4/8.5, SQLite, MySQL 8.4, MariaDB 11.4, direct 0.2.0 upgrade, clean
+install/reinstall, and the repaired Core inquiry detail/notes contract. The
+release ZIP is 1,656,882 bytes with SHA-256
+`1155bf0ca31487375295248555b3c12dad8494f1a679996b190a52cba98a196f`.
 
 ## Publication completed — 2026-10-25
 
@@ -20,10 +28,10 @@ for exact check counts and archive verification. The original candidate ZIP
 and checksum are preserved; these publication notes supplement its pre-CI
 documentation. Temporary publication files are absent from the branch.
 
-CORE-REUSE-7A still reproduces in the pinned Core fixture. Its diagnostic is
-non-blocking in module CI and must not be described as passed. Production
-acceptance and real shared-host upload/upgrade remain outstanding. Continue
-only module work; do not combine with Core without an explicit owner request.
+CORE-REUSE-7A is fixed in the pinned Core 2.3 fixture and its diagnostic is
+blocking and passing. Real shared-host upload/upgrade remains outstanding.
+Continue only module work; do not combine with Core without an explicit owner
+request.
 
 ## Authoritative locations
 
@@ -186,8 +194,8 @@ its `verified_core` field remains intentionally null until acceptance passes.
 
 ## Next safe task
 
-Build the deterministic 0.2.1 module-only ZIP, run GitHub acceptance, and
-record the Core 2.3 inquiry detail/notes result. Then continue module
-content/media work when the documented adapters are available (CORE-REUSE-3/4).
-Shared-host upload/upgrade remains unverified. No combined Core installer is
-authorized.
+Continue the module-owned 0.3.0 lead-configuration and operations scope. Reuse
+the Core inquiry workspace and keep shared follow-up, export, notification,
+attachment, content, media and forms work linked to its existing Core roadmap
+dependencies instead of duplicating those engines. Shared-host upload/upgrade
+remains unverified. No combined Core installer is authorized.
