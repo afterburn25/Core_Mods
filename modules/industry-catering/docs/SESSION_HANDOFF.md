@@ -13,11 +13,16 @@ Service-area mapping is explicitly a shared Core design. Administrators will
 enter a city/state center and mileage radius in the Core-owned business
 profile; Core will geocode/cache the center and supply the accessible radius
 map component to Catering and other modules. The dependency is recorded as
-`CORE-REUSE-9` in Website Core commit
-`130994dc28305ad0353fe2273b7fe1f2dc109737`. Catering's public Service Area
-page will adopt that contract when available and will continue to use its
-postal delivery zones for authoritative quote validation. Do not add a
-module-private map provider, public geocoding request, or exposed provider key.
+`CORE-REUSE-9`; the address-validation requirement is in Website Core roadmap
+commit `da86fc19551d191d4dc55572d42fef4cb92aa7a8`. Catering's public Service
+Area page will adopt that contract when available and will continue to use its
+postal delivery zones for authoritative quote validation. Quote preview and
+submission will send the structured event/delivery address to Core for a
+server-side inside/outside/unknown result. Confirmed outside addresses receive
+an accessible error and keep their form values; ambiguous addresses or provider
+failures go to correction/manual review rather than being mislabeled. Do not
+add a module-private map provider, public geocoding request, or exposed
+provider key.
 
 ## Current 1.0.0 candidate — 2026-10-25
 
