@@ -20,7 +20,8 @@ release with Core.
   owner explicitly requests that integration. Core roadmap documentation is
   the authorized exception described below.
 - When catering work requires a missing or changed Core capability, add or
-  update an actionable dependency in `afterburn25/Website_Core` on `main` at
+  update an actionable dependency in `afterburn25/Website_Core` on the active implementation branch
+  (`devin/website-core` as verified 2026-10-25) at
   `docs/ROADMAP.md`. Check existing entries first to avoid duplicates. Describe
   the required shared API/service, the catering use case, and acceptance
   criteria; link it from the module roadmap and handoff and mark dependent
