@@ -17,6 +17,17 @@ source of truth after this separation.
 This branch follows repository `MOD_RULES.md` contract version 1.1. Future
 sessions must apply those shared rules before module-specific roadmap choices.
 
+## Owner direction — 2026-10-25
+
+Catering work is module-only while the owner develops Website Core separately.
+Do not change Website Core, synchronize its catering snapshot, merge the latest
+Core, or build a combined installer until the owner explicitly asks to combine
+this module with the latest Core. This direction supersedes inherited automatic
+Core synchronization and combined-bundle CI requirements for catering work.
+Continue module ZIP packaging, honest compatibility declarations, module
+validation, and documentation. Record deferred integration tests without
+claiming that a newer Core has been tested. See `../MODULE_RULES.md`.
+
 ## Current baseline
 
 Version 0.1.23 carries the 0.1.22 Cajun menu upgrade in a substantially smaller
@@ -69,8 +80,8 @@ the synchronized Core commit is
 
 ## Next safe task
 
-Upload 0.1.23 through the live Module Manager and verify it produces stage,
-upgrade, and migration journal entries before checking the public menu. Then
-investigate why Core_Mods Actions does not create a workflow run for published
-`module/catering` updates.
+Continue module-only work on the 0.2.0 content/media roadmap when requested.
+The historical live-host 0.1.21 → 0.1.23 upgrade check and missing Core_Mods
+Actions runs remain open verification follow-ups. Do not update a live site or
+Website Core as part of module-only development.
 
