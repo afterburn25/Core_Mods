@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: afterburn25/Website_Core
-          ref: 861d1b3e3c8def4ed4bb0b9e29614ad4290663a5
+          ref: f511e5f42ea82f62dcce0f5153609da3ca8d45aa
           path: .core-test-fixture
       - uses: actions/checkout@v4
         with:
@@ -35,6 +35,8 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: pdo_sqlite, mbstring, zip
+      - name: Install pinned Core runtime dependencies
+        run: composer install --working-dir=.core-test-fixture --no-interaction --no-progress --prefer-dist
       - name: Rebuild the historical 0.1.23 source fixture
         run: python3 modules/industry-catering/tests/build-legacy-fixture.py .previous-module/modules/industry-catering /tmp/catering-legacy-source.zip
       - name: Validate release and exercise packaged source
@@ -56,6 +58,7 @@ jobs:
           PY
           php modules/industry-catering/tests/planner.php
           php modules/industry-catering/tests/integration.php
+          php modules/industry-catering/tests/platform-integrations.php
           php modules/industry-catering/tests/shared-contracts.php
           php modules/industry-catering/tests/release-readiness.php
           php modules/industry-catering/tests/package.php
@@ -93,7 +96,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: afterburn25/Website_Core
-          ref: 861d1b3e3c8def4ed4bb0b9e29614ad4290663a5
+          ref: f511e5f42ea82f62dcce0f5153609da3ca8d45aa
           path: .core-test-fixture
       - uses: actions/checkout@v4
         with:
@@ -107,6 +110,8 @@ jobs:
         with:
           php-version: '8.4'
           extensions: pdo_mysql, mbstring, zip
+      - name: Install pinned Core runtime dependencies
+        run: composer install --working-dir=.core-test-fixture --no-interaction --no-progress --prefer-dist
       - name: Rebuild the historical 0.1.23 source fixture
         run: python3 modules/industry-catering/tests/build-legacy-fixture.py .previous-module/modules/industry-catering /tmp/catering-legacy-source.zip
       - name: Verify native catering migrations and packaged upgrade
@@ -118,6 +123,7 @@ jobs:
           CATERING_TEST_MYSQL_PASS: test-pass
         run: |
           php modules/industry-catering/tests/integration.php
+          php modules/industry-catering/tests/platform-integrations.php
           php modules/industry-catering/tests/package.php
           CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-module/modules/industry-catering/releases/industry-catering-0.1.21.zip" php modules/industry-catering/tests/package.php
           CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-release/modules/industry-catering/releases/industry-catering-0.4.0.zip" php modules/industry-catering/tests/package.php
