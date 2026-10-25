@@ -7,6 +7,27 @@ cross-module contract is repository [`MOD_RULES.md`](../../MOD_RULES.md). If
 this file and the master contract ever differ, stop and update the module
 branch from `main` before continuing.
 
+## Catering development scope — 2026-10-25
+
+The owner has explicitly directed that catering development and releases remain
+module-only while Website Core is developed separately. This direction takes
+precedence over inherited requirements to synchronize or bundle every module
+release with Core.
+
+- Work only on `module/catering` in `modules/industry-catering/`.
+- Do not modify Website Core, refresh its catering snapshot, merge the latest
+  Core, or build a combined Core/module installer unless the owner explicitly
+  requests that integration.
+- Continue producing the installable module ZIP and matching `LATEST.json`
+  when module behavior changes. Do not nest ZIPs inside a delivery ZIP.
+- Keep honest Core/API compatibility requirements and run available module
+  validation. Record integration checks that were deferred; do not claim
+  compatibility with a newer Core without testing it.
+- Module-only work does not require synchronized Core bundle CI. Perform and
+  record combined-bundle checks when integration is explicitly requested.
+- This module still uses Core's documented services; module-only development
+  does not make it a standalone website or justify duplicating Core functions.
+
 ## Creation preflight
 
 - [x] This module has its own `module/catering` branch.
@@ -35,8 +56,9 @@ branch from `main` before continuing.
       access, and escaped output.
 - [x] The README, changelog, status, roadmap, testing, and handoff records have
       been created before the first release.
-- [ ] Complete the current release ZIP, `LATEST.json`, module CI, and
-      synchronized Website Core bundle CI for version 0.1.23.
+- [ ] Complete module release ZIP, `LATEST.json`, and module CI verification
+      for version 0.1.23. Combined Core bundle verification is deferred until
+      the owner explicitly requests integration.
 
 ## Catering decisions
 
@@ -49,7 +71,8 @@ branch from `main` before continuing.
 4. Core services: routing, views, settings, navigation, permissions, database,
    CSRF, rate limiting, mail, admin search, dashboard, and health checks.
 5. Compatibility: Catering 0.1.23 requires Core `>=2.0.5,<3.0.0` and Module
-   API 1; acceptance runs in the module branch and synchronized Core bundle.
+   API 1; acceptance runs in the module branch. Combined Core bundle
+   acceptance is deferred until the owner requests integration.
 
 Do not remove this file. It preserves the creation rules and module decisions
 for future sessions without relying on conversation history.
