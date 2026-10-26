@@ -335,3 +335,15 @@ Catering 2.0 registers fail-closed rules and keeps quote-only as the upgrade-saf
 default. Previous-order duplication and recurring corporate programs remain a
 future Core accounts/commerce enhancement; Catering does not create a parallel
 subscription or customer-location store.
+
+## 2.0.1 — Core 2.6.1 Geo administration compatibility
+
+- [x] Require Website Core 2.6.1 so administrators receive the dedicated
+      Website → Geo service area destination
+- [x] Verify City, State / region, optional Country, and Range from city
+      (miles) controls instead of analytics From/To dates
+- [x] Preserve the existing Catering geocoder, public map, outside-address
+      error, manual-review fallback, postal rules, and checkout validation
+- [x] Complete local package lifecycle validation and build the exact ZIP
+- [ ] Publish the exact ZIP to `module/catering`
+- [ ] Pass module CI plus PHP 8.4/8.5, MySQL 8.4, and MariaDB 11.4 acceptance

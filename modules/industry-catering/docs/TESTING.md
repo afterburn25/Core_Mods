@@ -1,5 +1,26 @@
 # Catering Module Testing
 
+## 2.0.1 Core 2.6.1 compatibility release — 2026-10-25
+
+- Exact read-only Core fixture: merged `main` commit
+  `99d13cf09488ef4990345ce229c60b334b6ca6d2` (Website Core 2.6.1).
+- Blocking dependency acceptance now verifies the dedicated Geo service-area
+  route and navigation plus City, State / region, and Range from city (miles)
+  controls. It rejects a date-range form in that shared configuration view.
+- Core 2.6 service contracts remain backward compatible: Catering continues
+  to use shared geocoding, radius decisions, public maps, audited overrides,
+  theme collections, quote documents/reminders, and checkout validation.
+- No Catering migration was added. Packaged upgrade acceptance must preserve
+  existing records and settings from the historical baselines and 2.0.0.
+- Local acceptance passed against the exact Core 2.6.1 merge: 61 PHP files
+  passed syntax checks; 55 menu-planner, 113 controller/database, 35 platform,
+  18 cross-module, and 29 release-readiness checks passed. Three packaged
+  upgrade/lifecycle runs passed 27 checks each from rebuilt 0.1.23, valid
+  0.1.21, and exact 0.4.0 baselines. JavaScript syntax, module validation, and
+  whitespace validation passed. The final archive digest is recorded in
+  `releases/LATEST.json`; the package contains no nested ZIP.
+- GitHub module and matrix CI remain required before publication is complete.
+
 ## 2.0.0 Core 2.6 integration release — 2026-10-25
 
 - Pinned read-only Core service fixture:

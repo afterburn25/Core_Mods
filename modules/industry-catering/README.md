@@ -9,11 +9,11 @@ adoption of [Cajun Web Pro Module Rules v1.1](../../MOD_RULES.md).
 
 ## Current release
 
-- Module version: `2.0.0`
+- Module version: `2.0.1`
 - Module ID: `cajunwebpro/catering`
 - Type: `industry`
 - Module API: `1`
-- Required Core: `>=2.6.0,<3.0.0`
+- Required Core: `>=2.6.1,<3.0.0`
 - Development branch: `module/catering`
 
 ## Core 2.6 integration in 2.0.0
@@ -52,6 +52,16 @@ images. Catering also contributes validated Caterer, service, menu, FAQ,
 review, and service-area structured data. Staff can create immutable proposal
 and Banquet Event Order snapshots and schedule final-headcount reminders from
 the linked event while Core owns storage, sanitization, delivery, and audit.
+
+## Core 2.6.1 compatibility refresh in 2.0.1
+
+Catering 2.0.1 pins and verifies the merged Website Core 2.6.1 maintenance
+release. Administrators configure the shared radius under **Website → Geo
+service area** using City, State / region, optional Country, and Range from
+city (miles). Catering continues to register the server-side geocoder and use
+Core's saved decision for the public map, quote validation, and eligible
+checkout. The audience-location analytics date range remains a separate
+report and is not used as service-area configuration.
 
 ## Menu planning in 0.2.0
 
@@ -186,7 +196,7 @@ selection remain Core-owned.
 
 ## Installation
 
-Install the single `industry-catering-2.0.0.zip` through Website Core’s
+Install the single `industry-catering-2.0.1.zip` through Website Core’s
 module/package manager. This delivery contains only the module; use an
 already-installed compatible Core. It contains no nested ZIP and does not
 include or update Core. Combined installers require an explicit owner request. The installable module ZIP keeps
@@ -208,5 +218,6 @@ use the new validated package. Upgrade coverage includes the valid published
 - [1.0 release notes](docs/RELEASE_NOTES_1.0.md)
 - [1.5 release notes](docs/RELEASE_NOTES_1.5.md)
 - [2.0 release notes](docs/RELEASE_NOTES_2.0.md)
+- [2.0.1 release notes](docs/RELEASE_NOTES_2.0.1.md)
 - [Changelog](CHANGELOG.md)
 

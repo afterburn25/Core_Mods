@@ -2,8 +2,8 @@
 
 ## Supported platform
 
-Catering 2.0.0 supports Website Core `>=2.6.0,<3.0.0` and Module API 1. Install
-the single `industry-catering-2.0.0.zip` through Core's package manager. The
+Catering 2.0.1 supports Website Core `>=2.6.1,<3.0.0` and Module API 1. Install
+the single `industry-catering-2.0.1.zip` through Core's package manager. The
 archive is a module-only package: it does not contain Core or another ZIP.
 
 Before installation or upgrade, create a complete Website Core backup using
@@ -14,8 +14,9 @@ uninstalled without an explicit purge.
 ## First-run checklist
 
 1. Open Core's Business profile and confirm the public name, email, phone,
-   address, hours, service-area center city/state, mileage radius, and server
-   geocoding provider. Confirm the generated map on the public Service Area page.
+   address, and hours. Then open **Website → Geo service area** and set the
+   center city/state, optional country, mileage range, and server geocoding
+   provider. Confirm the generated map on the public Service Area page.
 2. Review Catering settings, public event choices, minimum guests, lead time,
    capacity, blackout dates, fulfillment windows, delivery zones, and optional
    services. The bundled values are examples, not business commitments.

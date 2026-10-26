@@ -1,12 +1,22 @@
 # Catering Module Project Status
 
-- Current version: `2.0.0`
-- State: Core 2.6 integration release; module-only CI passed
+- Current version: `2.0.1`
+- State: Core 2.6.1 local acceptance passed; GitHub publication/CI pending
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
 - Module API: `1`
-- Required Core: Website Core `>=2.6.0,<3.0.0`
+- Required Core: Website Core `>=2.6.1,<3.0.0`
 - Last updated: 2026-10-25
+
+## 2.0.1 compatibility scope
+
+- Pins acceptance to merged Website Core 2.6.1 commit
+  `99d13cf09488ef4990345ce229c60b334b6ca6d2`.
+- Requires Core's dedicated **Website → Geo service area** route with City,
+  State / region, optional Country, and Range from city (miles) controls.
+- Retains the Catering geocoder, public map, outside-address error,
+  manual-review fallback, postal rules, and checkout validation without a new
+  module migration or duplicated Core settings screen.
 
 ## 2.0.0 integration scope
 
@@ -131,12 +141,16 @@
   when the owner explicitly requests integration (direction: 2026-10-25).
 - Defer combined Core bundle CI until that integration is requested; preserve
   honest compatibility requirements and continue module validation.
-- Build, publish, and verify the exact 2.0.0 module archive against the pinned
-  Core 2.6 source. Keep signatures, contract acceptance, recurring ordering,
+- Build, publish, and verify the exact 2.0.1 module archive against merged
+  Core 2.6.1. Keep signatures, contract acceptance, recurring ordering,
   invoices, and payments on their Core dependencies instead of duplicating
   them here.
 
 ## Known issues and release gates
+
+- Catering 2.0.1 passed the complete local SQLite/source/package matrix against
+  exact Core 2.6.1. GitHub PHP 8.4/8.5, MySQL 8.4, and MariaDB 11.4 acceptance
+  remains required before it is described as published or production-ready.
 
 - Catering 2.0.0 is published at final branch commit
   `66b9c4605458833a2414fc5de47feae8daac4780`. Module CI `40246534104` and

@@ -1,5 +1,16 @@
 # Catering Module Changelog
 
+## 2.0.1 — 2026-10-25
+
+- Raised the supported Website Core baseline to 2.6.1 and pinned acceptance to
+  merged Core commit `99d13cf09488ef4990345ce229c60b334b6ca6d2`.
+- Added blocking contract coverage for Core's dedicated **Geo service area**
+  route and its City, State / region, and Range from city (miles) controls.
+- Kept Catering's existing server-side geocoder, public map, outside-address
+  error, manual-review fallback, and checkout validation on the shared Core
+  service-area contract; no module database migration was required.
+- Rebuilt the standalone module package without Core files or nested ZIPs.
+
 ## 2.0.0 — 2026-10-25
 
 - Adopted Core 2.6's shared service-area profile, server-side geocoding cache,

@@ -1,5 +1,27 @@
 # Catering Module Session Handoff
 
+## 2.0.1 Core 2.6.1 compatibility release — 2026-10-25
+
+Website Core 2.6.1 is merged on `main` at
+`99d13cf09488ef4990345ce229c60b334b6ca6d2`. It keeps Module API 1 and schema
+`2026_10_25_0032` but replaces the ambiguous Geo/analytics path with a
+dedicated **Website → Geo service area** screen containing City, State /
+region, optional Country, and Range from city (miles). Catering 2.0.1 requires
+Core `>=2.6.1,<3.0.0`, pins acceptance to that merge, and adds a blocking
+contract check for the route and fields.
+
+No Catering business logic or migration changed. The module still registers
+the server-side geocoder and consumes Core's verified center/radius for the
+public map, quote preview/submission, outside-address error, manual-review
+fallback, and eligible checkout. This remains a standalone Catering package;
+no Core files or combined installer are included.
+
+Local acceptance passed against the exact Core merge: all 61 PHP files, 55
+planner checks, 113 SQLite integration checks, the Core dependency contract,
+35 platform checks, 18 cross-module checks, 29 release-readiness checks, and
+three 27-check packaged upgrade/lifecycle baselines. GitHub publication and
+the PHP 8.4/8.5, MySQL 8.4, and MariaDB 11.4 matrix remain pending.
+
 ## 2.0.0 Core 2.6 integration release — 2026-10-25
 
 The module now requires Website Core `>=2.6.0,<3.0.0` and adopts the published
@@ -190,7 +212,7 @@ request.
 - Repository: `afterburn25/Core_Mods`
 - Branch: `module/catering`
 - Folder: `modules/industry-catering/`
-- Current version: `2.0.0`
+- Current version: `2.0.1`
 - Manifest ID: `cajunwebpro/catering`
 
 Do not develop the catering module directly on `main`, and do not create a
