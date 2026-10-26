@@ -8,7 +8,7 @@
   "released_at": "2026-10-26",
   "verification": "Core 2.6.2 local module and packaged lifecycle acceptance passed; GitHub CI pending",
   "tested_core": "2.6.2",
-  "tested_core_commit": "630a663fbba64de9f824cdcb16d1798bc8ae41d4",
+  "tested_core_commit": "15601a49df268d20dc3aa940736c5995a2aae774",
   "ci": {
     "module": "pending",
     "acceptance": "pending"
