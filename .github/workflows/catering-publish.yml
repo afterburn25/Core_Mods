@@ -1,0 +1,35 @@
+name: Catering 2.0.1 bounded publication
+on:
+  push:
+    branches: ['module/catering']
+permissions:
+  contents: write
+jobs:
+  assemble:
+    if: contains(github.event.head_commit.message, '[catering-2.0.1-transfer]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reconstruct, verify, and publish module source
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .catering-transfer/part-* | base64 --decode > /tmp/catering-2.0.1.bundle
+          echo "4a966060e591a5ce47cf1bcc6b38841aff20df7f7bb32c8978e3206a95bca1c4  /tmp/catering-2.0.1.bundle" | sha256sum --check
+          git bundle verify /tmp/catering-2.0.1.bundle
+          git fetch /tmp/catering-2.0.1.bundle refs/heads/module/catering:refs/remotes/transfer/catering
+          test "$(git rev-parse refs/remotes/transfer/catering)" = "cdb6e94f77653c9ba3d57bbe8c485ac0dd217809"
+          cp .github/workflows/catering-ci.yml /tmp/catering-ci.yml
+          cp .github/workflows/catering-publish.yml /tmp/catering-publish.yml
+          git read-tree --reset -u refs/remotes/transfer/catering
+          if [ -e .catering-transfer ]; then git rm -r .catering-transfer; fi
+          mkdir -p .github/workflows
+          cp /tmp/catering-ci.yml .github/workflows/catering-ci.yml
+          cp /tmp/catering-publish.yml .github/workflows/catering-publish.yml
+          git add -A
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Assemble Catering 2.0.1 module source"
+          git push origin HEAD:module/catering
