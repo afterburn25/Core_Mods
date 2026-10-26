@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: afterburn25/Website_Core
-          ref: 99d13cf09488ef4990345ce229c60b334b6ca6d2
+          ref: 15601a49df268d20dc3aa940736c5995a2aae774
           path: .core-test-fixture
       - uses: actions/checkout@v4
         with:
@@ -96,7 +96,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: afterburn25/Website_Core
-          ref: 99d13cf09488ef4990345ce229c60b334b6ca6d2
+          ref: 15601a49df268d20dc3aa940736c5995a2aae774
           path: .core-test-fixture
       - uses: actions/checkout@v4
         with:
