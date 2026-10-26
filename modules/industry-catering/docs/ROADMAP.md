@@ -345,5 +345,5 @@ subscription or customer-location store.
 - [x] Preserve the existing Catering geocoder, public map, outside-address
       error, manual-review fallback, postal rules, and checkout validation
 - [x] Complete local package lifecycle validation and build the exact ZIP
-- [ ] Publish the exact ZIP to `module/catering`
-- [ ] Pass module CI plus PHP 8.4/8.5, MySQL 8.4, and MariaDB 11.4 acceptance
+- [x] Publish the exact ZIP to `module/catering`
+- [x] Pass module CI plus PHP 8.4/8.5, MySQL 8.4, and MariaDB 11.4 acceptance

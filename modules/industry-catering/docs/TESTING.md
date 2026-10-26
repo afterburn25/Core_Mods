@@ -19,7 +19,13 @@
   0.1.21, and exact 0.4.0 baselines. JavaScript syntax, module validation, and
   whitespace validation passed. The final archive digest is recorded in
   `releases/LATEST.json`; the package contains no nested ZIP.
-- GitHub module and matrix CI remain required before publication is complete.
+- Exact archive: 1,749,850 bytes; SHA-256
+  `4daa1e1f6fd5c531a298e4ade63bc2078343c85db74a67aada569a6829433774`;
+  84 files; no nested ZIP. The exact source/archive tree was published at
+  `8755485a2bdde6f0ddd158048c3125c3866cfe5a`.
+- [Module CI run 40249108939](https://github.com/afterburn25/Core_Mods/actions/runs/40249108939)
+  passed. [Catering acceptance run 40249108960](https://github.com/afterburn25/Core_Mods/actions/runs/40249108960)
+  passed PHP 8.4/8.5, SQLite, native MySQL 8.4, and native MariaDB 11.4.
 
 ## 2.0.0 Core 2.6 integration release — 2026-10-25
 

@@ -19,8 +19,13 @@ no Core files or combined installer are included.
 Local acceptance passed against the exact Core merge: all 61 PHP files, 55
 planner checks, 113 SQLite integration checks, the Core dependency contract,
 35 platform checks, 18 cross-module checks, 29 release-readiness checks, and
-three 27-check packaged upgrade/lifecycle baselines. GitHub publication and
-the PHP 8.4/8.5, MySQL 8.4, and MariaDB 11.4 matrix remain pending.
+three 27-check packaged upgrade/lifecycle baselines. The exact 84-file ZIP is
+1,749,850 bytes with SHA-256
+`4daa1e1f6fd5c531a298e4ade63bc2078343c85db74a67aada569a6829433774`
+and no nested ZIP. The source/archive tree is published at
+`8755485a2bdde6f0ddd158048c3125c3866cfe5a`; Module CI `40249108939` and all
+four PHP 8.4/8.5, MySQL 8.4, and MariaDB 11.4 jobs in Catering acceptance
+`40249108960` passed.
 
 ## 2.0.0 Core 2.6 integration release — 2026-10-25
 

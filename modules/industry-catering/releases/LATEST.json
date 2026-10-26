@@ -6,11 +6,11 @@
   "module_api": 1,
   "verified_core": "2.6.1",
   "released_at": "2026-10-25",
-  "verification": "Core 2.6.1 local module acceptance passed; GitHub CI pending; no combined build or shared-host deployment",
+  "verification": "Core 2.6.1 local and GitHub module acceptance passed; no combined build or shared-host deployment",
   "tested_core": "2.6.1",
   "tested_core_commit": "99d13cf09488ef4990345ce229c60b334b6ca6d2",
   "ci": {
-    "module": null,
-    "acceptance": null
+    "module": "40249108939",
+    "acceptance": "40249108960"
   }
 }

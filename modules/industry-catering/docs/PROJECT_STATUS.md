@@ -1,7 +1,7 @@
 # Catering Module Project Status
 
 - Current version: `2.0.1`
-- State: Core 2.6.1 local acceptance passed; GitHub publication/CI pending
+- State: Core 2.6.1 compatibility release published; module-only CI passed
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
 - Module API: `1`
@@ -148,9 +148,10 @@
 
 ## Known issues and release gates
 
-- Catering 2.0.1 passed the complete local SQLite/source/package matrix against
-  exact Core 2.6.1. GitHub PHP 8.4/8.5, MySQL 8.4, and MariaDB 11.4 acceptance
-  remains required before it is described as published or production-ready.
+- Catering 2.0.1 is published at exact source/archive tree commit
+  `8755485a2bdde6f0ddd158048c3125c3866cfe5a`. Module CI `40249108939` and
+  all four Catering acceptance jobs in `40249108960` passed on PHP 8.4/8.5,
+  SQLite, MySQL 8.4, and MariaDB 11.4 against merged Core 2.6.1.
 
 - Catering 2.0.0 is published at final branch commit
   `66b9c4605458833a2414fc5de47feae8daac4780`. Module CI `40246534104` and
