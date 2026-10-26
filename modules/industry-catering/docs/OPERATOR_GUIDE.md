@@ -2,8 +2,8 @@
 
 ## Supported platform
 
-Catering 2.0.2 supports Website Core `>=2.6.2,<3.0.0` and Module API 1. Install
-the single `industry-catering-2.0.2.zip` through Core's package manager. The
+Catering 2.1.0 supports Website Core `>=2.6.2,<3.0.0` and Module API 1. Install
+the single `industry-catering-2.1.0.zip` through Core's package manager. The
 archive is a module-only package: it does not contain Core or another ZIP.
 
 Before installation or upgrade, create a complete Website Core backup using
@@ -36,6 +36,8 @@ preserves the module's enabled or disabled state.
    thumbnails, choose a color from that theme's palette dropdown, optionally
    override its hero/feature/accent images from Core Media, and select
    **Activate theme**.
+   Each theme includes its own hero, feature, and accent photography. Replacing
+   an image in one theme does not change another theme's bundled defaults.
 7. In Catering → Production catalog, enter verified ingredient costs and
    recipe quantities before relying on a production or purchasing total.
 8. Publish venue, case-study, and verified-review records—including their Core

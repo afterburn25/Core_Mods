@@ -4,7 +4,7 @@ if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 session_save_path(sys_get_temp_dir());
 session_start();
 require __DIR__ . '/bootstrap.php';
-if (version_compare(WC_VERSION, '2.6.2', '<')) throw new RuntimeException('Catering 2.0.2 requires Website Core 2.6.2 or newer.');
+if (version_compare(WC_VERSION, '2.6.2', '<')) throw new RuntimeException('Catering 2.1.0 requires Website Core 2.6.2 or newer.');
 $geoView = (string) file_get_contents(WC_ROOT . '/admin/views/business/service-area.php');
 $coreApplication = (string) file_get_contents(WC_ROOT . '/core/Application.php');
 $coreNav = (string) file_get_contents(WC_ROOT . '/core/Admin/Nav.php');

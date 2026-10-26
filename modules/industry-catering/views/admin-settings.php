@@ -24,8 +24,8 @@
 
 <div class="card">
     <div class="card-heading">
-        <div><p class="section-kicker">Core-managed appearance</p><h2>Catering layout collection</h2><p class="muted">Choose among ten structurally distinct layouts, four accessible palettes per layout, and replaceable hero/feature/accent images in Core Appearance. Save a draft, preview it here, then publish or roll back in Core.</p></div>
-        <div class="action-bar"><a class="btn secondary" href="<?= e_attr($basePath) ?>/admin/appearance">Open appearance</a><a class="btn secondary" href="<?= e_attr($themePreviewUrl) ?>" target="_blank" rel="noopener">Preview saved draft ↗</a></div>
+        <div><p class="section-kicker">Core-managed appearance</p><h2>Website theme</h2><p class="muted">Choose from ten professional themes, see a visual thumbnail for each one, select its color palette, and optionally replace its hero, feature, and accent images. Save a draft, preview it, then activate it for visitors.</p></div>
+        <div class="action-bar"><a class="btn secondary" href="<?= e_attr($basePath) ?>/admin/appearance">Choose a theme</a><a class="btn secondary" href="<?= e_attr($themePreviewUrl) ?>" target="_blank" rel="noopener">Preview saved draft ↗</a></div>
     </div>
 </div>
 

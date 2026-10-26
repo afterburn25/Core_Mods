@@ -356,3 +356,15 @@ subscription or customer-location store.
 - [x] Smoke-test every public and Catering administration GET route
 - [x] Document Core's Finalize update workflow for file-manager deployments
 - [ ] Publish the exact Catering 2.0.2 archive and pass GitHub acceptance
+
+## 2.1.0 — Commercial theme refinement
+
+- [x] Audit all ten themes as complete public experiences rather than color skins
+- [x] Replace cross-theme photography reuse with thirty unique optimized images
+- [x] Rebuild all ten Appearance thumbnails from the new theme-specific packs
+- [x] Use a compact sticky navigation bar with a 75%-opaque glass surface
+- [x] Increase and center menu labels with unmistakable active-page treatment
+- [x] Prevent redundant current-page reloads and show page-change progress
+- [x] Improve section hierarchy, card rhythm, responsive navigation, and focus states
+- [ ] Complete desktop, tablet, and 390px visual acceptance for every theme
+- [ ] Build and publish the exact Catering 2.1.0 archive and pass GitHub acceptance

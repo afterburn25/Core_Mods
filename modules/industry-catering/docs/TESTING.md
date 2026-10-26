@@ -1,5 +1,29 @@
 # Catering Module Testing
 
+## 2.1.0 commercial theme refinement — 2026-10-26
+
+- Validated the exact module source against the read-only Website Core 2.6.2
+  fixture and Landscaping 1.0.0 shared-contract fixture.
+- All 62 PHP files passed syntax checks. JavaScript syntax, Python build-script
+  compilation, JSON parsing, and whitespace validation passed.
+- Menu-planner acceptance passed 55 checks; controller/database integration
+  passed 125; Core platform integration passed 35; cross-module shared
+  contracts passed 18; release readiness passed 105; and the packaged
+  upgrade/install/disable/enable/uninstall/reinstall lifecycle passed 27.
+- Every theme activated through Core and rendered one header, one navigation
+  disclosure, one main landmark, unique IDs, useful image alternative text,
+  and its own hero, feature, and accent photography URLs. Forty rendered-theme
+  structure assertions passed.
+- All thirty theme photographs and all ten 600×400 chooser thumbnails were
+  reviewed as contact sheets after final WebP optimization. The thirty source
+  photographs retain unique hashes and production dimensions.
+- The exact archive has 126 files and no nested ZIP. Its final size and
+  SHA-256 are recorded in `releases/LATEST.json`. A direct upgrade from the
+  exact 2.0.2 archive preserved customer catalog edits and inquiry history.
+- A fresh local Chromium executable was unavailable, so responsive browser
+  screenshot acceptance remains open and is not claimed here. GitHub
+  publication and CI are also pending.
+
 ## 2.0.2 administration route maintenance — 2026-10-26
 
 - Added a blocking assertion for eight distinct Catering administration icon

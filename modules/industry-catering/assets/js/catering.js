@@ -8,7 +8,42 @@
       toggle.setAttribute('aria-expanded', open ? 'false' : 'true');
       nav.classList.toggle('is-open', !open);
     });
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || toggle.getAttribute('aria-expanded') !== 'true') return;
+      toggle.setAttribute('aria-expanded', 'false');
+      nav.classList.remove('is-open');
+      toggle.focus();
+    });
+    document.addEventListener('click', (event) => {
+      if (!nav.classList.contains('is-open') || nav.contains(event.target) || toggle.contains(event.target)) return;
+      toggle.setAttribute('aria-expanded', 'false');
+      nav.classList.remove('is-open');
+    });
   }
+
+  const header = document.querySelector('[data-site-header]');
+  if (header) {
+    const updateHeader = () => header.classList.toggle('is-scrolled', window.scrollY > 12);
+    updateHeader();
+    window.addEventListener('scroll', updateHeader, {passive: true});
+  }
+
+  document.querySelectorAll('a[href]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey
+        || link.target || link.hasAttribute('download')) return;
+      const destination = new URL(link.href, window.location.href);
+      if (destination.origin !== window.location.origin) return;
+      const current = new URL(window.location.href);
+      if (destination.pathname === current.pathname && destination.search === current.search && destination.hash === '') {
+        event.preventDefault();
+        window.scrollTo({top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+        return;
+      }
+      if (destination.hash !== '' && destination.pathname === current.pathname && destination.search === current.search) return;
+      document.body.classList.add('is-page-leaving');
+    });
+  });
 
   document.querySelectorAll('[data-open-window]').forEach((link) => {
     link.addEventListener('click', (event) => {

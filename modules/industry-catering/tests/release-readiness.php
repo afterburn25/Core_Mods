@@ -9,13 +9,13 @@ $check = static function (bool $condition, string $message) use (&$checks): void
     $checks++;
 };
 $manifest = json_decode((string) file_get_contents($root . '/addon.json'), true, 512, JSON_THROW_ON_ERROR);
-$check($manifest['version'] === '2.0.2', 'Release-readiness suite targets Catering 2.0.2');
+$check($manifest['version'] === '2.1.0', 'Release-readiness suite targets Catering 2.1.0');
 $check($manifest['requires']['core'] === '>=2.6.2,<3.0.0' && (int) $manifest['requires']['api'] === 1,
     'Supported Core and Module API ranges are explicit');
 foreach (['business.service_area','appearance.collections','commerce.checkout_validation','leads.quotes'] as $service) {
     $check(isset($manifest['requires']['services'][$service]), 'Manifest pins Core service ' . $service);
 }
-foreach (['README.md', 'CHANGELOG.md', 'docs/OPERATOR_GUIDE.md', 'docs/RELEASE_NOTES_1.0.md', 'docs/RELEASE_NOTES_1.5.md', 'docs/RELEASE_NOTES_2.0.md', 'docs/RELEASE_NOTES_2.0.1.md', 'docs/RELEASE_NOTES_2.0.2.md', 'docs/TESTING.md'] as $file) {
+foreach (['README.md', 'CHANGELOG.md', 'docs/OPERATOR_GUIDE.md', 'docs/RELEASE_NOTES_1.0.md', 'docs/RELEASE_NOTES_1.5.md', 'docs/RELEASE_NOTES_2.0.md', 'docs/RELEASE_NOTES_2.0.1.md', 'docs/RELEASE_NOTES_2.0.2.md', 'docs/RELEASE_NOTES_2.1.0.md', 'docs/TESTING.md'] as $file) {
     $check(is_file($root . '/' . $file), $file . ' is packaged');
 }
 
@@ -23,6 +23,7 @@ $layout = (string) file_get_contents($root . '/views/layout.php');
 $quote = (string) file_get_contents($root . '/views/quote.php');
 $contact = (string) file_get_contents($root . '/views/contact.php');
 $css = (string) file_get_contents($root . '/assets/css/catering.css');
+$themeCss = (string) file_get_contents($root . '/assets/css/themes.css');
 $js = (string) file_get_contents($root . '/assets/js/catering.js');
 $controller = (string) file_get_contents($root . '/src/CateringController.php');
 $workspace = (string) file_get_contents($root . '/src/EventWorkspace.php');
@@ -37,6 +38,10 @@ $check(str_contains($contact, '$csrf->field()') && str_contains($contact, 'autoc
     'Contact form retains CSRF and autocomplete semantics');
 $check(str_contains($css, '@media(max-width:760px)') && str_contains($css, '@media(prefers-reduced-motion:reduce)')
     && str_contains($css, ':focus-visible'), 'Responsive, reduced-motion, and visible-focus rules are present');
+$check(str_contains($themeCss, 'position:sticky') && str_contains($themeCss, '75%,transparent')
+    && str_contains($themeCss, '[aria-current=page]'), 'Theme navigation is sticky, translucent, and visibly identifies the active page');
+$check(str_contains($js, 'is-page-leaving') && str_contains($js, 'window.scrollTo') && str_contains($js, "event.key !== 'Escape'"),
+    'Navigation distinguishes page changes, avoids redundant reloads, and supports keyboard dismissal');
 $check(!str_contains($js, '.innerHTML') && !str_contains($js, 'document.write') && !preg_match('/\beval\s*\(/', $js),
     'Client rendering avoids HTML injection primitives');
 $check(str_contains($controller, 'Csrf::class') && str_contains($controller, 'RateLimiter::class')
@@ -62,6 +67,15 @@ $check(count($thumbnailFiles)===10&&count(array_unique(array_map(static fn(strin
 foreach($thumbnailFiles as $thumbnail){
     $dimensions=getimagesize($thumbnail);
     $check($dimensions!==false&&$dimensions[0]===600&&$dimensions[1]===400,'Theme thumbnail is a 600x400 image: '.basename($thumbnail));
+}
+$themePackFiles=glob($root.'/assets/images/theme-packs/*.webp')?:[];
+$check(count($themePackFiles)===30&&count(array_unique(array_map(static fn(string $file):string=>hash_file('sha256',$file),$themePackFiles)))===30,
+    'Ten themes package thirty distinct hero, feature, and accent photographs');
+foreach($themePackFiles as $image){
+    $dimensions=getimagesize($image);
+    $relative='assets/images/theme-packs/'.basename($image);
+    $check($dimensions!==false&&$dimensions[0]>=600&&$dimensions[1]>=400,'Theme photograph has production dimensions: '.basename($image));
+    $check(in_array($relative,$manifest['assets']['images'],true),'Theme photograph is declared in addon.json: '.basename($image));
 }
 
 $migrationFiles = array_map('basename', glob($root . '/migrations/*.php') ?: []);

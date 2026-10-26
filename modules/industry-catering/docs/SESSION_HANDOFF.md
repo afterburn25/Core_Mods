@@ -1,5 +1,22 @@
 # Catering Module Session Handoff
 
+## Current continuation — 2.1.0 candidate (2026-10-26)
+
+Catering 2.1.0 completes the requested commercial design refinement without
+changing Website Core or creating a combined installer. All ten layouts now
+use a compact sticky 75%-opaque navigation surface, larger centered labels,
+an explicit active-page state, accessible mobile dismissal, and page-change
+feedback. Each layout retains its own composition and now has a dedicated
+hero, feature, and accent pack; thirty photographs and ten chooser thumbnails
+are visually distinct.
+
+The exact local archive is `industry-catering-2.1.0.zip`; its final size and
+SHA-256 are recorded in `releases/LATEST.json`. It contains 126 files and no
+nested ZIP. Local Core 2.6.2, SQLite, package, shared-contract, syntax, and
+rendered-structure checks pass. Responsive browser screenshot acceptance,
+GitHub publication, and GitHub CI remain pending and must not be claimed until
+completed.
+
 ## 2.0.1 Core 2.6.1 compatibility release — 2026-10-25
 
 Website Core 2.6.1 is merged on `main` at
@@ -217,7 +234,7 @@ request.
 - Repository: `afterburn25/Core_Mods`
 - Branch: `module/catering`
 - Folder: `modules/industry-catering/`
-- Current version: `2.0.1`
+- Current version: `2.1.0`
 - Manifest ID: `cajunwebpro/catering`
 
 Do not develop the catering module directly on `main`, and do not create a

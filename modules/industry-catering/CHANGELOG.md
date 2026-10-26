@@ -1,5 +1,20 @@
 # Catering Module Changelog
 
+## 2.1.0 — 2026-10-26
+
+- Reworked all ten themes for a commercial-quality visual hierarchy while
+  retaining ten distinct layout systems.
+- Added thirty unique optimized theme photographs so no theme reuses another
+  theme's hero, feature, or accent defaults.
+- Rebuilt the ten Appearance thumbnails from the new photography packs.
+- Standardized a compact 72-pixel sticky glass navigation treatment with 25%
+  transparency, larger centered menu labels, visible active states, and
+  responsive keyboard behavior.
+- Added page-change feedback and prevented redundant reloads of the exact
+  current navigation destination.
+- Strengthened responsive composition, section separation, card treatments,
+  focus visibility, and image propagation throughout inner pages.
+
 ## 2.0.2 — 2026-10-26
 
 - Assigned a distinct Core administration icon to every Catering link:

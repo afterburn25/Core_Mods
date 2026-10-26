@@ -9,16 +9,16 @@ OUTPUT = IMAGES / "themes"
 OUTPUT.mkdir(parents=True, exist_ok=True)
 
 THEMES = {
-    "heritage-editorial": ("Heritage Editorial", "hero.webp", "wedding-table.webp", "menu/crawfish-etouffee.webp", "#fffaf0", "#8b3f23"),
-    "modern-culinary": ("Modern Culinary", "corporate-service.webp", "menu/blackened-redfish.webp", "menu/cajun-shrimp-grits-bites.webp", "#fbfcfd", "#176b76"),
-    "garden-celebration": ("Garden Celebration", "wedding-table.webp", "menu/crawfish-bread.webp", "menu/bananas-foster-bread-pudding.webp", "#fbfaf5", "#52735b"),
-    "grand-wedding": ("Grand Wedding", "plated-dinner.webp", "wedding-table.webp", "menu/shrimp-fettuccine.webp", "#fffaf2", "#9b7135"),
-    "corporate-table": ("Corporate Table", "menu/blackened-redfish.webp", "corporate-service.webp", "menu/cajun-jambalaya.webp", "#f7f9fc", "#285b92"),
-    "rustic-gathering": ("Rustic Gathering", "menu/cajun-jambalaya.webp", "menu/boudin-balls.webp", "menu/crawfish-bread.webp", "#fffaf1", "#7a4b2c"),
-    "bayou-night": ("Bayou Night", "menu/crawfish-etouffee.webp", "menu/crawfish-bisque.webp", "menu/blackened-redfish.webp", "#111915", "#8dbb73"),
-    "market-kitchen": ("Market Kitchen", "menu/boudin-balls.webp", "menu/chicken-andouille-gumbo.webp", "menu/cajun-shrimp-grits-bites.webp", "#fffaf3", "#b8432f"),
-    "social-feast": ("Social Feast", "menu/shrimp-fettuccine.webp", "menu/crawfish-bread.webp", "menu/crawfish-bisque.webp", "#fff9f7", "#b94770"),
-    "minimal-luxe": ("Minimal Luxe", "menu/bananas-foster-bread-pudding.webp", "plated-dinner.webp", "menu/blackened-redfish.webp", "#fdfcf9", "#6f5a3a"),
+    "heritage-editorial": ("Heritage Editorial", "#fffaf0", "#8b3f23"),
+    "modern-culinary": ("Modern Culinary", "#fbfcfd", "#176b76"),
+    "garden-celebration": ("Garden Celebration", "#fbfaf5", "#52735b"),
+    "grand-wedding": ("Grand Wedding", "#fffaf2", "#9b7135"),
+    "corporate-table": ("Corporate Table", "#f7f9fc", "#285b92"),
+    "rustic-gathering": ("Rustic Gathering", "#fffaf1", "#7a4b2c"),
+    "bayou-night": ("Bayou Night", "#111915", "#8dbb73"),
+    "market-kitchen": ("Market Kitchen", "#fffaf3", "#b8432f"),
+    "social-feast": ("Social Feast", "#fff9f7", "#b94770"),
+    "minimal-luxe": ("Minimal Luxe", "#fdfcf9", "#6f5a3a"),
 }
 
 FONT = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 16)
@@ -34,7 +34,10 @@ def label(draw: ImageDraw.ImageDraw, name: str, x: int, y: int, color: str, seri
     draw.text((x, y), name, font=SERIF if serif else FONT, fill=color)
 
 
-for slug, (name, hero, feature, accent, background, primary) in THEMES.items():
+for slug, (name, background, primary) in THEMES.items():
+    hero = f"theme-packs/{slug}-hero.webp"
+    feature = f"theme-packs/{slug}-feature.webp"
+    accent = f"theme-packs/{slug}-accent.webp"
     canvas = Image.new("RGB", (600, 400), background)
     draw = ImageDraw.Draw(canvas)
 

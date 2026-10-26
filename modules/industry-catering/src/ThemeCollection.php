@@ -10,20 +10,21 @@ final class ThemeCollection
     public static function variants(): array
     {
         $definitions = [
-            ['heritage-editorial', 'Heritage Editorial', 'Story-led split editorial composition.', 'hero.webp', 'wedding-table.webp', 'menu/crawfish-etouffee.webp'],
-            ['modern-culinary', 'Modern Culinary', 'Asymmetric modular culinary showcase.', 'corporate-service.webp', 'menu/blackened-redfish.webp', 'menu/cajun-shrimp-grits-bites.webp'],
-            ['garden-celebration', 'Garden Celebration', 'Layered organic event presentation.', 'wedding-table.webp', 'menu/crawfish-bread.webp', 'menu/bananas-foster-bread-pudding.webp'],
-            ['grand-wedding', 'Grand Wedding', 'Cinematic full-bleed celebration layout.', 'plated-dinner.webp', 'wedding-table.webp', 'menu/shrimp-fettuccine.webp'],
-            ['corporate-table', 'Corporate Table', 'Precise information-first event grid.', 'menu/blackened-redfish.webp', 'corporate-service.webp', 'menu/cajun-jambalaya.webp'],
-            ['rustic-gathering', 'Rustic Gathering', 'Warm collage and card composition.', 'menu/cajun-jambalaya.webp', 'menu/boudin-balls.webp', 'menu/crawfish-bread.webp'],
-            ['bayou-night', 'Bayou Night', 'Dark immersive hospitality experience.', 'menu/crawfish-etouffee.webp', 'menu/crawfish-bisque.webp', 'menu/blackened-redfish.webp'],
-            ['market-kitchen', 'Market Kitchen', 'Menu-first storefront composition.', 'menu/boudin-balls.webp', 'menu/chicken-andouille-gumbo.webp', 'menu/cajun-shrimp-grits-bites.webp'],
-            ['social-feast', 'Social Feast', 'Image-led masonry and event discovery.', 'menu/shrimp-fettuccine.webp', 'menu/crawfish-bread.webp', 'menu/crawfish-bisque.webp'],
-            ['minimal-luxe', 'Minimal Luxe', 'Restrained typography and open-space composition.', 'menu/bananas-foster-bread-pudding.webp', 'plated-dinner.webp', 'menu/blackened-redfish.webp'],
+            ['heritage-editorial', 'Heritage Editorial', 'Story-led split editorial composition.'],
+            ['modern-culinary', 'Modern Culinary', 'Asymmetric modular culinary showcase.'],
+            ['garden-celebration', 'Garden Celebration', 'Layered organic event presentation.'],
+            ['grand-wedding', 'Grand Wedding', 'Cinematic full-bleed celebration layout.'],
+            ['corporate-table', 'Corporate Table', 'Precise information-first event grid.'],
+            ['rustic-gathering', 'Rustic Gathering', 'Warm collage and card composition.'],
+            ['bayou-night', 'Bayou Night', 'Dark immersive hospitality experience.'],
+            ['market-kitchen', 'Market Kitchen', 'Menu-first storefront composition.'],
+            ['social-feast', 'Social Feast', 'Image-led masonry and event discovery.'],
+            ['minimal-luxe', 'Minimal Luxe', 'Restrained typography and open-space composition.'],
         ];
 
         return array_map(static function (array $definition): array {
-            [$id, $name, $description, $hero, $feature, $accent] = $definition;
+            [$id, $name, $description] = $definition;
+            $pack = 'theme-packs/' . $id . '-';
             return [
                 'id' => $id,
                 'name' => $name,
@@ -33,9 +34,9 @@ final class ThemeCollection
                 'assets' => ['css' => ['assets/css/catering.css', 'assets/css/themes.css'], 'js' => ['assets/js/catering.js']],
                 'palettes' => self::palettes($id),
                 'media_slots' => [
-                    'hero' => ['label' => $name . ' hero', 'default' => 'assets/images/' . $hero],
-                    'feature' => ['label' => $name . ' feature', 'default' => 'assets/images/' . $feature],
-                    'accent' => ['label' => $name . ' accent', 'default' => 'assets/images/' . $accent],
+                    'hero' => ['label' => $name . ' hero', 'default' => 'assets/images/' . $pack . 'hero.webp'],
+                    'feature' => ['label' => $name . ' feature', 'default' => 'assets/images/' . $pack . 'feature.webp'],
+                    'accent' => ['label' => $name . ' accent', 'default' => 'assets/images/' . $pack . 'accent.webp'],
                 ],
             ];
         }, $definitions);

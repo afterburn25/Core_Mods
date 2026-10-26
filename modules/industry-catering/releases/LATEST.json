@@ -1,14 +1,14 @@
 {
   "module_id": "cajunwebpro/catering",
-  "version": "2.0.2",
-  "file": "industry-catering-2.0.2.zip",
-  "sha256": "bdbc18b241d54416c6e5782e1393a34d1623861927197b1690c0ab3829df5e7f",
+  "version": "2.1.0",
+  "file": "industry-catering-2.1.0.zip",
+  "sha256": "275d3bd7bc174160012a161924ea4ad76b5f1011c83bf52611e43ab1ca1f0888",
   "module_api": 1,
   "verified_core": "2.6.2",
   "released_at": "2026-10-26",
   "verification": "Core 2.6.2 local module and packaged lifecycle acceptance passed; GitHub CI pending",
   "tested_core": "2.6.2",
-  "tested_core_commit": "15601a49df268d20dc3aa940736c5995a2aae774",
+  "tested_core_commit": "407bcb72e5392b44184ddbb252d2c9d58f6bf730",
   "ci": {
     "module": "pending",
     "acceptance": "pending"

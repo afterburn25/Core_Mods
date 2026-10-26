@@ -19,6 +19,15 @@ final class ThemeSupport
                 $style .= '--theme-' . $key . ':' . strtolower((string) $value) . ';';
             }
         }
+        foreach (['hero', 'feature', 'accent'] as $slot) {
+            $url = (string) (($v['themeMedia'] ?? [])[$slot] ?? '');
+            if ($url !== '') {
+                $encoded = json_encode($url, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+                if (is_string($encoded)) {
+                    $style .= '--theme-image-' . $slot . ':url(' . $encoded . ');';
+                }
+            }
+        }
         return '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             . '<title>' . self::h($title) . '</title><meta name="description" content="' . self::a((string) ($page['meta_description'] ?? '')) . '">'
             . (!empty($page['noindex']) ? '<meta name="robots" content="noindex,nofollow">' : '')
@@ -50,7 +59,7 @@ final class ThemeSupport
             $target = (string) ($item['target'] ?? 'self');
             $attrs = $target === 'tab' ? ' target="_blank" rel="noopener noreferrer"'
                 : ($target === 'window' ? ' target="wc-nav-window" rel="noopener noreferrer" data-open-window' : '');
-            $html .= '<li><a href="' . self::a($href) . '"' . ($active ? ' aria-current="page"' : '') . $attrs . '>'
+            $html .= '<li class="c-nav-item"><a href="' . self::a($href) . '"' . ($active ? ' aria-current="page"' : '') . $attrs . '>'
                 . self::h((string) ($item['label'] ?? '')) . '</a>';
             if (!empty($item['children']) && is_array($item['children'])) {
                 $html .= self::navigation($item['children'], $v, 'c-nav-children');

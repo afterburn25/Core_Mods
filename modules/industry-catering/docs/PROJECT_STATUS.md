@@ -1,12 +1,25 @@
 # Catering Module Project Status
 
-- Current version: `2.0.2`
-- State: administration icon and route-recovery maintenance release in validation
+- Current version: `2.1.0`
+- State: commercial theme and navigation refinement candidate built; publication and browser acceptance pending
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
 - Module API: `1`
 - Required Core: Website Core `>=2.6.2,<3.0.0`
-- Last updated: 2026-10-25
+- Last updated: 2026-10-26
+
+## 2.1.0 commercial design scope
+
+- Replaces cross-theme image reuse with thirty unique, optimized WebP
+  photographs: hero, feature, and accent packs for all ten themes.
+- Rebuilds all ten theme thumbnails from their actual new photography.
+- Gives every theme a compact sticky navigation bar with a 75%-opaque blurred
+  surface, larger centered labels, clear active-page state, and a polished
+  mobile menu.
+- Adds page-change feedback, prevents a redundant reload when the current page
+  link is selected, and supports Escape/outside-click mobile dismissal.
+- Reorganizes each theme's sections, cards, imagery, hero rhythm, and footer
+  hierarchy while retaining ten genuinely different layout systems.
 
 ## 2.0.2 maintenance scope
 

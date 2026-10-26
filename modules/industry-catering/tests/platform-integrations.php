@@ -57,7 +57,11 @@ foreach($themes as $themeId=>$themeDefinition){
     $rendered=$f['controller']->home(cateringRequest('GET','/'))->body();
     $verify($activated&&$activateError===null
         &&str_contains($rendered,'theme-'.$themeId)&&str_contains($rendered,'themes.css')
-        &&str_contains($rendered,'id="main-content"'),$themeDefinition['name'].' activates and renders through Core');
+        &&str_contains($rendered,'id="main-content"')
+        &&str_contains($rendered,'theme-packs/'.$themeId.'-hero.webp')
+        &&str_contains($rendered,'theme-packs/'.$themeId.'-feature.webp')
+        &&str_contains($rendered,'theme-packs/'.$themeId.'-accent.webp'),
+        $themeDefinition['name'].' activates with its own complete photography pack');
 }
 $area=$f['controller']->serviceArea(cateringRequest('GET','/service-area'));
 $verify(str_contains($area->body(),'wc-service-area-map'),'Public service-area page renders the Core map');
