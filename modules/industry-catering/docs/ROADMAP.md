@@ -367,4 +367,4 @@ subscription or customer-location store.
 - [x] Prevent redundant current-page reloads and show page-change progress
 - [x] Improve section hierarchy, card rhythm, responsive navigation, and focus states
 - [ ] Complete desktop, tablet, and 390px visual acceptance for every theme
-- [ ] Build and publish the exact Catering 2.1.0 archive and pass GitHub acceptance
+- [x] Build and publish the exact Catering 2.1.0 archive and pass GitHub acceptance

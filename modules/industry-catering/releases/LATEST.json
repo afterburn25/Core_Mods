@@ -6,11 +6,11 @@
   "module_api": 1,
   "verified_core": "2.6.2",
   "released_at": "2026-10-26",
-  "verification": "Core 2.6.2 local module and packaged lifecycle acceptance passed; GitHub CI pending",
+  "verification": "Core 2.6.2 local and GitHub module/package acceptance passed; responsive browser screenshot acceptance pending",
   "tested_core": "2.6.2",
   "tested_core_commit": "407bcb72e5392b44184ddbb252d2c9d58f6bf730",
   "ci": {
-    "module": "pending",
-    "acceptance": "pending"
+    "module": "https://github.com/afterburn25/Core_Mods/actions/runs/40257434131",
+    "acceptance": "https://github.com/afterburn25/Core_Mods/actions/runs/40257433957"
   }
 }

@@ -21,8 +21,12 @@
   SHA-256 are recorded in `releases/LATEST.json`. A direct upgrade from the
   exact 2.0.2 archive preserved customer catalog edits and inquiry history.
 - A fresh local Chromium executable was unavailable, so responsive browser
-  screenshot acceptance remains open and is not claimed here. GitHub
-  publication and CI are also pending.
+  screenshot acceptance remains open and is not claimed here.
+- The source/archive tree was published at
+  `ef1bf8ce9139c0b1c81e3a6f81b255648a16b9f9`; the acceptance commit is
+  `eba9e4052bf55821064730a2c9b82a2e296cd426`. Module CI run
+  `40257434131` passed. Catering acceptance run `40257433957` passed PHP
+  8.4/8.5, SQLite, native MySQL 8.4, and native MariaDB 11.4.
 
 ## 2.0.2 administration route maintenance — 2026-10-26
 

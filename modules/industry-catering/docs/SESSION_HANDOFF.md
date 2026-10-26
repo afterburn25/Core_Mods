@@ -13,9 +13,11 @@ are visually distinct.
 The exact local archive is `industry-catering-2.1.0.zip`; its final size and
 SHA-256 are recorded in `releases/LATEST.json`. It contains 126 files and no
 nested ZIP. Local Core 2.6.2, SQLite, package, shared-contract, syntax, and
-rendered-structure checks pass. Responsive browser screenshot acceptance,
-GitHub publication, and GitHub CI remain pending and must not be claimed until
-completed.
+rendered-structure checks pass. The exact tree was published at
+`ef1bf8ce9139c0b1c81e3a6f81b255648a16b9f9`; Module CI `40257434131` and
+Catering acceptance `40257433957` passed on acceptance commit
+`eba9e4052bf55821064730a2c9b82a2e296cd426`. Responsive browser screenshot
+acceptance remains pending and must not be claimed until completed.
 
 ## 2.0.1 Core 2.6.1 compatibility release — 2026-10-25
 
