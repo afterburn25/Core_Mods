@@ -278,7 +278,7 @@ account, invoice, signature, or payment engines.
 - [x] Publish service, menu, FAQ, review and service-area structured data through
       Core's schema contribution contract
 
-## 1.6.0 — Ten-layout Catering theme collection
+## 1.6.0 — Ten-theme Catering design library
 
 Deliver ten complete Catering themes. These are distinct page compositions,
 not one template with ten CSS skins. Working theme identities are:
@@ -304,8 +304,9 @@ not one template with ten CSS skins. Working theme identities are:
       theme
 - [ ] Save palette and Media choice independently for every inactive theme;
       Core 2.6 currently retains only draft, published, and previous selections
-- [x] Use Core's visual theme chooser for authenticated preview, draft,
-      publish and rollback without changing public content or navigation
+- [x] Use Core's visual theme cards with per-theme thumbnails, one palette
+      dropdown, direct activation, optional Media overrides, and rollback
+      without changing public content or navigation
 - [ ] Preserve arbitrary inactive-theme palette/media selections while another
       theme is active; upgrades do preserve Core's draft/published/previous state
 - [ ] Test all ten themes at supported responsive breakpoints with keyboard,
@@ -347,3 +348,11 @@ subscription or customer-location store.
 - [x] Complete local package lifecycle validation and build the exact ZIP
 - [x] Publish the exact ZIP to `module/catering`
 - [x] Pass module CI plus PHP 8.4/8.5, MySQL 8.4, and MariaDB 11.4 acceptance
+
+## 2.0.2 — Administration navigation and route recovery
+
+- [x] Give all eight Catering administration links distinct icons
+- [x] Adopt Website Core 2.6.2's validated module icon declaration
+- [x] Smoke-test every public and Catering administration GET route
+- [x] Document Core's Finalize update workflow for file-manager deployments
+- [ ] Publish the exact Catering 2.0.2 archive and pass GitHub acceptance

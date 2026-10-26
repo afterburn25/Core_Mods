@@ -1,5 +1,22 @@
 # Catering Module Changelog
 
+## 2.0.2 — 2026-10-26
+
+- Assigned a distinct Core administration icon to every Catering link:
+  menus, packages, menu collections, events, production, settings, and the
+  two Core-rendered quick managers.
+- Raised the supported Website Core baseline to 2.6.2 for the validated
+  module-icon navigation contract.
+- Expanded the blocking route smoke matrix to every static public page, every
+  service detail, every Catering administration destination, and an event
+  detail so regressions cannot ship as uncaught page errors.
+- Documented the required **Finalize update** step after files are replaced
+  directly through a hosting file manager; this runs pending migrations and
+  resolves schema-related page errors without discarding catering data.
+- Replaced the generic layout-variant editor with a visual
+  **Catering Themes** library: ten layout-specific thumbnails, one palette
+  dropdown per theme, optional image overrides, and a direct Activate action.
+
 ## 2.0.1 — 2026-10-25
 
 - Raised the supported Website Core baseline to 2.6.1 and pinned acceptance to

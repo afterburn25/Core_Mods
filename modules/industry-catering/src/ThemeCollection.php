@@ -29,6 +29,7 @@ final class ThemeCollection
                 'name' => $name,
                 'description' => $description,
                 'layout' => 'views/themes/' . $id . '.php',
+                'thumbnail' => 'assets/images/themes/' . $id . '.webp',
                 'assets' => ['css' => ['assets/css/catering.css', 'assets/css/themes.css'], 'js' => ['assets/js/catering.js']],
                 'palettes' => self::palettes($id),
                 'media_slots' => [

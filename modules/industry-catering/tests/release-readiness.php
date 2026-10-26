@@ -9,13 +9,13 @@ $check = static function (bool $condition, string $message) use (&$checks): void
     $checks++;
 };
 $manifest = json_decode((string) file_get_contents($root . '/addon.json'), true, 512, JSON_THROW_ON_ERROR);
-$check($manifest['version'] === '2.0.1', 'Release-readiness suite targets Catering 2.0.1');
-$check($manifest['requires']['core'] === '>=2.6.1,<3.0.0' && (int) $manifest['requires']['api'] === 1,
+$check($manifest['version'] === '2.0.2', 'Release-readiness suite targets Catering 2.0.2');
+$check($manifest['requires']['core'] === '>=2.6.2,<3.0.0' && (int) $manifest['requires']['api'] === 1,
     'Supported Core and Module API ranges are explicit');
 foreach (['business.service_area','appearance.collections','commerce.checkout_validation','leads.quotes'] as $service) {
     $check(isset($manifest['requires']['services'][$service]), 'Manifest pins Core service ' . $service);
 }
-foreach (['README.md', 'CHANGELOG.md', 'docs/OPERATOR_GUIDE.md', 'docs/RELEASE_NOTES_1.0.md', 'docs/RELEASE_NOTES_1.5.md', 'docs/RELEASE_NOTES_2.0.md', 'docs/RELEASE_NOTES_2.0.1.md', 'docs/TESTING.md'] as $file) {
+foreach (['README.md', 'CHANGELOG.md', 'docs/OPERATOR_GUIDE.md', 'docs/RELEASE_NOTES_1.0.md', 'docs/RELEASE_NOTES_1.5.md', 'docs/RELEASE_NOTES_2.0.md', 'docs/RELEASE_NOTES_2.0.1.md', 'docs/RELEASE_NOTES_2.0.2.md', 'docs/TESTING.md'] as $file) {
     $check(is_file($root . '/' . $file), $file . ' is packaged');
 }
 
@@ -56,6 +56,13 @@ $check(count($themeFiles)===10,'Exactly ten distinct Catering layout templates a
 $themeSource=implode("\n",array_map(static fn(string $file):string=>(string)file_get_contents($file),$themeFiles));
 $check(count(array_unique(array_map(static fn(string $file):string=>hash_file('sha256',$file),$themeFiles)))===10&&str_contains($themeSource,'theme-heritage-editorial')
     &&str_contains($themeSource,'theme-minimal-luxe'),'All ten theme templates are structurally distinct');
+$thumbnailFiles=glob($root.'/assets/images/themes/*.webp')?:[];
+$check(count($thumbnailFiles)===10&&count(array_unique(array_map(static fn(string $file):string=>hash_file('sha256',$file),$thumbnailFiles)))===10,
+    'Ten distinct theme preview thumbnails are packaged');
+foreach($thumbnailFiles as $thumbnail){
+    $dimensions=getimagesize($thumbnail);
+    $check($dimensions!==false&&$dimensions[0]===600&&$dimensions[1]===400,'Theme thumbnail is a 600x400 image: '.basename($thumbnail));
+}
 
 $migrationFiles = array_map('basename', glob($root . '/migrations/*.php') ?: []);
 $check($migrationFiles === [

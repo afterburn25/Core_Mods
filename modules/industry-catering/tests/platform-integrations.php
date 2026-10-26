@@ -53,12 +53,11 @@ $verify(str_contains($home->body(),'Order online')&&str_contains($home->body(),'
 $themeService=$ctx->service(Core\Appearance\ModuleThemeCollections::class);
 foreach($themes as $themeId=>$themeDefinition){
     $paletteId=(string)array_key_first($themeDefinition['palettes']);
-    [$drafted,$draftError]=$themeService->saveDraft('cajunwebpro/catering',(string)$themeId,$paletteId);
-    [$published,$publishError]=$themeService->publish('cajunwebpro/catering');
+    [$activated,$activateError]=$themeService->activate('cajunwebpro/catering',(string)$themeId,$paletteId);
     $rendered=$f['controller']->home(cateringRequest('GET','/'))->body();
-    $verify($drafted&&$draftError===null&&$published&&$publishError===null
+    $verify($activated&&$activateError===null
         &&str_contains($rendered,'theme-'.$themeId)&&str_contains($rendered,'themes.css')
-        &&str_contains($rendered,'id="main-content"'),$themeDefinition['name'].' drafts, publishes, and renders through Core');
+        &&str_contains($rendered,'id="main-content"'),$themeDefinition['name'].' activates and renders through Core');
 }
 $area=$f['controller']->serviceArea(cateringRequest('GET','/service-area'));
 $verify(str_contains($area->body(),'wc-service-area-map'),'Public service-area page renders the Core map');

@@ -32,7 +32,7 @@ final class Provider
             new Geocoder((string) ($profile['email'] ?? '')),
             'OpenStreetMap contributors',
         );
-        $ctx->themeCollection('Catering Layout Collection', ThemeCollection::variants());
+        $ctx->themeCollection('Catering Themes', ThemeCollection::variants());
         $ctx->structuredData('catering-public', fn ($request): array => (new StructuredData($ctx))->forRequest($request));
 
         $commerce = new CommerceIntegration($ctx, $ctx->service(Connection::class), $settings);
@@ -111,12 +111,12 @@ final class Provider
             ['name'=>'verified','label'=>'Verified event','type'=>'checkbox'],
             ['name'=>'portrait','label'=>'Customer or event image','type'=>'media'],
         ]);
-        $ctx->adminPage('Menu details & pricing', '/admin/catering/menus', 'catering.manage', 'Catering');
-        $ctx->adminPage('Package details & pricing', '/admin/catering/packages', 'catering.manage', 'Catering');
-        $ctx->adminPage('Menu collections', '/admin/catering/menu-groups', 'catering.manage', 'Catering');
-        $ctx->adminPage('Events & tastings', '/admin/catering/events', 'catering.manage', 'Catering');
-        $ctx->adminPage('Production catalog', '/admin/catering/production', 'catering.manage', 'Catering');
-        $ctx->adminPage('Catering settings', '/admin/catering/settings', 'catering.manage', 'Catering');
+        $ctx->adminPage('Menu details & pricing', '/admin/catering/menus', 'catering.manage', 'Catering', 'content');
+        $ctx->adminPage('Package details & pricing', '/admin/catering/packages', 'catering.manage', 'Catering', 'products');
+        $ctx->adminPage('Menu collections', '/admin/catering/menu-groups', 'catering.manage', 'Catering', 'patterns');
+        $ctx->adminPage('Events & tastings', '/admin/catering/events', 'catering.manage', 'Catering', 'orders');
+        $ctx->adminPage('Production catalog', '/admin/catering/production', 'catering.manage', 'Catering', 'operations');
+        $ctx->adminPage('Catering settings', '/admin/catering/settings', 'catering.manage', 'Catering', 'settings');
         (new CatalogResources($ctx->service(Connection::class)))->register($ctx);
 
         $ctx->dashboardWidget('upcoming-events', 'Upcoming catering events', function () use ($ctx): array {

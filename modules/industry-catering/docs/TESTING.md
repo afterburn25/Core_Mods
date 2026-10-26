@@ -1,5 +1,16 @@
 # Catering Module Testing
 
+## 2.0.2 administration route maintenance — 2026-10-26
+
+- Added a blocking assertion for eight distinct Catering administration icon
+  tokens on Website Core 2.6.2.
+- Added package checks for ten distinct 600×400 WebP theme thumbnails and
+  direct Core activation of every layout/palette choice.
+- Expanded the GET route matrix to every static public page, all eight service
+  pages, all six Catering administration destinations, and event detail.
+- Local and GitHub results are recorded only after the exact 2.0.2 archive is
+  built; no acceptance is claimed in advance.
+
 ## 2.0.1 Core 2.6.1 compatibility release — 2026-10-25
 
 - Exact read-only Core fixture: merged `main` commit

@@ -9,11 +9,11 @@ adoption of [Cajun Web Pro Module Rules v1.1](../../MOD_RULES.md).
 
 ## Current release
 
-- Module version: `2.0.1`
+- Module version: `2.0.2`
 - Module ID: `cajunwebpro/catering`
 - Type: `industry`
 - Module API: `1`
-- Required Core: `>=2.6.1,<3.0.0`
+- Required Core: `>=2.6.2,<3.0.0`
 - Development branch: `module/catering`
 
 ## Core 2.6 integration in 2.0.0
@@ -62,6 +62,22 @@ city (miles). Catering continues to register the server-side geocoder and use
 Core's saved decision for the public map, quote validation, and eligible
 checkout. The audience-location analytics date range remains a separate
 report and is not used as service-area configuration.
+
+## Administration repair in 2.0.2
+
+Catering 2.0.2 uses Website Core 2.6.2's module navigation contract so every
+Catering link—including both Core-rendered quick managers—displays a different
+icon. The release also smoke-tests every registered GET destination.
+
+Appearance now shows a **Catering Themes** library instead of the generic
+layout-variant editor. Each of the ten theme cards includes a
+layout-specific thumbnail made from that theme's bundled images, a color
+palette dropdown, optional Core Media overrides, and a direct Activate button.
+
+If module files were copied directly over an existing installation, open
+**Administration → Modules** and choose **Finalize update** for Catering
+Website before opening its pages. Core will run all pending Catering migrations
+and synchronize the installed version while preserving existing records.
 
 ## Menu planning in 0.2.0
 
@@ -173,8 +189,8 @@ selection remain Core-owned.
   workspace while preserving detailed event questionnaires
 - Core-owned business identity plus module management screens for settings,
   menus, packages, events, tastings, and production
-- Responsive catering theme assets, fourteen bundled WebP images (including
-  ten dish-specific photographs), and a transparent
+- Responsive catering theme assets, fourteen bundled WebP photographs plus
+  ten optimized theme-preview thumbnails, and a transparent
   generic CATERING CO. starter logo without an opaque footer frame
 - Database migration and seeded catering content
 - A ten-dish Cajun starter menu with Gumbo, Crawfish Bisque, Crawfish Étouffée,
@@ -196,7 +212,7 @@ selection remain Core-owned.
 
 ## Installation
 
-Install the single `industry-catering-2.0.1.zip` through Website Core’s
+Install the single `industry-catering-2.0.2.zip` through Website Core’s
 module/package manager. This delivery contains only the module; use an
 already-installed compatible Core. It contains no nested ZIP and does not
 include or update Core. Combined installers require an explicit owner request. The installable module ZIP keeps
@@ -219,5 +235,6 @@ use the new validated package. Upgrade coverage includes the valid published
 - [1.5 release notes](docs/RELEASE_NOTES_1.5.md)
 - [2.0 release notes](docs/RELEASE_NOTES_2.0.md)
 - [2.0.1 release notes](docs/RELEASE_NOTES_2.0.1.md)
+- [2.0.2 release notes](docs/RELEASE_NOTES_2.0.2.md)
 - [Changelog](CHANGELOG.md)
 

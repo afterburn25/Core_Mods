@@ -4,7 +4,7 @@ if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 session_save_path(sys_get_temp_dir());
 session_start();
 require __DIR__ . '/bootstrap.php';
-if (version_compare(WC_VERSION, '2.6.1', '<')) throw new RuntimeException('Catering 2.0.1 requires Website Core 2.6.1 or newer.');
+if (version_compare(WC_VERSION, '2.6.2', '<')) throw new RuntimeException('Catering 2.0.2 requires Website Core 2.6.2 or newer.');
 $geoView = (string) file_get_contents(WC_ROOT . '/admin/views/business/service-area.php');
 $coreApplication = (string) file_get_contents(WC_ROOT . '/core/Application.php');
 $coreNav = (string) file_get_contents(WC_ROOT . '/core/Admin/Nav.php');
@@ -37,13 +37,14 @@ foreach (['content.presentation','forms.starter','leads.quotes','business.servic
 }
 $themes = $f['ctx']->service(Core\Appearance\ModuleThemeCollections::class)->collections()['cajunwebpro/catering']['variants'] ?? [];
 if (count($themes) !== 10) throw new RuntimeException('Catering must register ten Core-owned theme choices.');
-$layouts=[]; $heroes=[];
+$layouts=[]; $heroes=[]; $thumbnails=[];
 foreach ($themes as $theme) {
     $layouts[]=$theme['layout'];
     $heroes[]=$theme['media_slots']['hero']['default']??'';
+    $thumbnails[]=$theme['thumbnail']??'';
     if (count($theme['palettes']??[]) < 4) throw new RuntimeException('Every Catering theme requires four palettes.');
 }
-if (count(array_unique($layouts))!==10 || count(array_unique($heroes))!==10) throw new RuntimeException('Theme layouts and default heroes must be distinct.');
+if (count(array_unique($layouts))!==10 || count(array_unique($heroes))!==10 || count(array_unique($thumbnails))!==10) throw new RuntimeException('Theme layouts, default heroes, and thumbnails must be distinct.');
 
 $f['ctx']->geocodingProvider('acceptance-geocoder', static function(string $query): array {
     $far=str_contains($query,'New Orleans');
@@ -56,4 +57,4 @@ $outside=$f['ctx']->checkServiceAddress(['line1'=>'1 Acceptance St','city'=>'New
 if(($outside['status']??'')!=='outside' || ($outside['message']??'')!=='This address is currently outside the service area.') throw new RuntimeException('Outside-radius contract failed.');
 if(!$f['ctx']->service(Core\Commerce\CheckoutValidation::class)->registered('cajunwebpro/catering')) throw new RuntimeException('Checkout validator was not registered.');
 
-echo "Core 2.6.1 inquiry, dedicated Geo workflow, theme, service-area, quote-workflow, and checkout contracts passed.\n";
+echo "Core 2.6.2 admin-icon, inquiry, dedicated Geo workflow, theme, service-area, quote-workflow, and checkout contracts passed.\n";

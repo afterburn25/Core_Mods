@@ -48,6 +48,7 @@ final class CatalogResources
             fn (int $id): true|string => $this->delete('catering_menu_items', $id),
             'Catering',
             [
+                'icon' => 'forms',
                 'reorder' => fn (array $ids): true|string => $this->reorder('catering_menu_items', $ids),
                 'bulk' => fn (array $ids, string $action): true|string => $this->bulk('catering_menu_items', $ids, $action, true),
                 'bulk_actions' => [
@@ -75,6 +76,7 @@ final class CatalogResources
             fn (int $id): true|string => $this->delete('catering_packages', $id),
             'Catering',
             [
+                'icon' => 'marketplace',
                 'reorder' => fn (array $ids): true|string => $this->reorder('catering_packages', $ids),
                 'bulk' => fn (array $ids, string $action): true|string => $this->bulk('catering_packages', $ids, $action, true),
                 'bulk_actions' => [

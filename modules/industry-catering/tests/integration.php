@@ -296,10 +296,16 @@ foreach ([
 verify(str_contains($router->dispatch(cateringRequest('GET','/'))->body(),'The team made the evening effortless.'),'Published verified review replaces the sample home testimonial');
 verify(str_contains($router->dispatch(cateringRequest('GET','/venues'))->body(),'Partner Hall') && str_contains($router->dispatch(cateringRequest('GET','/event-stories'))->body(),'Fundraiser Gala'),
     'Published Core content renders venue partners and event case studies');
-foreach (['/', '/menus', '/menus/' . $categories[0]['slug'], '/packages', '/packages/' . $package['slug'], '/request-a-quote','/venues','/event-stories','/services/school-catering','/services/nonprofit-events','/services/holiday-catering','/services/memorial-gatherings', '/admin/catering/menus', '/admin/catering/packages', '/admin/catering/menu-groups','/admin/catering/events','/admin/catering/production',$eventPath] as $path) {
+foreach (['/', '/services', '/menus', '/menus/' . $categories[0]['slug'], '/packages', '/packages/' . $package['slug'], '/gallery', '/venues', '/event-stories', '/about', '/service-area', '/faq', '/contact', '/request-a-quote', '/services/weddings', '/services/corporate-events', '/services/private-celebrations', '/services/drop-off-catering', '/services/school-catering', '/services/nonprofit-events', '/services/holiday-catering', '/services/memorial-gatherings', '/admin/catering/menus', '/admin/catering/packages', '/admin/catering/menu-groups', '/admin/catering/events', '/admin/catering/production', '/admin/catering/settings', $eventPath] as $path) {
     $response = $router->dispatch(cateringRequest('GET', $path));
     verify($response->status() === 200, 'Public/admin route renders: ' . $path);
 }
+$cateringNav = array_values(array_filter(
+    $f['ctx']->adminNavItems(),
+    static fn (array $item): bool => ($item['category'] ?? null) === 'Catering',
+));
+verify(array_column($cateringNav, 'icon') === ['content', 'products', 'patterns', 'orders', 'operations', 'settings', 'forms', 'marketplace'],
+    'Every Catering administration link declares a distinct Core icon');
 $menuAdmin = $router->dispatch(cateringRequest('GET', '/admin/catering/menus'));
 verify(str_contains($menuAdmin->body(), 'Open menu quick manager'), 'Detailed menu editor links to Core shared catalog management');
 $packageAdmin = $router->dispatch(cateringRequest('GET', '/admin/catering/packages'));

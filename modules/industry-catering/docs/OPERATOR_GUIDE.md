@@ -2,14 +2,20 @@
 
 ## Supported platform
 
-Catering 2.0.1 supports Website Core `>=2.6.1,<3.0.0` and Module API 1. Install
-the single `industry-catering-2.0.1.zip` through Core's package manager. The
+Catering 2.0.2 supports Website Core `>=2.6.2,<3.0.0` and Module API 1. Install
+the single `industry-catering-2.0.2.zip` through Core's package manager. The
 archive is a module-only package: it does not contain Core or another ZIP.
 
 Before installation or upgrade, create a complete Website Core backup using
 the site's normal Core operations workflow. Module data uses additive,
 journaled migrations and is retained when the module is disabled or
 uninstalled without an explicit purge.
+
+If the files were instead replaced through a hosting file manager, do not use
+the Catering screens yet. Open **Administration → Modules**, locate Catering
+Website, and select **Finalize update**. Core validates the on-disk package,
+runs every pending module migration, synchronizes the recorded version, and
+preserves the module's enabled or disabled state.
 
 ## First-run checklist
 
@@ -26,9 +32,10 @@ uninstalled without an explicit purge.
    collections, and availability dates.
 5. Submit a test quote for pickup and, when enabled, each delivery zone. Check
    the immutable menu and operations summaries in Core's inquiry workspace.
-6. Open Core Appearance, select one of the ten Catering layouts and four
-   palettes, choose optional Media for its hero/feature/accent slots, save the
-   draft, use Catering's authenticated preview link, and publish in Core.
+6. Open Core Appearance and find **Catering Themes**. Compare the ten visual
+   thumbnails, choose a color from that theme's palette dropdown, optionally
+   override its hero/feature/accent images from Core Media, and select
+   **Activate theme**.
 7. In Catering → Production catalog, enter verified ingredient costs and
    recipe quantities before relying on a production or purchasing total.
 8. Publish venue, case-study, and verified-review records—including their Core

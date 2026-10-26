@@ -1,12 +1,22 @@
 # Catering Module Project Status
 
-- Current version: `2.0.1`
-- State: Core 2.6.1 compatibility release published; module-only CI passed
+- Current version: `2.0.2`
+- State: administration icon and route-recovery maintenance release in validation
 - Development branch: `module/catering`
 - Repository folder: `modules/industry-catering/`
 - Module API: `1`
-- Required Core: Website Core `>=2.6.1,<3.0.0`
+- Required Core: Website Core `>=2.6.2,<3.0.0`
 - Last updated: 2026-10-25
+
+## 2.0.2 maintenance scope
+
+- Declares a different Core administration icon for all eight Catering links.
+- Presents ten visual Catering theme cards with unique thumbnails, direct
+  activation, per-card palette selection, and optional image overrides.
+- Opens every public and Catering administration GET route in the blocking
+  integration suite.
+- Requires operators who copied module files through a file manager to use
+  Core's **Finalize update** action so pending migrations run before use.
 
 ## 2.0.1 compatibility scope
 
