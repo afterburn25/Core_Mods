@@ -1,16 +1,16 @@
 {
   "module_id": "cajunwebpro/catering",
-  "version": "2.1.0",
-  "file": "industry-catering-2.1.0.zip",
-  "sha256": "275d3bd7bc174160012a161924ea4ad76b5f1011c83bf52611e43ab1ca1f0888",
+  "version": "2.1.1",
+  "file": "industry-catering-2.1.1.zip",
+  "sha256": "680d0565583b1cba92d636bec1fef399a5aa1099c2621fc9521d8a7a7e4b67e7",
   "module_api": 1,
   "verified_core": "2.6.2",
-  "released_at": "2026-10-26",
-  "verification": "Core 2.6.2 local and GitHub module/package acceptance passed; responsive browser screenshot acceptance pending",
+  "released_at": "2026-11-03",
+  "verification": "Source archive is packaged and checksummed; GitHub test acceptance pending",
   "tested_core": "2.6.2",
-  "tested_core_commit": "407bcb72e5392b44184ddbb252d2c9d58f6bf730",
+  "tested_core_commit": "c5d7e379e74fd584afc55e755be4da561116f7c6",
   "ci": {
-    "module": "https://github.com/afterburn25/Core_Mods/actions/runs/40257434131",
-    "acceptance": "https://github.com/afterburn25/Core_Mods/actions/runs/40257433957"
+    "module": "pending",
+    "acceptance": "pending"
   }
 }
