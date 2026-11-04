@@ -53,9 +53,23 @@ foreach ($themes as $themeId => $theme) {
             static fn (array $match): string => $match[1] . '="../' . $match[2] . '"',
             $html,
         ) ?? $html;
+        // CSS url() substitutions can resolve relative to the stylesheet
+        // containing var(...), not the source <style> declaration. Use an
+        // absolute preview asset path for both quote styles to avoid
+        // /assets/assets/ double-prefixes and missing Grand Wedding photos.
         $html = str_replace(
-            'url("/catering/index.php?p=/_a/modules/industry-catering/',
-            'url("../',
+            [
+                'url("/catering/index.php?p=/_a/modules/industry-catering/',
+                "url('/catering/index.php?p=/_a/modules/industry-catering/",
+                'url("../assets/',
+                "url('../assets/",
+            ],
+            [
+                'url("/assets/',
+                "url('/assets/",
+                'url("/assets/',
+                "url('/assets/",
+            ],
             $html,
         );
         if (file_put_contents($directory . '/' . $file . '.html', $html) === false) {
