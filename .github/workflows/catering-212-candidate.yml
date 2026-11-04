@@ -1,0 +1,81 @@
+name: Catering 2.1.2 candidate package
+
+on:
+  push:
+    branches: ['chatgpt/catering-212-*']
+
+permissions:
+  contents: write
+
+jobs:
+  build-candidate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, zip, gd, pdo_sqlite
+          coverage: none
+      - name: Lint updated Catering module
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r file; do php -l "$file"; done < <(find modules/industry-catering -type f -name '*.php')
+      - name: Build candidate archive without altering older versions
+        run: python3 modules/industry-catering/tools/build-release.py
+      - name: Verify module, single heroes and release contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          php tools/validate-modules.php
+          php modules/industry-catering/tests/release-readiness.php
+          php modules/industry-catering/tests/theme-hero-contract.php
+          python3 - <<'PY'
+          import json,hashlib,zipfile,pathlib
+          root=pathlib.Path('modules/industry-catering')
+          latest=json.loads((root/'releases/LATEST.json').read_text())
+          archive=root/'releases'/latest['file']
+          assert latest['version']=='2.1.2'
+          assert latest['sha256']==hashlib.sha256(archive.read_bytes()).hexdigest()
+          with zipfile.ZipFile(archive) as z:
+              assert z.testzip() is None
+              names=z.namelist()
+              assert 'addon.json' in names and 'assets/css/themes.css' in names
+              assert 'src/ThemeSupport.php' in names and 'docs/RELEASE_NOTES_2.1.2.md' in names
+              assert not any(n.lower().endswith('.zip') for n in names)
+              assert json.loads(z.read('addon.json'))['version']=='2.1.2'
+          print('2.1.2 candidate ZIP is directly installable with no nested ZIP.')
+          PY
+      - name: Extract directly usable acceptance download
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/catering-212-artifact
+          unzip -q modules/industry-catering/releases/industry-catering-2.1.2.zip -d /tmp/catering-212-artifact
+          test -f /tmp/catering-212-artifact/addon.json
+          test -z "$(find /tmp/catering-212-artifact -type f -iname '*.zip' -print -quit)"
+      - name: Upload direct module acceptance artifact (not a signed commercial release)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Catering-2.1.2-DIRECT-TEST-PACKAGE
+          path: /tmp/catering-212-artifact/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+      - name: Commit exact candidate package and digest to development branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f modules/industry-catering/releases/industry-catering-2.1.2.zip
+          git add modules/industry-catering/releases/LATEST.json
+          if git diff --cached --quiet; then
+            echo 'Candidate ZIP and checksum already match source.'
+          else
+            git commit -m "Package Catering 2.1.2 candidate with verified SHA-256"
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi
