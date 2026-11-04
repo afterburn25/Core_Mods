@@ -15,7 +15,7 @@ $check($manifest['requires']['core'] === '>=2.6.2,<3.0.0' && (int) $manifest['re
 foreach (['business.service_area','appearance.collections','commerce.checkout_validation','leads.quotes'] as $service) {
     $check(isset($manifest['requires']['services'][$service]), 'Manifest pins Core service ' . $service);
 }
-foreach (['README.md', 'CHANGELOG.md', 'docs/OPERATOR_GUIDE.md', 'docs/RELEASE_NOTES_1.0.md', 'docs/RELEASE_NOTES_1.5.md', 'docs/RELEASE_NOTES_2.0.md', 'docs/RELEASE_NOTES_2.0.1.md', 'docs/RELEASE_NOTES_2.0.2.md', 'docs/RELEASE_NOTES_2.1.0.md', 'docs/RELEASE_NOTES_2.1.1.md', 'docs/TESTING.md'] as $file) {
+foreach (['README.md', 'CHANGELOG.md', 'docs/OPERATOR_GUIDE.md', 'docs/RELEASE_NOTES_1.0.md', 'docs/RELEASE_NOTES_1.5.md', 'docs/RELEASE_NOTES_2.0.md', 'docs/RELEASE_NOTES_2.0.1.md', 'docs/RELEASE_NOTES_2.0.2.md', 'docs/RELEASE_NOTES_2.1.0.md', 'docs/RELEASE_NOTES_2.1.1.md', 'docs/RELEASE_NOTES_2.1.2.md', 'docs/TESTING.md'] as $file) {
     $check(is_file($root . '/' . $file), $file . ' is packaged');
 }
 
