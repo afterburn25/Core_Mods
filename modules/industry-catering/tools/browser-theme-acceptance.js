@@ -72,6 +72,26 @@ const legacySelectors = {
                 const heroBox = hero?.getBoundingClientRect();
                 const image = hero?.querySelector('img');
                 const background = hero ? getComputedStyle(hero).backgroundImage : '';
+                // Real computed CSS contrast, not just a stylesheet token
+                // check: light text on Bayou Night's old ivory story surface
+                // was almost invisible in the visual-review screenshots.
+                const story = document.querySelector('.c-story-split');
+                const lead = story?.querySelector('.c-lead');
+                const luminance = (color) => {
+                  const components = (color.match(/[0-9]+(?:\\.[0-9]+)?/g) || [])
+                    .slice(0, 3).map(Number);
+                  if (components.length !== 3) return null;
+                  const linear = components.map((n) => {
+                    const c = n / 255;
+                    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+                  });
+                  return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
+                };
+                const bgLum = story ? luminance(getComputedStyle(story).backgroundColor) : null;
+                const textLum = lead ? luminance(getComputedStyle(lead).color) : null;
+                const storyLeadContrast = bgLum === null || textLum === null ? null
+                  : Number(((Math.max(bgLum, textLum) + 0.05)
+                    / (Math.min(bgLum, textLum) + 0.05)).toFixed(2));
                 return {
                   h1: document.querySelectorAll('h1').length,
                   legacyHeroPresent: Boolean(input.legacy && document.querySelector(input.legacy)),
@@ -90,6 +110,7 @@ const legacySelectors = {
                   heroImageCount: hero ? hero.querySelectorAll('img').length
                     + (background.includes('url(') ? 1 : 0) : 0,
                   navDisplay: nav ? getComputedStyle(nav).display : null,
+                  storyLeadContrast,
                 };
               }, { selector, legacy: legacySelectors[route] || null });
 
@@ -133,6 +154,7 @@ const legacySelectors = {
                 || report.heroImageCount !== 1 || !report.heroHeight
                 || report.heroHeight > (viewport.name === 'desktop' ? 680 : 650)
                 || report.bodyWidth > report.viewportWidth + 1
+                || (report.storyLeadContrast !== null && report.storyLeadContrast < 4.5)
                 || (viewport.name === 'desktop' && report.navCenterDeviation > 30)
                 || (viewport.name === 'mobile' && route === 'index'
                   && (!report.mobileOpened || report.mobileExpanded !== 'true'
