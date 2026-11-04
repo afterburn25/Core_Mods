@@ -1,0 +1,74 @@
+name: Catering 2.1.2 browser acceptance
+
+on:
+  push:
+    branches: ['chatgpt/catering-212-*', 'module/catering']
+  pull_request:
+    branches: ['module/catering']
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    name: Ten themes x eight pages x two screens
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: afterburn25/Website_Core
+          ref: 394d2c040547d6735f604bd0dad14710e128f98f
+          path: .core-preview
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_sqlite, zip, fileinfo
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned Core runtime
+        run: composer install --working-dir=.core-preview --no-interaction --no-progress --prefer-dist
+      - name: Render eight actual public pages for all ten themes
+        shell: bash
+        run: |
+          set -euo pipefail
+          export CATERING_CORE_ROOT="$GITHUB_WORKSPACE/.core-preview"
+          export CATERING_MODULE_ROOT="$GITHUB_WORKSPACE/modules/industry-catering"
+          mkdir -p /tmp/catering-212-pages /tmp/catering-212-screenshots
+          php modules/industry-catering/tools/render-theme-previews.php /tmp/catering-212-pages
+          cp -R modules/industry-catering/assets /tmp/catering-212-pages/assets
+          test "$(find /tmp/catering-212-pages -maxdepth 2 -name '*.html' | wc -l)" -eq 80
+          test -f /tmp/catering-212-pages/assets/css/themes.css
+          test -f /tmp/catering-212-pages/assets/images/hero.webp
+      - name: Install browser for local visual assertions
+        run: |
+          npm install --no-save --no-package-lock playwright@1.57.0
+          npx playwright install --with-deps chromium
+      - name: Verify 160 rendered page/viewport combinations
+        shell: bash
+        env:
+          CATERING_PREVIEW_URL: http://127.0.0.1:8096
+          CATERING_PREVIEW_OUTPUT: /tmp/catering-212-screenshots
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8096 --bind 127.0.0.1 --directory /tmp/catering-212-pages >/tmp/catering-212-server.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true; cat /tmp/catering-212-server.log' EXIT
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8096/heritage-editorial/index.html >/dev/null; then break; fi
+            sleep .5
+          done
+          node modules/industry-catering/tools/browser-theme-acceptance.js | tee /tmp/catering-212-browser-results.json
+      - name: Upload visual acceptance screenshots (not a commercial release)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Catering-2.1.2-visual-acceptance
+          path: |
+            /tmp/catering-212-screenshots/
+            /tmp/catering-212-browser-results.json
+          if-no-files-found: warn
+          retention-days: 14

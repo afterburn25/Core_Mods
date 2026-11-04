@@ -26,3 +26,10 @@ jobs:
               while IFS= read -r file; do php -l "$file"; done <<< "$files"
             fi
           fi
+
+      - name: Check theme hero and navigation acceptance contracts
+        run: |
+          if [ -f modules/industry-catering/tests/theme-hero-contract.php ]; then
+            php modules/industry-catering/tests/theme-hero-contract.php
+            php modules/industry-catering/tests/release-readiness.php
+          fi
