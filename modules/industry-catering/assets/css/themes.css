@@ -311,3 +311,21 @@
   .theme-shell .tl-opening h1{font-size:clamp(2.1rem,8vw,3.6rem)}
   .theme-shell .tl-opening figure{margin-top:1rem}
 }
+
+
+/* 2.1.2 visual acceptance: Bayou Night uses light palette text. The fallback
+   ivory story panel cannot be allowed to wash out headlines and descriptions. */
+.theme-bayou-night .c-story-split{
+  background:var(--theme-surface);
+  color:var(--theme-text);
+}
+.theme-bayou-night .c-story-split h2,
+.theme-bayou-night .c-story-split h3{color:var(--theme-text)}
+.theme-bayou-night .c-story-split .c-lead{
+  color:color-mix(in srgb,var(--theme-text) 88%,var(--theme-surface));
+}
+.theme-bayou-night .c-story-split .c-eyebrow,
+.theme-bayou-night .c-story-split .c-text-link{color:var(--theme-accent)}
+/* The Market Kitchen notice duplicates the compact header visually; the
+   information remains represented by its page hero and navigation. */
+.theme-market-kitchen .tk-notice{display:none}
