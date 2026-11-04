@@ -179,15 +179,15 @@ final class ThemeSupport
             'about' => 'assets/images/corporate-service.webp',
             'packages' => 'assets/images/wedding-table.webp',
             'gallery' => 'assets/images/plated-dinner.webp',
-            'contact' => 'assets/images/theme-packs/market-kitchen-hero.webp',
-            'quote' => 'assets/images/theme-packs/garden-celebration-hero.webp',
-            'faq' => 'assets/images/theme-packs/heritage-editorial-feature.webp',
-            'venues' => 'assets/images/theme-packs/grand-wedding-accent.webp',
-            'event-stories' => 'assets/images/theme-packs/rustic-gathering-feature.webp',
-            'service-area' => 'assets/images/theme-packs/bayou-night-accent.webp',
+            'contact' => 'assets/images/menu/crawfish-bread.webp',
+            'quote' => 'assets/images/menu/chicken-andouille-gumbo.webp',
+            'faq' => 'assets/images/menu/boudin-balls.webp',
+            'venues' => 'assets/images/menu/crawfish-bisque.webp',
+            'event-stories' => 'assets/images/menu/shrimp-fettuccine.webp',
+            'service-area' => 'assets/images/menu/cajun-jambalaya.webp',
             'menu-detail' => 'assets/images/menu/blackened-redfish.webp',
-            'package-detail' => 'assets/images/theme-packs/minimal-luxe-feature.webp',
-            'service-detail' => 'assets/images/theme-packs/corporate-table-hero.webp',
+            'package-detail' => 'assets/images/menu/cajun-shrimp-grits-bites.webp',
+            'service-detail' => 'assets/images/hero.webp',
         ];
         $file = $photos[$page] ?? 'assets/images/hero.webp';
         if ($page === 'service-detail') {
