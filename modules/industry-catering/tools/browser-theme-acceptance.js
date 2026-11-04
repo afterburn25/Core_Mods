@@ -145,9 +145,7 @@ const legacySelectors = {
 
               if (report.h1 !== 1 || report.legacyHeroPresent
                 || report.headerPosition !== 'sticky'
-                || (theme === 'market-kitchen'
-                  ? report.headerTop < 0 || report.headerTop > 60
-                  : report.headerTop !== 0)
+                || report.headerTop !== 0
                 || (report.stickyTop !== null && report.stickyTop !== 0)
                 || report.headerHeight > (viewport.name === 'desktop' ? 62 : 60)
                 || report.navLinks < 4 || !report.heroImageLoaded
