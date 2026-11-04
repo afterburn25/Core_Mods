@@ -25,7 +25,7 @@ foreach ($pages as $template) {
             'accent' => '/catering/media/3/w/1800/menus.webp',
         ],
         'page' => ['title' => 'Illustrative ' . $template],
-        'pageHeroSource' => $template === 'service-detail' ? 'corporate-service.webp' : '',
+        'pageHeroSource' => $template === 'service-detail' ? 'hero.webp' : '',
     ];
     $image = html_entity_decode(ThemeSupport::heroImage($v), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     $title = ThemeSupport::heroTitle($v);
