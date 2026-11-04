@@ -61,6 +61,7 @@ jobs:
           php modules/industry-catering/tests/shared-contracts.php
           php modules/industry-catering/tests/release-readiness.php
           php modules/industry-catering/tests/theme-hero-contract.php
+          php modules/industry-catering/tests/theme-render-contract.php
           php modules/industry-catering/tests/package.php
           CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-module/modules/industry-catering/releases/industry-catering-0.1.21.zip" php modules/industry-catering/tests/package.php
           CATERING_PREVIOUS_ZIP="$GITHUB_WORKSPACE/.previous-release/modules/industry-catering/releases/industry-catering-0.4.0.zip" php modules/industry-catering/tests/package.php
