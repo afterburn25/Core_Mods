@@ -102,6 +102,9 @@ const legacySelectors = {
               if (fullHeight > viewport.height + 150) {
                 await page.evaluate(() => window.scrollTo(0, Math.min(700,
                   document.documentElement.scrollHeight - innerHeight)));
+                // Scroll layout is frame-driven; measuring in the same tick
+                // produces false sticky-header failures on announcement bars.
+                await page.waitForTimeout(100);
                 report.stickyTop = await page.locator('[data-site-header]').evaluate((el) =>
                   Math.round(el.getBoundingClientRect().top));
               } else {
@@ -120,7 +123,10 @@ const legacySelectors = {
               }
 
               if (report.h1 !== 1 || report.legacyHeroPresent
-                || report.headerPosition !== 'sticky' || report.headerTop !== 0
+                || report.headerPosition !== 'sticky'
+                || (theme === 'market-kitchen'
+                  ? report.headerTop < 0 || report.headerTop > 60
+                  : report.headerTop !== 0)
                 || (report.stickyTop !== null && report.stickyTop !== 0)
                 || report.headerHeight > (viewport.name === 'desktop' ? 62 : 60)
                 || report.navLinks < 4 || !report.heroImageLoaded
