@@ -1029,6 +1029,7 @@ final class CateringController
             'themeMedia' => $themeMedia,
             'themePreview' => $preview,
             'pageTemplate' => $template,
+            'pageHeroSource' => (string) ($data['service']['image'] ?? ''),
             // A selected industry theme owns the page hero. Never render the
             // legacy content hero below a second theme-specific showcase.
             'themeOwnsHero' => $theme !== null
