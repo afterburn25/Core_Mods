@@ -77,18 +77,34 @@ const legacySelectors = {
                 // was almost invisible in the visual-review screenshots.
                 const story = document.querySelector('.c-story-split');
                 const lead = story?.querySelector('.c-lead');
-                const luminance = (color) => {
-                  const components = (color.match(/[0-9]+(?:\.[0-9]+)?/g) || [])
-                    .slice(0, 3).map(Number);
-                  if (components.length !== 3) return null;
-                  const linear = components.map((n) => {
-                    const c = n / 255;
-                    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-                  });
+                // Chromium can serialize color-mix() as color(srgb R G B / A)
+                // with 0..1 channels, rather than rgb() with 0..255 values.
+                // Parse both and composite translucent text on its panel.
+                const parseColor = (color) => {
+                  const nums = (color.match(/[0-9]+(?:\.[0-9]+)?/g) || []).map(Number);
+                  if (nums.length < 3) return null;
+                  const unitChannels = color.startsWith('color(srgb ');
+                  return {
+                    rgb: nums.slice(0, 3).map((x) => Math.max(0,
+                      Math.min(1, unitChannels ? x : x / 255))),
+                    alpha: Math.max(0, Math.min(1, nums[3] === undefined ? 1 : nums[3])),
+                  };
+                };
+                const luminance = (rgb) => {
+                  const linear = rgb.map((c) => c <= 0.04045
+                    ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
                   return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
                 };
-                const bgLum = story ? luminance(getComputedStyle(story).backgroundColor) : null;
-                const textLum = lead ? luminance(getComputedStyle(lead).color) : null;
+                const storyBackgroundColor = story ? getComputedStyle(story).backgroundColor : '';
+                const storyLeadColor = lead ? getComputedStyle(lead).color : '';
+                const backgroundColor = parseColor(storyBackgroundColor);
+                const foregroundColor = parseColor(storyLeadColor);
+                const bgLum = backgroundColor ? luminance(backgroundColor.rgb) : null;
+                const textLum = backgroundColor && foregroundColor ? luminance(
+                  foregroundColor.rgb.map((channel, i) =>
+                    channel * foregroundColor.alpha + backgroundColor.rgb[i]
+                      * (1 - foregroundColor.alpha))
+                ) : null;
                 const storyLeadContrast = bgLum === null || textLum === null ? null
                   : Number(((Math.max(bgLum, textLum) + 0.05)
                     / (Math.min(bgLum, textLum) + 0.05)).toFixed(2));
@@ -111,6 +127,8 @@ const legacySelectors = {
                     + (background.includes('url(') ? 1 : 0) : 0,
                   navDisplay: nav ? getComputedStyle(nav).display : null,
                   storyLeadContrast,
+                  storyBackgroundColor,
+                  storyLeadColor,
                 };
               }, { selector, legacy: legacySelectors[route] || null });
 
