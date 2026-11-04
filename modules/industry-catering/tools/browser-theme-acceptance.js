@@ -143,7 +143,16 @@ const legacySelectors = {
               }
 
               if (route === 'index' || route === 'menus' || route === 'about') {
-                await page.evaluate(() => scrollTo(0, 0));
+                // Screenshot the settled, fully visible design. CSS smooth
+                // scrolling otherwise captures a mid-scroll crop; the
+                // .c-reveal entrance animation likewise photographs faded
+                // content even though the finished page is fully opaque.
+                await page.emulateMedia({ reducedMotion: 'reduce' });
+                await page.evaluate(() => {
+                  document.documentElement.style.scrollBehavior = 'auto';
+                  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                });
+                await page.waitForTimeout(120);
                 await page.screenshot({
                   path: outputDirectory + '/' + theme + '-' + route + '-' + viewport.name + '.png',
                   fullPage: false,
