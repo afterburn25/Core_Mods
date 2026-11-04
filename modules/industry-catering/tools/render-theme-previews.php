@@ -77,7 +77,8 @@ foreach ($themes as $themeId => $theme) {
         // be resolved from the *using* stylesheet, giving /assets/assets/.
         $html = str_replace('../assets/', '/assets/', $html);
         if (str_contains($html, '/assets/assets/')) {
-            throw new RuntimeException('Preview contains a duplicated asset directory: ' . $themeId . '/' . $file);
+            $at = strpos($html, '/assets/assets/');
+            throw new RuntimeException('Duplicated preview asset URL ' . $themeId . '/' . $file . ': ' . substr($html, max(0, $at - 60), 150));
         }
         if (file_put_contents($directory . '/' . $file . '.html', $html) === false) {
             throw new RuntimeException('Unable to write preview for ' . $themeId . '/' . $file);
