@@ -72,6 +72,13 @@ foreach ($themes as $themeId => $theme) {
             ],
             $html,
         );
+        // Normalize every static preview asset reference, not only CSS
+        // url() fragments. A relative URL stored in a custom property can
+        // be resolved from the *using* stylesheet, giving /assets/assets/.
+        $html = str_replace('../assets/', '/assets/', $html);
+        if (str_contains($html, '/assets/assets/')) {
+            throw new RuntimeException('Preview contains a duplicated asset directory: ' . $themeId . '/' . $file);
+        }
         if (file_put_contents($directory . '/' . $file . '.html', $html) === false) {
             throw new RuntimeException('Unable to write preview for ' . $themeId . '/' . $file);
         }
