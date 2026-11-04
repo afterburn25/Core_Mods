@@ -78,7 +78,7 @@ const legacySelectors = {
                 const story = document.querySelector('.c-story-split');
                 const lead = story?.querySelector('.c-lead');
                 const luminance = (color) => {
-                  const components = (color.match(/[0-9]+(?:\\.[0-9]+)?/g) || [])
+                  const components = (color.match(/[0-9]+(?:\.[0-9]+)?/g) || [])
                     .slice(0, 3).map(Number);
                   if (components.length !== 3) return null;
                   const linear = components.map((n) => {
