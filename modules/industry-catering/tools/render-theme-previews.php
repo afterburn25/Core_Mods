@@ -53,6 +53,8 @@ foreach ($themes as $themeId => $theme) {
             static fn (array $match): string => $match[1] . '="../' . $match[2] . '"',
             $html,
         ) ?? $html;
+        // Strip the module route prefix only: the remaining path already
+        // starts with assets/. Adding assets/ here would duplicate it.
         // CSS url() substitutions can resolve relative to the stylesheet
         // containing var(...), not the source <style> declaration. Use an
         // absolute preview asset path for both quote styles to avoid
@@ -65,8 +67,8 @@ foreach ($themes as $themeId => $theme) {
                 "url('../assets/",
             ],
             [
-                'url("/assets/',
-                "url('/assets/",
+                'url("/',
+                "url('/",
                 'url("/assets/',
                 "url('/assets/",
             ],
